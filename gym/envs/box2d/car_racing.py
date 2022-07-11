@@ -18,6 +18,16 @@ try:
 except ImportError:
     raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
+try:
+    # As pygame is necessary for using the environment (reset and step) even without a render mode
+    #   therefore, pygame is a necessary import for the environment.
+    import pygame
+    from pygame import gfxdraw
+except ImportError:
+    raise DependencyNotInstalled(
+        "pygame is not installed, run `pip install gym[box2d]`"
+    )
+
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -556,15 +566,8 @@ class CarRacing(gym.Env, EzPickle):
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]
-        try:
-            import pygame
-        except ImportError:
-            raise DependencyNotInstalled(
-                "pygame is not installed, run `pip install gym[box2d]`"
-            )
 
         pygame.font.init()
-
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
@@ -661,8 +664,6 @@ class CarRacing(gym.Env, EzPickle):
             self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def _render_indicators(self, W, H):
-        import pygame
-
         s = W / 40.0
         h = H / 40.0
         color = (0, 0, 0)
@@ -733,9 +734,6 @@ class CarRacing(gym.Env, EzPickle):
     def _draw_colored_polygon(
         self, surface, poly, color, zoom, translation, angle, clip=True
     ):
-        import pygame
-        from pygame import gfxdraw
-
         poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
@@ -754,8 +752,6 @@ class CarRacing(gym.Env, EzPickle):
             gfxdraw.filled_polygon(self.surf, poly, color)
 
     def _create_image_array(self, screen, size):
-        import pygame
-
         scaled_screen = pygame.transform.smoothscale(screen, size)
         return np.transpose(
             np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
@@ -763,8 +759,6 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
-            import pygame
-
             pygame.display.quit()
             self.isopen = False
             pygame.quit()
@@ -772,7 +766,6 @@ class CarRacing(gym.Env, EzPickle):
 
 if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])
-    import pygame
 
     def register_input():
         for event in pygame.event.get():
