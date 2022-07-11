@@ -48,12 +48,16 @@ def test_mujoco_action_dimensions(env_spec: EnvSpec):
     env.close()
 
 
-@pytest.mark.parametrize(
-    "env",
+DISCRETE_ENVS = list(
     filter(
         lambda env: isinstance(env.action_space, spaces.Discrete),
         all_testing_initialised_envs,
-    ),
+    )
+)
+
+
+@pytest.mark.parametrize(
+    "env", DISCRETE_ENVS, ids=[env.spec.id for env in DISCRETE_ENVS]
 )
 def test_discrete_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Discrete action_space.
@@ -74,12 +78,16 @@ def test_discrete_actions_out_of_bound(env: gym.Env):
     env.close()
 
 
+BOX_ENVS = list(
+    filter(
+        lambda env: isinstance(env.action_space, spaces.Box),
+        all_testing_initialised_envs,
+    )
+)
 OOB_VALUE = 100
 
 
-@pytest.mark.parametrize(
-    "env", filter(lambda env: isinstance(env, spaces.Box), all_testing_initialised_envs)
-)
+@pytest.mark.parametrize("env", BOX_ENVS, ids=[env.spec.id for env in BOX_ENVS])
 def test_box_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Box action_space.
 
@@ -104,7 +112,9 @@ def test_box_actions_out_of_bound(env: gym.Env):
         zip(env.action_space.bounded_above, env.action_space.bounded_below)
     ):
         if is_upper_bound:
-            obs, _, _, _ = env.step(upper_bounds)
+            obs, _, _, _, _ = env.step(
+                upper_bounds
+            )  # `env` is unwrapped, and in new step API
             oob_action = upper_bounds.copy()
             oob_action[i] += np.cast[dtype](OOB_VALUE)
 
@@ -114,7 +124,9 @@ def test_box_actions_out_of_bound(env: gym.Env):
             assert np.alltrue(obs == oob_obs)
 
         if is_lower_bound:
-            obs, _, _, _ = env.step(lower_bounds)
+            obs, _, _, _, _ = env.step(
+                lower_bounds
+            )  # `env` is unwrapped, and in new step API
             oob_action = lower_bounds.copy()
             oob_action[i] -= np.cast[dtype](OOB_VALUE)
 

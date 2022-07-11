@@ -1,12 +1,12 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
 from collections import namedtuple
-from typing import NamedTuple, Optional, Sequence, Union
+from typing import NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
-from gym.spaces.multi_discrete import MultiDiscrete
+from gym.spaces.multi_discrete import SAMPLE_MASK_TYPE, MultiDiscrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
@@ -70,53 +70,82 @@ class Graph(Space):
 
     def _generate_sample_space(
         self, base_space: Union[None, Box, Discrete], num: int
-    ) -> Optional[Union[Box, Discrete]]:
-        # the possibility of this space , got {type(base_space)}aving nothing
-        if num == 0:
+    ) -> Optional[Union[Box, MultiDiscrete]]:
+        if num == 0 or base_space is None:
             return None
 
         if isinstance(base_space, Box):
             return Box(
                 low=np.array(max(1, num) * [base_space.low]),
                 high=np.array(max(1, num) * [base_space.high]),
-                shape=(num, *base_space.shape),
+                shape=(num,) + base_space.shape,
                 dtype=base_space.dtype,
-                seed=self._np_random,
+                seed=self.np_random,
             )
         elif isinstance(base_space, Discrete):
-            return MultiDiscrete(nvec=[base_space.n] * num, seed=self._np_random)
-        elif base_space is None:
-            return None
+            return MultiDiscrete(nvec=[base_space.n] * num, seed=self.np_random)
         else:
             raise AssertionError(
-                f"Only Box and Discrete can be accepted as a base_space, got {type(base_space)}, you should not have gotten this error."
+                f"Expects base space to be Box and Discrete, actual space: {type(base_space)}."
             )
 
-    def _sample_sample_space(self, sample_space) -> Optional[np.ndarray]:
-        if sample_space is not None:
-            return sample_space.sample()
-        else:
-            return None
-
-    def sample(self) -> NamedTuple:
+    def sample(
+        self,
+        mask: Optional[
+            Tuple[
+                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
+                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
+            ]
+        ] = None,
+        num_nodes: int = 10,
+        num_edges: Optional[int] = None,
+    ) -> NamedTuple:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
+
+        Args:
+            mask: An optional tuple of optional node and edge mask that is only possible with Discrete spaces
+                (Box spaces don't support sample masks).
+                If no `num_edges` is provided then the `edge_mask` is multiplied by the number of edges
+            num_nodes: The number of nodes that will be sampled, the default is 10 nodes
+            num_edges: An optional number of edges, otherwise, a random number between 0 and `num_nodes`^2
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
         """
-        num_nodes = self.np_random.integers(low=1, high=10)
+        assert (
+            num_nodes > 0
+        ), f"The number of nodes is expected to be greater than 0, actual value: {num_nodes}"
+
+        if mask is not None:
+            node_space_mask, edge_space_mask = mask
+        else:
+            node_space_mask, edge_space_mask = None, None
 
         # we only have edges when we have at least 2 nodes
-        num_edges = 0
-        if num_nodes > 1:
-            # maximal number of edges is (n*n) allowing self connections and two way is allowed
-            num_edges = self.np_random.integers(num_nodes * num_nodes)
+        if num_edges is None:
+            if num_nodes > 1:
+                # maximal number of edges is `n*(n-1)` allowing self connections and two-way is allowed
+                num_edges = self.np_random.integers(num_nodes * (num_nodes - 1))
+            else:
+                num_edges = 0
+            if edge_space_mask is not None:
+                edge_space_mask = tuple(edge_space_mask for _ in range(num_edges))
+        else:
+            assert (
+                num_edges >= 0
+            ), f"The number of edges is expected to be greater than 0, actual mask: {num_edges}"
+        assert num_edges is not None
 
-        node_sample_space = self._generate_sample_space(self.node_space, num_nodes)
-        edge_sample_space = self._generate_sample_space(self.edge_space, num_edges)
+        sampled_node_space = self._generate_sample_space(self.node_space, num_nodes)
+        sampled_edge_space = self._generate_sample_space(self.edge_space, num_edges)
 
-        sampled_nodes = self._sample_sample_space(node_sample_space)
-        sampled_edges = self._sample_sample_space(edge_sample_space)
+        assert sampled_node_space is not None
+        sampled_nodes = sampled_node_space.sample(node_space_mask)
+        sampled_edges = (
+            sampled_edge_space.sample(edge_space_mask)
+            if sampled_edge_space is not None
+            else None
+        )
 
         sampled_edge_links = None
         if sampled_edges is not None and num_edges > 0:

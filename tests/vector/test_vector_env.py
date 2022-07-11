@@ -12,42 +12,41 @@ from tests.vector.utils import CustomSpace, make_env
 def test_vector_env_equal(shared_memory):
     env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     num_steps = 100
-    try:
-        async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        sync_env = SyncVectorEnv(env_fns)
 
-        assert async_env.num_envs == sync_env.num_envs
-        assert async_env.observation_space == sync_env.observation_space
-        assert async_env.single_observation_space == sync_env.single_observation_space
-        assert async_env.action_space == sync_env.action_space
-        assert async_env.single_action_space == sync_env.single_action_space
+    async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+    sync_env = SyncVectorEnv(env_fns)
 
-        async_observations = async_env.reset(seed=0)
-        sync_observations = sync_env.reset(seed=0)
+    assert async_env.num_envs == sync_env.num_envs
+    assert async_env.observation_space == sync_env.observation_space
+    assert async_env.single_observation_space == sync_env.single_observation_space
+    assert async_env.action_space == sync_env.action_space
+    assert async_env.single_action_space == sync_env.single_action_space
+
+    async_observations = async_env.reset(seed=0)
+    sync_observations = sync_env.reset(seed=0)
+    assert np.all(async_observations == sync_observations)
+
+    for _ in range(num_steps):
+        actions = async_env.action_space.sample()
+        assert actions in sync_env.action_space
+
+        # fmt: off
+        async_observations, async_rewards, async_dones, async_infos = async_env.step(actions)
+        sync_observations, sync_rewards, sync_dones, sync_infos = sync_env.step(actions)
+        # fmt: on
+
+        if any(sync_dones):
+            assert "final_observation" in async_infos
+            assert "_final_observation" in async_infos
+            assert "final_observation" in sync_infos
+            assert "_final_observation" in sync_infos
+
         assert np.all(async_observations == sync_observations)
+        assert np.all(async_rewards == sync_rewards)
+        assert np.all(async_dones == sync_dones)
 
-        for _ in range(num_steps):
-            actions = async_env.action_space.sample()
-            assert actions in sync_env.action_space
-
-            # fmt: off
-            async_observations, async_rewards, async_dones, async_infos = async_env.step(actions)
-            sync_observations, sync_rewards, sync_dones, sync_infos = sync_env.step(actions)
-            # fmt: on
-
-            if any(sync_dones):
-                assert "terminal_observation" in async_infos
-                assert "_terminal_observation" in async_infos
-                assert "terminal_observation" in sync_infos
-                assert "_terminal_observation" in sync_infos
-
-            assert np.all(async_observations == sync_observations)
-            assert np.all(async_rewards == sync_rewards)
-            assert np.all(async_dones == sync_dones)
-
-    finally:
-        async_env.close()
-        sync_env.close()
+    async_env.close()
+    sync_env.close()
 
 
 def test_custom_space_vector_env():

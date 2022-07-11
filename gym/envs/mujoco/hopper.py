@@ -1,13 +1,26 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 
-class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HopperEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(
-            self, "hopper.xml", 4, mujoco_bindings="mujoco_py", **kwargs
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
+        MuJocoPyEnv.__init__(
+            self, "hopper.xml", 4, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -23,14 +36,14 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         s = self.state_vector()
-        done = not (
+        terminated = not (
             np.isfinite(s).all()
             and (np.abs(s[2:]) < 100).all()
             and (height > 0.7)
             and (abs(ang) < 0.2)
         )
         ob = self._get_obs()
-        return ob, reward, done, {}
+        return ob, reward, terminated, False, {}
 
     def _get_obs(self):
         return np.concatenate(
@@ -48,6 +61,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = 2
         self.viewer.cam.distance = self.model.stat.extent * 0.75
         self.viewer.cam.lookat[2] = 1.15

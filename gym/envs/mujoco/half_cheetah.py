@@ -1,13 +1,26 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 
-class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(
-            self, "half_cheetah.xml", 5, mujoco_bindings="mujoco_py", **kwargs
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(17,), dtype=np.float64)
+        MuJocoPyEnv.__init__(
+            self, "half_cheetah.xml", 5, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -22,8 +35,14 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward_ctrl = -0.1 * np.square(action).sum()
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
-        done = False
-        return ob, reward, done, dict(reward_run=reward_run, reward_ctrl=reward_ctrl)
+        terminated = False
+        return (
+            ob,
+            reward,
+            terminated,
+            False,
+            dict(reward_run=reward_run, reward_ctrl=reward_ctrl),
+        )
 
     def _get_obs(self):
         return np.concatenate(
@@ -42,4 +61,5 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.distance = self.model.stat.extent * 0.5

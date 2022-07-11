@@ -1,7 +1,7 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 
@@ -24,6 +24,9 @@ try:
 except ImportError:
     raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
+
+if TYPE_CHECKING:
+    import pygame
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -170,8 +173,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.isopen = True
 
         self.world = Box2D.b2World()
-        self.terrain = None
-        self.hull = None
+        self.terrain: List[Box2D.b2Body] = []
+        self.hull: Optional[Box2D.b2Body] = None
 
         self.prev_shaping = None
 
@@ -256,7 +259,7 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
-        self.screen = None
+        self.screen: Optional[pygame.Surface] = None
         self.clock = None
 
     def _destroy(self):
@@ -283,6 +286,9 @@ class BipedalWalker(gym.Env, EzPickle):
         self.terrain = []
         self.terrain_x = []
         self.terrain_y = []
+
+        stair_steps, stair_width, stair_height = 0, 0, 0
+        original_y = 0
         for i in range(TERRAIN_LENGTH):
             x = i * TERRAIN_STEP
             self.terrain_x.append(x)
@@ -448,8 +454,8 @@ class BipedalWalker(gym.Env, EzPickle):
             (self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM), 0), True
         )
 
-        self.legs = []
-        self.joints = []
+        self.legs: List[Box2D.b2Body] = []
+        self.joints: List[Box2D.b2RevoluteJoint] = []
         for i in [-1, +1]:
             leg = self.world.CreateDynamicBody(
                 position=(init_x, init_y - LEG_H / 2 - LEG_DOWN),
@@ -514,6 +520,8 @@ class BipedalWalker(gym.Env, EzPickle):
             return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action: np.ndarray):
+        assert self.hull is not None
+
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
@@ -591,15 +599,14 @@ class BipedalWalker(gym.Env, EzPickle):
             reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
             # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
-        done = False
+        terminated = False
         if self.game_over or pos[0] < 0:
             reward = -100
-            done = True
+            terminated = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
-            done = True
-
+            terminated = True
         self.renderer.render_step()
-        return np.array(state, dtype=np.float32), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode: str = "human"):
         if self.render_mode is not None:
@@ -737,6 +744,7 @@ class BipedalWalker(gym.Env, EzPickle):
         self.surf = pygame.transform.flip(self.surf, False, True)
 
         if mode == "human":
+            assert self.screen is not None
             self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
@@ -780,9 +788,9 @@ if __name__ == "__main__":
     SUPPORT_KNEE_ANGLE = +0.1
     supporting_knee_angle = SUPPORT_KNEE_ANGLE
     while True:
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = env.step(a)
         total_reward += r
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("\naction " + str([f"{x:+0.2f}" for x in a]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
             print("hull " + str([f"{x:+0.2f}" for x in s[0:4]]))
@@ -845,5 +853,5 @@ if __name__ == "__main__":
         a[3] = knee_todo[1]
         a = np.clip(0.5 * a, -1.0, 1.0)
 
-        if done:
+        if terminated or truncated:
             break

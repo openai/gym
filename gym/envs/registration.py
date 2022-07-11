@@ -23,7 +23,13 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    HumanRendering,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -118,6 +124,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
+    new_step_api: bool = field(default=False)
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -325,7 +332,7 @@ def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) ->
 @overload
 def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+def make(id: Literal["CarRacing-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 
 # Toy Text
 # ----------------------------------------
@@ -522,6 +529,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    new_step_api: bool = False,
     disable_env_checker: bool = False,
     **kwargs,
 ) -> Env:
@@ -531,6 +539,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
         disable_env_checker: If to disable the environment checker
         kwargs: Additional arguments to pass to the environment constructor.
 
@@ -589,15 +598,51 @@ def make(
         # Assume it's a string
         env_creator = load(spec_.entry_point)
 
-    # check render_mode is valid
-    render_modes = env_creator.metadata["render_modes"]
-    mode = kwargs.get("render_mode")
-    if mode is not None and mode not in render_modes:
-        raise error.Error(
-            f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
-        )
+    mode = _kwargs.get("render_mode")
+    apply_human_rendering = False
 
-    env = env_creator(**_kwargs)
+    # If we have access to metadata we check that "render_mode" is valid
+    if hasattr(env_creator, "metadata"):
+        render_modes = env_creator.metadata["render_modes"]
+
+        # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
+        if (
+            mode == "human"
+            and "human" not in render_modes
+            and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+        ):
+            logger.warn(
+                "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                "The HumanRendering wrapper is being applied to your environment."
+            )
+            _kwargs["render_mode"] = (
+                "single_rgb_array"
+                if "single_rgb_array" in env_creator.metadata["render_modes"]
+                else "rgb_array"
+            )
+            apply_human_rendering = True
+        elif mode is not None and mode not in render_modes:
+            raise error.Error(
+                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+            )
+
+    try:
+        env = env_creator(**_kwargs)
+    except TypeError as e:
+        if (
+            str(e).find("got an unexpected keyword argument 'render_mode'") >= 0
+            and apply_human_rendering
+        ):
+            raise error.Error(
+                f"You passed render_mode='human' although {id} doesn't implement human-rendering natively. "
+                "Gym tried to apply the HumanRendering wrapper but it looks like your environment is using the old "
+                "rendering API, which is not supported by the HumanRendering wrapper."
+            )
+        else:
+            raise e
+
+    if apply_human_rendering:
+        env = HumanRendering(env)
 
     # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)
@@ -608,19 +653,21 @@ def make(
     if disable_env_checker is False:
         env = PassiveEnvChecker(env)
 
+    env = StepAPICompatibility(env, new_step_api)
+
     # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
     # Add the time limit wrapper
     if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps)
+        env = TimeLimit(env, max_episode_steps, new_step_api)
     elif spec_.max_episode_steps is not None:
-        env = TimeLimit(env, spec_.max_episode_steps)
+        env = TimeLimit(env, spec_.max_episode_steps, new_step_api)
 
     # Add the autoreset wrapper
     if autoreset:
-        env = AutoResetWrapper(env)
+        env = AutoResetWrapper(env, new_step_api)
 
     return env
 

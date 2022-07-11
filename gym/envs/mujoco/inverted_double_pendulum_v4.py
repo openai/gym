@@ -1,10 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
+from gym.spaces import Box
 
 
-class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class InvertedDoublePendulumEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -37,7 +38,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The observation is a `ndarray` with shape `(11,)` where the elements correspond to the following:
 
     | Num | Observation                                                       | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|-------------------------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | --- | ----------------------------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------ |
     | 0   | position of the cart along the linear surface                     | -Inf | Inf | slider                           | slide | position (m)             |
     | 1   | sine of the angle between the cart and the first pole             | -Inf | Inf | sin(hinge)                       | hinge | unitless                 |
     | 2   | sine of the angle between the two poles                           | -Inf | Inf | sin(hinge2)                      | hinge | unitless                 |
@@ -52,7 +53,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
     There is physical contact between the robots and their environment - and Mujoco
-    attempts at getting realistic physics simulations for the possible physical contact
+    attempts at getting realisitic physics simulations for the possible physical contact
     dynamics by aiming for physical accuracy and computational efficiency.
 
     There is one constraint force for contacts for each degree of freedom (3).
@@ -84,29 +85,23 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     of [-0.1, 0.1] added to the positional values (cart position and pole angles) and standard
     normal force with a standard deviation of 0.1 added to the velocity values for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches 1000 timesteps.
-    2. Any of the state space values is no longer finite.
-    3. The y_coordinate of the tip of the second pole *is less than or equal* to 1. The maximum standing height of the system is 1.196 m when all the parts are perpendicularly vertical on top of each other).
+    1.Truncation:  The episode duration reaches 1000 timesteps.
+    2.Termination: Any of the state space values is no longer finite.
+    3.Termination: The y_coordinate of the tip of the second pole *is less than or equal* to 1. The maximum standing height of the system is 1.196 m when all the parts are perpendicularly vertical on top of each other).
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but modifications can
-    be made to the XML file in the assets folder (or by changing the path to a modified XML
-    file in another folder)..
+    No additional arguments are currently supported.
 
     ```
-    env = gym.make('InvertedDoublePendulum-v2')
+    env = gym.make('InvertedDoublePendulum-v4')
     ```
     There is no v3 for InvertedPendulum, unlike the robot environments where a v3 and
     beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
-    There is a v4 version that uses the mujoco-bindings
-    ```
-    env = gym.make('InvertedDoublePendulum-v4')
-    ```
 
     ### Version History
 
@@ -115,11 +110,28 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)
     * v0: Initial versions release (1.0.0)
-
     """
 
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(self, "inverted_double_pendulum.xml", 5, **kwargs)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
+        MujocoEnv.__init__(
+            self,
+            "inverted_double_pendulum.xml",
+            5,
+            observation_space=observation_space,
+            **kwargs
+        )
         utils.EzPickle.__init__(self)
 
     def step(self, action):
@@ -131,11 +143,9 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         vel_penalty = 1e-3 * v1**2 + 5e-3 * v2**2
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
-        done = bool(y <= 1)
-
+        terminated = bool(y <= 1)
         self.renderer.render_step()
-
-        return ob, r, done, {}
+        return ob, r, terminated, False, {}
 
     def _get_obs(self):
         return np.concatenate(
@@ -157,6 +167,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         v = self.viewer
         v.cam.trackbodyid = 0
         v.cam.distance = self.model.stat.extent * 0.5

@@ -1,13 +1,32 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 
-class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 67,
+    }
+
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(
-            self, "humanoidstandup.xml", 5, mujoco_bindings="mujoco_py", **kwargs
+        observation_space = Box(
+            low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
+        )
+        MuJocoPyEnv.__init__(
+            self,
+            "humanoidstandup.xml",
+            5,
+            observation_space=observation_space,
+            **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -37,11 +56,11 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,
@@ -63,6 +82,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = 1
         self.viewer.cam.distance = self.model.stat.extent * 1.0
         self.viewer.cam.lookat[2] = 0.8925

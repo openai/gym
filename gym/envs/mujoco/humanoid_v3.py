@@ -1,7 +1,8 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -17,7 +18,18 @@ def mass_center(model, sim):
     return (np.sum(mass * xpos, axis=0) / np.sum(mass))[0:2].copy()
 
 
-class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 67,
+    }
+
     def __init__(
         self,
         xml_file="humanoid.xml",
@@ -47,9 +59,17 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation
         )
+        if exclude_current_positions_from_observation:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
+            )
+        else:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(378,), dtype=np.float64
+            )
 
-        mujoco_env.MujocoEnv.__init__(
-            self, xml_file, 5, mujoco_bindings="mujoco_py", **kwargs
+        MuJocoPyEnv.__init__(
+            self, xml_file, 5, observation_space=observation_space, **kwargs
         )
 
     @property
@@ -79,9 +99,9 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = (not self.is_healthy) if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -128,7 +148,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "reward_linvel": forward_reward,
             "reward_quadctrl": -ctrl_cost,
@@ -142,7 +162,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale
@@ -160,6 +180,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value

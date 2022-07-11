@@ -1,10 +1,12 @@
 """A synchronous vector environment."""
 from copy import deepcopy
-from typing import Any, Iterator, List, Optional, Sequence, Union
+from typing import Any, Callable, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
+from gym import Env
 from gym.spaces import Space
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
@@ -28,10 +30,11 @@ class SyncVectorEnv(VectorEnv):
 
     def __init__(
         self,
-        env_fns: Iterator[callable],
+        env_fns: Iterator[Callable[[], Env]],
         observation_space: Space = None,
         action_space: Space = None,
         copy: bool = True,
+        new_step_api: bool = False,
     ):
         """Vectorized environment that serially runs multiple environments.
 
@@ -59,6 +62,7 @@ class SyncVectorEnv(VectorEnv):
             num_envs=len(self.envs),
             observation_space=observation_space,
             action_space=action_space,
+            new_step_api=new_step_api,
         )
 
         self._check_spaces()
@@ -66,7 +70,8 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, n=self.num_envs, fn=np.zeros
         )
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
-        self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._terminateds = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._truncateds = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
 
     def seed(self, seed: Optional[Union[int, Sequence[int]]] = None):
@@ -107,7 +112,8 @@ class SyncVectorEnv(VectorEnv):
             seed = [seed + i for i in range(self.num_envs)]
         assert len(seed) == self.num_envs
 
-        self._dones[:] = False
+        self._terminateds[:] = False
+        self._truncateds[:] = False
         observations = []
         infos = {}
         for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
@@ -150,9 +156,15 @@ class SyncVectorEnv(VectorEnv):
         """
         observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
-            observation, self._rewards[i], self._dones[i], info = env.step(action)
-            if self._dones[i]:
-                info["terminal_observation"] = observation
+            (
+                observation,
+                self._rewards[i],
+                self._terminateds[i],
+                self._truncateds[i],
+                info,
+            ) = step_api_compatibility(env.step(action), True)
+            if self._terminateds[i] or self._truncateds[i]:
+                info["final_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
             infos = self._add_info(infos, info, i)
@@ -160,11 +172,16 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, observations, self.observations
         )
 
-        return (
-            deepcopy(self.observations) if self.copy else self.observations,
-            np.copy(self._rewards),
-            np.copy(self._dones),
-            infos,
+        return step_api_compatibility(
+            (
+                deepcopy(self.observations) if self.copy else self.observations,
+                np.copy(self._rewards),
+                np.copy(self._terminateds),
+                np.copy(self._truncateds),
+                infos,
+            ),
+            new_step_api=self.new_step_api,
+            is_vector_env=True,
         )
 
     def call(self, name, *args, **kwargs) -> tuple:

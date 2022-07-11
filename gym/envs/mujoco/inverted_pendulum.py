@@ -1,14 +1,31 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 
-class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class InvertedPendulumEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 25,
+    }
+
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(
-            self, "inverted_pendulum.xml", 2, mujoco_bindings="mujoco_py", **kwargs
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float64)
+        MuJocoPyEnv.__init__(
+            self,
+            "inverted_pendulum.xml",
+            2,
+            observation_space=observation_space,
+            **kwargs
         )
 
     def step(self, a):
@@ -18,9 +35,8 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.renderer.render_step()
 
         ob = self._get_obs()
-        notdone = np.isfinite(ob).all() and (np.abs(ob[1]) <= 0.2)
-        done = not notdone
-        return ob, reward, done, {}
+        terminated = bool(not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2))
+        return ob, reward, terminated, False, {}
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(
@@ -36,6 +52,6 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return np.concatenate([self.sim.data.qpos, self.sim.data.qvel]).ravel()
 
     def viewer_setup(self):
-        v = self.viewer
-        v.cam.trackbodyid = 0
-        v.cam.distance = self.model.stat.extent
+        assert self.viewer is not None
+        self.viewer.cam.trackbodyid = 0
+        self.viewer.cam.distance = self.model.stat.extent

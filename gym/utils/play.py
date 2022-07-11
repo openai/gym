@@ -1,17 +1,27 @@
 """Utilities of visualising an environment."""
+
+# TODO: Convert to new step API in 1.0
+
 from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pygame
-from pygame import Surface
-from pygame.event import Event
-from pygame.locals import VIDEORESIZE
 
+import gym.error
 from gym import Env, logger
 from gym.core import ActType, ObsType
 from gym.error import DependencyNotInstalled
 from gym.logger import deprecation
+
+try:
+    import pygame
+    from pygame import Surface
+    from pygame.event import Event
+    from pygame.locals import VIDEORESIZE
+except ImportError:
+    raise gym.error.DependencyNotInstalled(
+        "Pygame is not installed, run `pip install gym[classic_control]`"
+    )
 
 try:
     import matplotlib
@@ -20,7 +30,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     logger.warn("Matplotlib is not installed, run `pip install gym[other]`")
-    matplotlib, plt = None, None
+    plt = None
 
 
 class MissingKeysToAction(Exception):
@@ -33,7 +43,7 @@ class PlayableGame:
     def __init__(
         self,
         env: Env,
-        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+        keys_to_action: Optional[Dict[Tuple[int, ...], int]] = None,
         zoom: Optional[float] = None,
     ):
         """Wraps an environment with a dictionary of keyboard buttons to action and if to zoom in on the environment.
@@ -63,12 +73,14 @@ class PlayableGame:
                     f"{self.env.spec.id} does not have explicit key to action mapping, "
                     "please specify one manually"
                 )
+        assert isinstance(keys_to_action, dict)
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
     def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
+        assert rendered is not None and isinstance(rendered, np.ndarray)
         video_size = [rendered.shape[1], rendered.shape[0]]
 
         if zoom is not None:
@@ -199,10 +211,25 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
+    deprecation(
+        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
+    )
+
     env.reset(seed=seed)
 
-    key_code_to_action = {}
+    if keys_to_action is None:
+        if hasattr(env, "get_keys_to_action"):
+            keys_to_action = env.get_keys_to_action()
+        elif hasattr(env.unwrapped, "get_keys_to_action"):
+            keys_to_action = env.unwrapped.get_keys_to_action()
+        else:
+            raise MissingKeysToAction(
+                f"{env.spec.id} does not have explicit key to action mapping, "
+                "please specify one manually"
+            )
+    assert keys_to_action is not None
 
+    key_code_to_action = {}
     for key_combination, action in keys_to_action.items():
         key_code = tuple(
             sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
@@ -214,7 +241,7 @@ def play(
     if fps is None:
         fps = env.metadata.get("render_fps", 30)
 
-    done = True
+    done, obs = True, None
     clock = pygame.time.Clock()
 
     while game.running:
@@ -305,7 +332,7 @@ class PlayPlot:
         for axis, name in zip(self.ax, plot_names):
             axis.set_title(name)
         self.t = 0
-        self.cur_plot = [None for _ in range(num_plots)]
+        self.cur_plot: List[Optional[plt.Axes]] = [None for _ in range(num_plots)]
         self.data = [deque(maxlen=horizon_timesteps) for _ in range(num_plots)]
 
     def callback(
@@ -341,4 +368,9 @@ class PlayPlot:
                 range(xmin, xmax), list(self.data[i]), c="blue"
             )
             self.ax[i].set_xlim(xmin, xmax)
+
+        if plt is None:
+            raise DependencyNotInstalled(
+                "matplotlib is not installed, run `pip install gym[other]`"
+            )
         plt.pause(0.000001)

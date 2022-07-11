@@ -17,6 +17,7 @@ from gym.error import (
     CustomSpaceError,
     NoAsyncCallError,
 )
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,
@@ -66,6 +67,7 @@ class AsyncVectorEnv(VectorEnv):
         context: Optional[str] = None,
         daemon: bool = True,
         worker: Optional[callable] = None,
+        new_step_api: bool = False,
     ):
         """Vectorized environment that runs multiple environments in parallel.
 
@@ -84,7 +86,8 @@ class AsyncVectorEnv(VectorEnv):
                 the head process quits. However, ``daemon=True`` prevents subprocesses to spawn children,
                 so for some environments you may want to have it set to ``False``.
             worker: If set, then use that worker in a subprocess instead of a default one.
-                Can be useful to override some inner vector env logic, for instance, how resets on done are handled.
+                Can be useful to override some inner vector env logic, for instance, how resets on termination or truncation are handled.
+            new_step_api: If True, step method returns 2 bools - terminated, truncated, instead of 1 bool - done
 
         Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance
             to shoot yourself in the foot; thus, if you are writing your own worker, it is recommended to start
@@ -112,6 +115,7 @@ class AsyncVectorEnv(VectorEnv):
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
+            new_step_api=new_step_api,
         )
 
         if self.shared_memory:
@@ -338,7 +342,7 @@ class AsyncVectorEnv(VectorEnv):
             timeout: Number of seconds before the call to :meth:`step_wait` times out. If ``None``, the call to :meth:`step_wait` never times out.
 
         Returns:
-             The batched environment step information, obs, reward, done and info
+             The batched environment step information, (obs, reward, terminated, truncated, info) or (obs, reward, done, info) depending on new_step_api
 
         Raises:
             ClosedEnvironmentError: If the environment was closed (if :meth:`close` was previously called).
@@ -358,16 +362,17 @@ class AsyncVectorEnv(VectorEnv):
                 f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
-        observations_list, rewards, dones, infos = [], [], [], {}
+        observations_list, rewards, terminateds, truncateds, infos = [], [], [], [], {}
         successes = []
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
-            obs, rew, done, info = result
+            obs, rew, terminated, truncated, info = step_api_compatibility(result, True)
 
             successes.append(success)
             observations_list.append(obs)
             rewards.append(rew)
-            dones.append(done)
+            terminateds.append(terminated)
+            truncateds.append(truncated)
             infos = self._add_info(infos, info, i)
 
         self._raise_if_errors(successes)
@@ -380,11 +385,16 @@ class AsyncVectorEnv(VectorEnv):
                 self.observations,
             )
 
-        return (
-            deepcopy(self.observations) if self.copy else self.observations,
-            np.array(rewards),
-            np.array(dones, dtype=np.bool_),
-            infos,
+        return step_api_compatibility(
+            (
+                deepcopy(self.observations) if self.copy else self.observations,
+                np.array(rewards),
+                np.array(terminateds, dtype=np.bool_),
+                np.array(truncateds, dtype=np.bool_),
+                infos,
+            ),
+            self.new_step_api,
+            True,
         )
 
     def call_async(self, name: str, *args, **kwargs):
@@ -569,7 +579,7 @@ class AsyncVectorEnv(VectorEnv):
 
         num_errors = self.num_envs - sum(successes)
         assert num_errors > 0
-        for _ in range(num_errors):
+        for i in range(num_errors):
             index, exctype, value = self.error_queue.get()
             logger.error(
                 f"Received the following error from Worker-{index}: {exctype.__name__}: {value}"
@@ -578,8 +588,9 @@ class AsyncVectorEnv(VectorEnv):
             self.parent_pipes[index].close()
             self.parent_pipes[index] = None
 
-        logger.error("Raising the last exception back to the main process.")
-        raise exctype(value)
+            if i == num_errors - 1:
+                logger.error("Raising the last exception back to the main process.")
+                raise exctype(value)
 
     def __del__(self):
         """On deleting the object, checks that the vector environment is closed."""
@@ -603,11 +614,17 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     pipe.send((observation, True))
 
             elif command == "step":
-                observation, reward, done, info = env.step(data)
-                if done:
-                    info["terminal_observation"] = observation
+                (
+                    observation,
+                    reward,
+                    terminated,
+                    truncated,
+                    info,
+                ) = step_api_compatibility(env.step(data), True)
+                if terminated or truncated:
+                    info["final_observation"] = observation
                     observation = env.reset()
-                pipe.send(((observation, reward, done, info), True))
+                pipe.send(((observation, reward, terminated, truncated, info), True))
             elif command == "seed":
                 env.seed(data)
                 pipe.send((None, True))
@@ -672,14 +689,20 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     )
                     pipe.send((None, True))
             elif command == "step":
-                observation, reward, done, info = env.step(data)
-                if done:
-                    info["terminal_observation"] = observation
+                (
+                    observation,
+                    reward,
+                    terminated,
+                    truncated,
+                    info,
+                ) = step_api_compatibility(env.step(data), True)
+                if terminated or truncated:
+                    info["final_observation"] = observation
                     observation = env.reset()
                 write_to_shared_memory(
                     observation_space, index, observation, shared_memory
                 )
-                pipe.send(((None, reward, done, info), True))
+                pipe.send(((None, reward, terminated, truncated, info), True))
             elif command == "seed":
                 env.seed(data)
                 pipe.send((None, True))

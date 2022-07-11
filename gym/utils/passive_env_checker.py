@@ -4,6 +4,7 @@ import inspect
 import numpy as np
 
 from gym import error, logger, spaces
+from gym.logger import deprecation
 
 
 def _check_box_observation_space(observation_space: spaces.Box):
@@ -253,14 +254,24 @@ def passive_env_step_check(env, action):
     """A passive check for the environment step, investigating the returning data then returning the data unchanged."""
     result = env.step(action)
     if len(result) == 4:
+        deprecation(
+            "Core environment is written in old step API which returns one bool instead of two. "
+            "It is recommended to rewrite the environment with new step API. "
+        )
         obs, reward, done, info = result
 
-        assert isinstance(done, bool), "The `done` signal must be a boolean"
+        assert isinstance(
+            done, bool
+        ), f"The `done` signal is of type `{type(done)}` must be a boolean"
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
-        assert isinstance(terminated, bool), "The `terminated` signal must be a boolean"
-        assert isinstance(truncated, bool), "The `truncated` signal must be a boolean"
+        assert isinstance(
+            terminated, bool
+        ), f"The `terminated` signal is of type `{type(terminated)}`. It must be a boolean"
+        assert isinstance(
+            truncated, bool
+        ), f"The `truncated` signal of type `{type(truncated)}`. It must be a boolean."
         assert (
             terminated is False or truncated is False
         ), "Only `terminated` or `truncated` can be true, not both."

@@ -25,11 +25,6 @@ class VideoRecorder:  # TODO: remove with gym 1.0
     It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
-        VideoRecorder is deprecated.
-        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
-        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
-
-    Note:
         You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
     """
 
@@ -40,6 +35,7 @@ class VideoRecorder:  # TODO: remove with gym 1.0
         metadata: Optional[dict] = None,
         enabled: bool = True,
         base_path: Optional[str] = None,
+        internal_backend_use: bool = False,
     ):
         """Video recorder renders a nice movie of a rollout, frame by frame.
 
@@ -54,12 +50,16 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             Error: You can pass at most one of `path` or `base_path`
             Error: Invalid path given that must have a particular file extension
         """
+        self._async = env.metadata.get("semantics.async")
+        self.enabled = enabled
+        self._closed = False
+
+        self.render_history = []
+        self.last_frame = None
+        self.env = env
+
+        self.render_mode = env.render_mode
         modes = env.metadata.get("render_modes", [])
-        logger.deprecation(
-            "VideoRecorder is deprecated.\n"
-            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
-            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
-        )
 
         # backward-compatibility mode:
         backward_compatible_mode = env.metadata.get("render.modes", [])
@@ -70,30 +70,40 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             )
             modes = backward_compatible_mode
 
-        self._async = env.metadata.get("semantics.async")
-        self.enabled = enabled
-        self._closed = False
-
         self.ansi_mode = False
-        if "rgb_array" not in modes:
-            if "ansi" in modes:
-                self.ansi_mode = True
-            else:
-                logger.info(
-                    f'Disabling video recorder because {env} neither supports video mode "rgb_array" nor "ansi".'
+        if "rgb_array" != self.render_mode and "single_rgb_array" != self.render_mode:
+            if self.render_mode is None and (
+                "single_rgb_array" in modes or "rgb_array" in modes
+            ):
+                logger.deprecation(
+                    f"Recording ability for environment {env.spec.id} initialized with `render_mode=None` is marked "
+                    "as deprecated and will be removed in the future."
                 )
-                # Whoops, turns out we shouldn't be enabled after all
+            elif "ansi" == env.render_mode:
+                self.ansi_mode = True
+                logger.deprecation(
+                    f'Recording ability for environment {env} initialized with `render_mode="ansi"` is marked '
+                    "as deprecated and will be removed in the future."
+                )
+            else:
+                logger.warn(
+                    f"Disabling video recorder because environment {env} was not initialized with any compatible video "
+                    "mode between `single_rgb_array` and `rgb_array`"
+                )
+                # Disable since the environment has not been initialized with a compatible `render_mode`
                 self.enabled = False
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
             return
 
+        if not internal_backend_use:
+            logger.deprecation(
+                f"{self.__class__} is marked as deprecated and will be removed in the future."
+            )
+
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
-
-        self.last_frame = None
-        self.env = env
 
         required_ext = ".json" if self.ansi_mode else ".mp4"
         if path is None:
@@ -148,7 +158,9 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             )
             self.output_frames_per_sec = self.backward_compatible_output_frames_per_sec
 
-        self.encoder = None  # lazily start the process
+        self.encoder: Optional[
+            Union[TextEncoder, ImageEncoder]
+        ] = None  # lazily start the process
         self.broken = False
 
         # Dump metadata
@@ -169,6 +181,15 @@ class VideoRecorder:  # TODO: remove with gym 1.0
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
+        if self.render_mode is None:
+            frame = self.env.render(mode="rgb_array")
+        else:
+            frame = self.env.render()
+        if isinstance(frame, List):
+            self.render_history += frame
+            frame = frame[-1]
+        self.last_frame = frame
+
         if not self.functional:
             return
         if self._closed:
@@ -177,11 +198,6 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             )
             return
         logger.debug("Capturing video frame: path=%s", self.path)
-
-        render_mode = "ansi" if self.ansi_mode else "rgb_array"
-        frame = self.env.render(mode=render_mode)
-        if isinstance(frame, List):
-            frame = frame[-1]
 
         if frame is None:
             if self._async:
@@ -195,7 +211,6 @@ class VideoRecorder:  # TODO: remove with gym 1.0
                 )
                 self.broken = True
         else:
-            self.last_frame = frame
             if self.ansi_mode:
                 self._encode_ansi_frame(frame)
             else:
@@ -387,7 +402,7 @@ class ImageEncoder:
             InvalidFrame: Expects frame to have shape (w,h,3) or (w,h,4)
             DependencyNotInstalled: Found neither the ffmpeg nor avconv executables.
         """
-        self.proc = None
+        self.proc: Optional[subprocess.Popen] = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
         h, w, pixfmt = frame_shape
@@ -488,6 +503,7 @@ class ImageEncoder:
                 f"Your frame has data type {frame.dtype}, but we require uint8 (i.e. RGB values from 0-255)."
             )
 
+        assert self.proc is not None and self.proc.stdin is not None
         try:
             self.proc.stdin.write(frame.tobytes())
         except Exception:
@@ -496,6 +512,7 @@ class ImageEncoder:
 
     def close(self):
         """Closes the Image encoder."""
+        assert self.proc is not None and self.proc.stdin is not None
         self.proc.stdin.close()
         ret = self.proc.wait()
         if ret != 0:

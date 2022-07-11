@@ -1,4 +1,4 @@
-from gym.envs.mujoco.mujoco_env import MujocoEnv  # isort:skip
+from gym.envs.mujoco.mujoco_env import MujocoEnv, MuJocoPyEnv  # isort:skip
 from gym.envs.mujoco.mujoco_rendering import (  # isort:skip
     RenderContextOffscreen,
     Viewer,

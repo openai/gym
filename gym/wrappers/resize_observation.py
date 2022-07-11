@@ -32,14 +32,17 @@ class ResizeObservation(gym.ObservationWrapper):
             env: The environment to apply the wrapper
             shape: The shape of the resized observations
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
         if isinstance(shape, int):
             shape = (shape, shape)
         assert all(x > 0 for x in shape), shape
 
         self.shape = tuple(shape)
 
-        obs_shape = self.shape + self.observation_space.shape[2:]
+        assert isinstance(
+            env.observation_space, Box
+        ), f"Expected the observation space to be Box, actual type: {type(env.observation_space)}"
+        obs_shape = self.shape + env.observation_space.shape[2:]
         self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):

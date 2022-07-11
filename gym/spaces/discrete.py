@@ -40,14 +40,40 @@ class Discrete(Space[int]):
         self.start = int(start)
         super().__init__((), np.int64, seed)
 
-    def sample(self) -> int:
+    def sample(self, mask: Optional[np.ndarray] = None) -> int:
         """Generates a single random sample from this space.
 
-        A sample will be chosen uniformly at random.
+        A sample will be chosen uniformly at random with the mask if provided
+
+        Args:
+            mask: An optional mask for if an action can be selected.
+                Expected `np.ndarray` of shape `(n,)` and dtype `np.int8` where `1` represents valid actions and `0` invalid / infeasible actions.
+                If there are no possible actions (i.e. `np.all(mask == 0)`) then `space.start` will be returned.
 
         Returns:
             A sampled integer from the space
         """
+        if mask is not None:
+            assert isinstance(
+                mask, np.ndarray
+            ), f"The expected type of the mask is np.ndarray, actual type: {type(mask)}"
+            assert (
+                mask.dtype == np.int8
+            ), f"The expected dtype of the mask is np.int8, actual dtype: {mask.dtype}"
+            assert mask.shape == (
+                self.n,
+            ), f"The expected shape of the mask is {(self.n,)}, actual shape: {mask.shape}"
+            valid_action_mask = mask == 1
+            assert np.all(
+                np.logical_or(mask == 0, valid_action_mask)
+            ), f"All values of a mask should be 0 or 1, actual values: {mask}"
+            if np.any(valid_action_mask):
+                return int(
+                    self.start + self.np_random.choice(np.where(valid_action_mask)[0])
+                )
+            else:
+                return self.start
+
         return int(self.start + self.np_random.integers(self.n))
 
     def contains(self, x) -> bool:

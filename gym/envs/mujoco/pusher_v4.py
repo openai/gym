@@ -1,28 +1,29 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
+from gym.spaces import Box
 
 
-class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class PusherEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
     "Pusher" is a multi-jointed robot arm which is very similar to that of a human.
-    The goal is to move a target cylinder (called *object*) to a goal position using the robot's end effector (called *fingertip*).
-    The robot consists of shoulder, elbow, forearm, and wrist joints.
+     The goal is to move a target cylinder (called *object*) to a goal position using the robot's end effector (called *fingertip*).
+      The robot consists of shoulder, elbow, forearm, and wrist joints.
 
     ### Action Space
     The action space is a `Box(-2, 2, (7,), float32)`. An action `(a, b)` represents the torques applied at the hinge joints.
 
-    | Num | Action                                         | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
-    | 0   | Rotation of the panning the shoulder          | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
-    | 1   | Rotation of the shoulder lifting joint        | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
-    | 2   | Rotation of the shoulder rolling joint        | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
-    | 3   | Rotation of hinge joint that flexed the elbow | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
-    | 4   | Rotation of hinge that rolls the forearm      | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
-    | 5   | Rotation of flexing the wrist                 | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
-    | 6   | Rotation of rolling the wrist                 | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
+    | Num | Action                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|--------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0    | Rotation of the panning the shoulder                              | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
+    | 1    | Rotation of the shoulder lifting joint                            | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
+    | 2    | Rotation of the shoulder rolling joint                            | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
+    | 3    | Rotation of hinge joint that flexed the elbow                     | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
+    | 4    | Rotation of hinge that rolls the forearm                          | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
+    | 5    | Rotation of flexing the wrist                                     | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
+    | 6    | Rotation of rolling the wrist                                     | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -39,7 +40,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     same as human joints.
 
     | Num | Observation                                              | Min  | Max | Name (in corresponding XML file) | Joint    | Unit                     |
-    |-----|----------------------------------------------------------|------|-----|----------------------------------|----------|--------------------------|
+    | --- | -------------------------------------------------------- | ---- | --- | -------------------------------- | -------- | ------------------------ |
     | 0   | Rotation of the panning the shoulder                     | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angle (rad)              |
     | 1   | Rotation of the shoulder lifting joint                   | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angle (rad)              |
     | 2   | Rotation of the shoulder rolling joint                   | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angle (rad)              |
@@ -98,12 +99,12 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The default framerate is 5 with each frame lasting for 0.01, giving rise to a *dt = 5 * 0.01 = 0.05*
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates when any of the following happens:
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 100 timesteps.
-    2. Any of the state space values is no longer finite.
+    1. Truncation: The episode duration reaches a 100 timesteps.
+    2. Termination: Any of the state space values is no longer finite.
 
     ### Arguments
 
@@ -112,16 +113,12 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (or by changing the path to a modified XML file in another folder)..
 
     ```
-    env = gym.make('Pusher-v2')
+    env = gym.make('Pusher-v4')
     ```
 
     There is no v3 for Pusher, unlike the robot environments where a v3 and
     beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
-    There is a v4 version that uses the mujoco-bindings
-    ```
-    env = gym.make('Pusher-v4')
-    ```
 
     ### Version History
 
@@ -129,12 +126,25 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (not including reacher, which has a max_time_steps of 50). Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
-
     """
+
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
 
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5, **kwargs)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(23,), dtype=np.float64)
+        MujocoEnv.__init__(
+            self, "pusher.xml", 5, observation_space=observation_space, **kwargs
+        )
 
     def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
@@ -147,13 +157,17 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
-
         self.renderer.render_step()
-
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = -1
         self.viewer.cam.distance = 4.0
 

@@ -1,10 +1,12 @@
 """Wrapper that tracks the cumulative rewards and episode lengths."""
 import time
 from collections import deque
+from typing import Optional
 
 import numpy as np
 
 import gym
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 def add_vector_episode_statistics(
@@ -75,19 +77,20 @@ class RecordEpisodeStatistics(gym.Wrapper):
         length_queue: The lengths of the last ``deque_size``-many episodes
     """
 
-    def __init__(self, env: gym.Env, deque_size: int = 100):
+    def __init__(self, env: gym.Env, deque_size: int = 100, new_step_api: bool = False):
         """This wrapper will keep track of cumulative rewards and episode lengths.
 
         Args:
             env (Env): The environment to apply the wrapper
             deque_size: The size of the buffers :attr:`return_queue` and :attr:`length_queue`
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
         self.episode_count = 0
-        self.episode_returns = None
-        self.episode_lengths = None
+        self.episode_returns: Optional[np.ndarray] = None
+        self.episode_lengths: Optional[np.ndarray] = None
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
@@ -101,18 +104,26 @@ class RecordEpisodeStatistics(gym.Wrapper):
 
     def step(self, action):
         """Steps through the environment, recording the episode statistics."""
-        observations, rewards, dones, infos = super().step(action)
+        (
+            observations,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
         assert isinstance(
             infos, dict
         ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
-            dones = [dones]
-        dones = list(dones)
+            terminateds = [terminateds]
+            truncateds = [truncateds]
+        terminateds = list(terminateds)
+        truncateds = list(truncateds)
 
-        for i in range(len(dones)):
-            if dones[i]:
+        for i in range(len(terminateds)):
+            if terminateds[i] or truncateds[i]:
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
                 episode_info = {
@@ -133,9 +144,14 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
-        return (
-            observations,
-            rewards,
-            dones if self.is_vector_env else dones[0],
-            infos,
+        return step_api_compatibility(
+            (
+                observations,
+                rewards,
+                terminateds if self.is_vector_env else terminateds[0],
+                truncateds if self.is_vector_env else truncateds[0],
+                infos,
+            ),
+            self.new_step_api,
+            self.is_vector_env,
         )

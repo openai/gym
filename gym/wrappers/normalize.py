@@ -2,6 +2,7 @@
 import numpy as np
 
 import gym
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py
@@ -54,14 +55,15 @@ class NormalizeObservation(gym.core.Wrapper):
         newly instantiated or the policy was changed recently.
     """
 
-    def __init__(self, env: gym.Env, epsilon: float = 1e-8):
+    def __init__(self, env: gym.Env, epsilon: float = 1e-8, new_step_api: bool = False):
         """This wrapper will normalize observations s.t. each coordinate is centered with unit variance.
 
         Args:
             env (Env): The environment to apply the wrapper
             epsilon: A stability parameter that is used when scaling the observations.
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
@@ -72,28 +74,35 @@ class NormalizeObservation(gym.core.Wrapper):
 
     def step(self, action):
         """Steps through the environment and normalizes the observation."""
-        obs, rews, dones, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = step_api_compatibility(
+            self.env.step(action), True, self.is_vector_env
+        )
         if self.is_vector_env:
             obs = self.normalize(obs)
         else:
             obs = self.normalize(np.array([obs]))[0]
-        return obs, rews, dones, infos
+        return step_api_compatibility(
+            (obs, rews, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def reset(self, **kwargs):
         """Resets the environment and normalizes the observation."""
-        return_info = kwargs.get("return_info", False)
-        if return_info:
+        if kwargs.get("return_info", False):
             obs, info = self.env.reset(**kwargs)
+
+            if self.is_vector_env:
+                return self.normalize(obs), info
+            else:
+                return self.normalize(np.array([obs]))[0], info
         else:
             obs = self.env.reset(**kwargs)
-        if self.is_vector_env:
-            obs = self.normalize(obs)
-        else:
-            obs = self.normalize(np.array([obs]))[0]
-        if not return_info:
-            return obs
-        else:
-            return obs, info
+
+            if self.is_vector_env:
+                return self.normalize(obs)
+            else:
+                return self.normalize(np.array([obs]))[0]
 
     def normalize(self, obs):
         """Normalises the observation using the running mean and variance of the observations."""
@@ -116,6 +125,7 @@ class NormalizeReward(gym.core.Wrapper):
         env: gym.Env,
         gamma: float = 0.99,
         epsilon: float = 1e-8,
+        new_step_api: bool = False,
     ):
         """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
 
@@ -123,8 +133,9 @@ class NormalizeReward(gym.core.Wrapper):
             env (env): The environment to apply the wrapper
             epsilon (float): A stability parameter
             gamma (float): The discount factor that is used in the exponential moving average.
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.return_rms = RunningMeanStd(shape=())
@@ -134,15 +145,25 @@ class NormalizeReward(gym.core.Wrapper):
 
     def step(self, action):
         """Steps through the environment, normalizing the rewards returned."""
-        obs, rews, dones, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = step_api_compatibility(
+            self.env.step(action), True, self.is_vector_env
+        )
         if not self.is_vector_env:
             rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
         rews = self.normalize(rews)
+        if not self.is_vector_env:
+            dones = terminateds or truncateds
+        else:
+            dones = np.bitwise_or(terminateds, truncateds)
         self.returns[dones] = 0.0
         if not self.is_vector_env:
             rews = rews[0]
-        return obs, rews, dones, infos
+        return step_api_compatibility(
+            (obs, rews, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def normalize(self, rews):
         """Normalizes the rewards with the running mean rewards and their variance."""
