@@ -270,7 +270,7 @@ def test_make_render_mode():
         TypeError,
         match=re.escape("got an unexpected keyword argument 'render'"),
     ):
-        gym.make("CarRacing-v1", render="human")
+        gym.make("CarRacing-v2", render="human")
 
 
 def test_make_kwargs():
