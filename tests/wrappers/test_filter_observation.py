@@ -75,6 +75,7 @@ class TestFilterObservation:
         # Check that the added space item is consistent with the added observation.
         observation, info = wrapped_env.reset()
         assert len(observation) == len(filter_keys)
+        assert isinstance(info, dict)
 
     @pytest.mark.parametrize("filter_keys,error_type,error_match", ERROR_TEST_CASES)
     def test_raises_with_incorrect_arguments(

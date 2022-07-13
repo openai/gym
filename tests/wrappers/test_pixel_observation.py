@@ -85,6 +85,7 @@ def test_dict_observation(pixels_only):
     observation, info = wrapped_env.reset()
     rgb_observation = observation[pixel_key]
 
+    assert isinstance(info, dict)
     assert rgb_observation.shape == (height, width, 3)
     assert rgb_observation.dtype == np.uint8
 
@@ -116,6 +117,7 @@ def test_single_array_observation(pixels_only):
     observation, info = wrapped_env.reset()
     depth_observation = observation[pixel_key]
 
+    assert isinstance(info, dict)
     assert depth_observation.shape == (32, 32, 3)
     assert depth_observation.dtype == np.uint8
 

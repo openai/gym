@@ -19,3 +19,5 @@ def test_flatten_observation(env_id):
 
     assert space.contains(obs)
     assert wrapped_space.contains(wrapped_obs)
+    assert isinstance(info, dict)
+    assert isinstance(wrapped_obs_info, dict)

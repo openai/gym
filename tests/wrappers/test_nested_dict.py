@@ -117,3 +117,4 @@ class TestNestedDictWrapper:
         wrapped_env = FlattenObservation(FilterObservation(env, env.obs_keys))
         obs, info = wrapped_env.reset()
         assert obs.shape == wrapped_env.observation_space.shape
+        assert isinstance(info, dict)

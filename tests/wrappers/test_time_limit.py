@@ -11,6 +11,7 @@ def test_time_limit_reset_info():
     ob_space = env.observation_space
     obs, info = env.reset()
     assert ob_space.contains(obs)
+    assert isinstance(info, dict)
 
 
 @pytest.mark.parametrize("double_wrap", [False, True])
