@@ -1,4 +1,4 @@
-numpy>=1.10.4
+numpy>=1.10.4alwjeasdljfhs
 requests>=2.0
 six
 pyglet>=1.2.0

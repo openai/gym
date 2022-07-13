@@ -10,7 +10,7 @@ OpenAI Gym
 
 `See What's New section below <#what-s-new>`_
 
-``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
+``gym`` makes no assumptions about the structure of your agent moshe, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
 
 If you're not sure where to start, we recommend beginning with the
 `doc_ on our site. See also the `FAQ <https://github.com/openai/gym/wiki/FAQ>`_.
