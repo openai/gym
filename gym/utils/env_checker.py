@@ -85,7 +85,7 @@ def check_reset_seed(env: gym.Env):
                 env.unwrapped._np_random  # pyright: ignore [reportPrivateUsage]
             )
 
-            obs_2,info = env.reset(seed=123)
+            obs_2, info = env.reset(seed=123)
             assert (
                 obs_2 in env.observation_space
             ), "The observation returned by `env.reset(seed=123)` is not within the observation space."
@@ -98,7 +98,7 @@ def check_reset_seed(env: gym.Env):
                 == seed_123_rng.bit_generator.state
             ), "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random generates are not same when the same seeds are passed to `env.reset`."
 
-            obs_3,info = env.reset(seed=456)
+            obs_3, info = env.reset(seed=456)
             assert (
                 obs_3 in env.observation_space
             ), "The observation returned by `env.reset(seed=456)` is not within the observation space."

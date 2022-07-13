@@ -250,7 +250,7 @@ def _reset_seed_default(self, seed="error", options=None):
     return self.observation_space.sample(), {}
 
 
-def _reset_no_option(self, seed=None ):
+def _reset_no_option(self, seed=None):
     return self.observation_space.sample(), {}
 
 

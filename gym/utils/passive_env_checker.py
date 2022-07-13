@@ -193,13 +193,13 @@ def env_reset_passive_checker(env, **kwargs):
 
     assert isinstance(
         result, tuple
-    ), f"The result returned by `env.reset()` was not a tuple, actual type: <class 'list'>"
+    ), "The result returned by `env.reset()` was not a tuple, actual type: <class 'list'>"
 
     obs, info = result
     check_obs(obs, env.observation_space, "reset")
     assert isinstance(
         info, dict
-    ), f"The second element returned by `env.reset()` was not a dictionary, actual type: <class 'set'>"
+    ), "The second element returned by `env.reset()` was not a dictionary, actual type: <class 'set'>"
 
     check_obs(obs, env.observation_space, "reset")
     return result

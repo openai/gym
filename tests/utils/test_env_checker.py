@@ -6,11 +6,7 @@ import pytest
 
 import gym
 from gym import spaces
-from gym.utils.env_checker import (
-    check_env,
-    check_reset_options,
-    check_reset_seed,
-)
+from gym.utils.env_checker import check_env, check_reset_options, check_reset_seed
 from tests.testing_env import GenericTestEnv
 
 
@@ -62,9 +58,7 @@ def _super_reset_fixed(self, seed=None, options=None):
     return self.observation_space.sample(), {}
 
 
-def _reset_default_seed(
-    self: GenericTestEnv, seed="Error", options=None
-):
+def _reset_default_seed(self: GenericTestEnv, seed="Error", options=None):
     super(GenericTestEnv, self).reset(seed=seed)
     self.observation_space._np_random = (  # pyright: ignore [reportPrivateUsage]
         self.np_random
@@ -119,20 +113,20 @@ def _reset_var_keyword_kwargs(self, kwargs):
 
 
 def _reset_return_info_type(self, seed=None, options=None):
-        return [1, 2], {}
+    return [1, 2], {}
 
 
 def _reset_return_info_length(self, seed=None, options=None):
-        return 1, 2, 3
+    return 1, 2, 3
 
 
 def _return_info_obs_outside(self, seed=None, options=None):
-        return self.observation_space.sample() + self.observation_space.high, {}
+    return self.observation_space.sample() + self.observation_space.high, {}
 
 
 def _return_info_not_dict(self, seed=None, options=None):
-        return self.observation_space.sample(), ["key", "value"]
-    
+    return self.observation_space.sample(), ["key", "value"]
+
 
 @pytest.mark.parametrize(
     "test,func,message",
@@ -159,8 +153,6 @@ def _return_info_not_dict(self, seed=None, options=None):
         ],
     ],
 )
-
-
 def test_check_reset_options(test, func: callable, message: str):
     """Tests the check_reset_options function."""
     with pytest.raises(
@@ -169,7 +161,7 @@ def test_check_reset_options(test, func: callable, message: str):
             "The `reset` method does not provide an `options` or `**kwargs` keyword argument"
         ),
     ):
-        check_reset_options(GenericTestEnv(reset_fn=lambda self: (0 , {})))
+        check_reset_options(GenericTestEnv(reset_fn=lambda self: (0, {})))
 
 
 @pytest.mark.parametrize(

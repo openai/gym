@@ -19,6 +19,7 @@ def basic_reset_fn(
     self.observation_space.seed(seed)
     return self.observation_space.sample(), {"options": options}
 
+
 def basic_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
     """A basic step function that will pass the environment check using random actions from the observation space."""
     return self.observation_space.sample(), 0, False, False, {}
