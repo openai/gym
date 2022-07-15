@@ -100,6 +100,11 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return all(space.is_np_flattenable for space in self.spaces.values())
+
     def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
