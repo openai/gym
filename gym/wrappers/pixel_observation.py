@@ -94,7 +94,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         default_render_kwargs = {}
         if not env.render_mode:
-            default_render_kwargs = {'mode': 'rgb_array'}
+            default_render_kwargs = {"mode": "rgb_array"}
             logger.warn(
                 "env.render_mode must be specified to use PixelObservationWrapper:"
                 "`gym.make(env_name, render_mode='single_rgb_array')`."
@@ -138,7 +138,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             pixels = self.env.render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
 
-            if not hasattr(pixels, 'dtype') or not hasattr(pixels, 'shape'):
+            if not hasattr(pixels, "dtype") or not hasattr(pixels, "shape"):
                 raise TypeError(
                     f"Render method returns a {pixels.__class__.__name__}, but an array with dtype and shape is expected."
                     "Be sure to specify the correct render_mode."
