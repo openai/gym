@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 import gym
-from gym import spaces
+from gym import logger, spaces
 
 STATE_KEY = "state"
 
@@ -78,11 +78,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             TypeError: When an unexpected pixel type is used
         """
         super().__init__(env, new_step_api=True)
-        if not env.render_mode:
-            raise AttributeError(
-                "env.render_mode must be specified to use PixelObservationWrapper:"
-                "`gym.make(env_name, render_mode='single_rgb_array')`."
-            )
+
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)
 
@@ -96,8 +92,16 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 f"Found key '{key}' in render_kwargs but not in pixel_keys."
             )
 
+        default_render_kwargs = {}
+        if not env.render_mode:
+            default_render_kwargs = {'mode': 'rgb_array'}
+            logger.warn(
+                "env.render_mode must be specified to use PixelObservationWrapper:"
+                "`gym.make(env_name, render_mode='single_rgb_array')`."
+            )
+
         for key in pixel_keys:
-            render_kwargs.setdefault(key, {})
+            render_kwargs.setdefault(key, default_render_kwargs)
 
         wrapped_observation_space = env.observation_space
 
@@ -133,6 +137,12 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
+
+            if not hasattr(pixels, 'dtype') or not hasattr(pixels, 'shape'):
+                raise TypeError(
+                    f"Render method returns a {pixels.__class__.__name__}, but an array with dtype and shape is expected."
+                    "Be sure to specify the correct render_mode."
+                )
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
