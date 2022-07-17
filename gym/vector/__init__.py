@@ -35,9 +35,10 @@ def make(
         num_envs: Number of copies of the environment.
         asynchronous: If `True`, wraps the environments in an :class:`AsyncVectorEnv` (which uses `multiprocessing`_ to run the environments in parallel). If ``False``, wraps the environments in a :class:`SyncVectorEnv`.
         wrappers: If not ``None``, then apply the wrappers to each internal environment during creation.
-        disable_env_checker: If to disable the env checker, if True it will only run on the first environment created.
+        disable_env_checker: If to run the env checker for the first environment only. None will default to the environment spec `disable_env_checker` parameter
+            (that is by default False), otherwise will run according to this argument (True = not run, False = run)
         new_step_api: If True, the vector environment's step method outputs two booleans `terminated`, `truncated` instead of one `done`.
-        **kwargs: Keywords arguments applied during gym.make
+        **kwargs: Keywords arguments applied during `gym.make`
 
     Returns:
         The vectorized environment.
