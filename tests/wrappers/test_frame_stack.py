@@ -39,8 +39,13 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
 
     for _ in range(num_stack**2):
         action = env.action_space.sample()
-        dup_obs, _, _, _ = dup.step(action)
-        obs, _, _, _ = env.step(action)
+        dup_obs, _, dup_done, _ = dup.step(action)
+        obs, _, done, _ = env.step(action)
+
+        assert dup_done == done
         assert np.allclose(obs[-1], dup_obs)
+
+        if done:
+            break
 
     assert len(obs) == num_stack
