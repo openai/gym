@@ -3,11 +3,10 @@ from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Any
 from typing import Dict as TypingDict
-from typing import List, Optional
-from typing import OrderedDict as TypingOrderedDict
-from typing import Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
+from typing_extensions import OrderedDict as TypingOrderedDict
 
 from gym.spaces.space import Space
 from gym.utils import seeding
@@ -55,7 +54,11 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def __init__(
         self,
         spaces: Optional[
-            Union[TypingDict[str, Space], TypingOrderedDict[str, Space], Sequence]
+            Union[
+                TypingDict[str, Space],
+                TypingOrderedDict[str, Space],
+                Sequence[Tuple[str, Space]],
+            ]
         ] = None,
         seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
         **spaces_kwargs: Space,
