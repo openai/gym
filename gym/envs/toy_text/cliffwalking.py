@@ -100,7 +100,7 @@ class CliffWalkingEnv(Env):
         self.cell_size = (60, 60)
         self.window_size = (
             self.shape[1] * self.cell_size[1],
-            self.shape[0] * self.cell_size[0]
+            (self.shape[0] + 0.5) * self.cell_size[0]
         )
         self.window_surface = None
         self.clock = None
@@ -110,6 +110,7 @@ class CliffWalkingEnv(Env):
         self.cliff_img = None
         self.mountain_bg_img = None
         self.near_cliff_img = None
+        self.tree_img = None
 
     def _limit_coordinates(self, coord: np.ndarray) -> np.ndarray:
         """Prevent the agent from falling out of the grid world."""
@@ -192,49 +193,75 @@ class CliffWalkingEnv(Env):
             self.clock = pygame.time.Clock()
         if self.elf_images is None:
             hikers = [
-                path.join(path.dirname(__file__), "img/elf_up.png"),
-                path.join(path.dirname(__file__), "img/elf_right.png"),
-                path.join(path.dirname(__file__), "img/elf_down.png"),
-                path.join(path.dirname(__file__), "img/elf_left.png"),
+                path.join(path.dirname(__file__), "img/mountain_elf_up.png"),
+                path.join(path.dirname(__file__), "img/mountain_elf_right.png"),
+                path.join(path.dirname(__file__), "img/mountain_elf_down.png"),
+                path.join(path.dirname(__file__), "img/mountain_elf_left.png"),
             ]
             self.elf_images = [
                 pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
                 for f_name in hikers
             ]
         if self.start_img is None:
-            file_name = path.join(path.dirname(__file__), "img/stool.png")
+            file_name = path.join(path.dirname(__file__), "img/mountain_stool.png")
             self.start_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
         if self.goal_img is None:
-            file_name = path.join(path.dirname(__file__), "img/cookie.png")
+            file_name = path.join(path.dirname(__file__), "img/mountain_cookie.png")
             self.goal_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
         if self.mountain_bg_img is None:
-            file_name = path.join(path.dirname(__file__), "img/mountain_bg.png")
-            self.mountain_bg_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            bg_imgs = [
+                path.join(path.dirname(__file__), "img/mountain_bg1.png"),
+                path.join(path.dirname(__file__), "img/mountain_bg2.png"),
+            ]
+            self.mountain_bg_img = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in bg_imgs
+            ]
         if self.near_cliff_img is None:
-            file_name = path.join(path.dirname(__file__), "img/near_cliff_img.png")
-            self.near_cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            near_cliff_imgs = [
+                path.join(path.dirname(__file__), "img/mountain_near-cliff1.png"),
+                path.join(path.dirname(__file__), "img/mountain_near-cliff2.png"),
+            ]
+            self.near_cliff_img = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in near_cliff_imgs
+            ]
         if self.cliff_img is None:
-            file_name = path.join(path.dirname(__file__), "img/cliff.png")
+            file_name = path.join(path.dirname(__file__), "img/mountain_cliff.png")
             self.cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+        if self.tree_img is None:
+            tree_imgs = [
+                path.join(path.dirname(__file__), "img/mountain_bg_tree1.png"),
+                path.join(path.dirname(__file__), "img/mountain_bg_tree2.png"),
+            ]
+            self.tree_img = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in tree_imgs
+            ]
 
-        self.window_surface.fill((101, 119, 123))
+
+        for col in range(self.shape[1]):
+            pos = (col * self.cell_size[0], -0.5 * self.cell_size[1])
+            self.window_surface.blit(self.mountain_bg_img[col % 2 == 0], pos)
 
         for s in range(self.nS):
             row, col = np.unravel_index(s, self.shape)
-            pos = (col * self.cell_size[0], row * self.cell_size[1])
-            if s % 5 == 0:
-                self.window_surface.blit(self.mountain_bg_img, pos)
+            pos = (col * self.cell_size[0], (row + 0.5) * self.cell_size[1])
+            check_board_mask = row % 2 ^ col % 2
+            self.window_surface.blit(self.mountain_bg_img[check_board_mask], pos)
+
             if self._cliff[row, col]:
                 self.window_surface.blit(self.cliff_img, pos)
             if row < self.shape[0] - 1 and self._cliff[row + 1, col]:
-                self.window_surface.blit(self.near_cliff_img, pos)
+                self.window_surface.blit(self.near_cliff_img[check_board_mask], pos)
             if s == self.start_state_index:
                 self.window_surface.blit(self.start_img, pos)
             if s == self.nS - 1:
                 self.window_surface.blit(self.goal_img, pos)
             if s == self.s:
                 last_action = self.lastaction if self.lastaction is not None else 2
-                self.window_surface.blit(self.elf_images[last_action], pos)
+                elf_pos = (pos[0], pos[1] - 0.2 * self.cell_size[1])
+                self.window_surface.blit(self.elf_images[last_action], elf_pos)
 
         if mode == "human":
             pygame.event.pump()
