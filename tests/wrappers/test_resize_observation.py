@@ -4,12 +4,8 @@ import gym
 from gym import spaces
 from gym.wrappers import ResizeObservation
 
-pytest.importorskip("gym.envs.atari")
 
-
-@pytest.mark.parametrize(
-    "env_id", ["PongNoFrameskip-v0", "SpaceInvadersNoFrameskip-v0"]
-)
+@pytest.mark.parametrize("env_id", ["CarRacing-v2"])
 @pytest.mark.parametrize("shape", [16, 32, (8, 5), [10, 7]])
 def test_resize_observation(env_id, shape):
     env = gym.make(env_id, disable_env_checker=True)
