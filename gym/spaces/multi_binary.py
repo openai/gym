@@ -97,7 +97,7 @@ class MultiBinary(Space[np.ndarray]):
 
     def from_jsonable(self, sample_n) -> list:
         """Convert a JSONable data type to a batch of samples from this space."""
-        return [np.asarray(sample) for sample in sample_n]
+        return [np.asarray(sample, self.dtype) for sample in sample_n]
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""

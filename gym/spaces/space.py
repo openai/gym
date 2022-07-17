@@ -67,7 +67,7 @@ class Space(Generic[T_cov]):
             if isinstance(seed, seeding.RandomNumberGenerator):
                 self._np_random = seed
             else:
-                self.seed(seed)
+                self.seed(int(seed))
 
     @property
     def np_random(self) -> seeding.RandomNumberGenerator:
@@ -123,7 +123,6 @@ class Space(Generic[T_cov]):
         # See:
         #   https://github.com/openai/gym/pull/2397 -- shape
         #   https://github.com/openai/gym/pull/1913 -- np_random
-        #
         if "shape" in state:
             state["_shape"] = state["shape"]
             del state["shape"]

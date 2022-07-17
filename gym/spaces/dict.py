@@ -3,7 +3,9 @@ from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Any
 from typing import Dict as TypingDict
-from typing import Optional, Union
+from typing import List, Optional
+from typing import OrderedDict as TypingOrderedDict
+from typing import Union
 
 import numpy as np
 
@@ -52,7 +54,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __init__(
         self,
-        spaces: Optional[TypingDict[str, Space]] = None,
+        spaces: Optional[
+            Union[TypingDict[str, Space], TypingOrderedDict[str, Space], Sequence]
+        ] = None,
         seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
         **spaces_kwargs: Space,
     ):
@@ -75,9 +79,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             seed: Optionally, you can use this argument to seed the RNGs of the spaces that make up the :class:`Dict` space.
             **spaces_kwargs: If ``spaces`` is ``None``, you need to pass the constituent spaces as keyword arguments, as described above.
         """
-        assert (spaces is None) or (
-            not spaces_kwargs
-        ), "Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)"
+        assert (spaces is None) != (
+            len(spaces_kwargs) == 0
+        ), "A Dict space cannot be empty and can only be initialised with a dictionary OR keywords."
 
         if spaces is None:
             spaces = spaces_kwargs
@@ -86,55 +90,53 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 spaces = OrderedDict(sorted(spaces.items()))
             except TypeError:  # raise when sort by different types of keys
                 spaces = OrderedDict(spaces.items())
-        if isinstance(spaces, Sequence):
+        elif isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
 
-        assert isinstance(spaces, OrderedDict), "spaces must be a dictionary"
+        assert isinstance(
+            spaces, OrderedDict
+        ), f"Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: {type(spaces)}"
 
         self.spaces = spaces
-        for space in spaces.values():
-            assert isinstance(
-                space, Space
-            ), "Values of the dict should be instances of gym.Space"
+        assert all(
+            isinstance(space, Space) for space in spaces.values()
+        ), "Dict space element is not an instance of Space: " + next(
+            f"key={key}, space={space}"
+            for key, space in spaces.items()
+            if not isinstance(space, Space)
+        )
         super().__init__(
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
+    def seed(
+        self, seed: Optional[Union[TypingDict[str, int], int]] = None
+    ) -> List[int]:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
         if isinstance(seed, dict):
-            for key, seed_key in zip(self.spaces, seed):
-                assert key == seed_key, print(
-                    "Key value",
-                    seed_key,
-                    "in passed seed dict did not match key value",
-                    key,
-                    "in spaces Dict.",
-                )
-                seeds += self.spaces[key].seed(seed[seed_key])
+            assert (
+                seed.keys() == self.spaces.keys()
+            ), f"The seed keys: {seed.keys()} are not identical to space keys: {self.spaces.keys()}"
+            for key in seed.keys():
+                seeds += self.spaces[key].seed(seed[key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            try:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=False,  # unique subseed for each subspace
-                )
-            except ValueError:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=True,  # we get more than INT_MAX subspaces
-                )
-
+            # replace=False - unique subseed for each subspace, if you have more spaces than np.iinfo(int).max then something is terribly wrong
+            subseeds = self.np_random.choice(
+                np.iinfo(int).max,
+                size=len(self.spaces),
+                replace=False,
+            )
             for subspace, subseed in zip(self.spaces.values(), subseeds):
-                seeds.append(subspace.seed(int(subseed))[0])
+                seeds += subspace.seed(int(subseed))
         elif seed is None:
             for space in self.spaces.values():
-                seeds += space.seed(seed)
+                seeds += space.seed(None)
         else:
-            raise TypeError("Passed seed not of an expected type: dict or int or None")
+            raise TypeError(
+                f"Passed seed not of an expected type: dict or int or None, actual type: {type(seed)}"
+            )
 
         return seeds
 
@@ -164,14 +166,10 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def contains(self, x) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
-        if not isinstance(x, dict) or len(x) != len(self.spaces):
-            return False
-        for k, space in self.spaces.items():
-            if k not in x:
-                return False
-            if not space.contains(x[k]):
-                return False
-        return True
+        if isinstance(x, dict):
+            if x.keys() == self.spaces.keys():
+                return all(x[key] in self.spaces[key] for key in self.spaces.keys())
+        return False
 
     def __getitem__(self, key: str) -> Space:
         """Get the space that is associated to `key`."""
@@ -201,16 +199,16 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             for key, space in self.spaces.items()
         }
 
-    def from_jsonable(self, sample_n: TypingDict[str, list]) -> list:
+    def from_jsonable(self, sample_n: TypingDict[str, list]) -> List[OrderedDict]:
         """Convert a JSONable data type to a batch of samples from this space."""
-        dict_of_list: TypingDict[str, list] = {}
-        for key, space in self.spaces.items():
-            dict_of_list[key] = space.from_jsonable(sample_n[key])
-        ret = []
+        dict_of_list: TypingDict[str, list] = {
+            key: space.from_jsonable(sample_n[key])
+            for key, space in self.spaces.items()
+        }
+
         n_elements = len(next(iter(dict_of_list.values())))
-        for i in range(n_elements):
-            entry = {}
-            for key, value in dict_of_list.items():
-                entry[key] = value[i]
-            ret.append(entry)
-        return ret
+        result = [
+            OrderedDict({key: value[n] for key, value in dict_of_list.items()})
+            for n in range(n_elements)
+        ]
+        return result

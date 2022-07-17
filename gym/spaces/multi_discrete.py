@@ -8,6 +8,7 @@ from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
+RECURSIVE_LIST_INT = List[Union["RECURSIVE_LIST_INT", int]]
 SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
 
 
@@ -40,7 +41,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     def __init__(
         self,
-        nvec: Union[np.ndarray, List[int]],
+        nvec: Union[np.ndarray, RECURSIVE_LIST_INT],
         dtype=np.int64,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
@@ -83,7 +84,7 @@ class MultiDiscrete(Space[np.ndarray]):
                 if isinstance(sub_mask, np.ndarray):
                     assert np.issubdtype(
                         type(sub_nvec), np.integer
-                    ), f"Expects the mask to be for an action, actual for {sub_nvec}"
+                    ), f"Expects the mask to be for an action, mask: {sub_mask}, action: {sub_nvec}"
                     assert (
                         len(sub_mask) == sub_nvec
                     ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {sub_nvec}"
@@ -143,13 +144,18 @@ class MultiDiscrete(Space[np.ndarray]):
             subspace = Discrete(nvec)
         else:
             subspace = MultiDiscrete(nvec, self.dtype)  # type: ignore
+
+        # you don't need to deepcopy as np random generator call replaces the state not the data
         subspace.np_random.bit_generator.state = self.np_random.bit_generator.state
+
         return subspace
 
     def __len__(self):
         """Gives the ``len`` of samples from this space."""
         if self.nvec.ndim >= 2:
-            logger.warn("Get length of a multi-dimensional MultiDiscrete space.")
+            logger.warn(
+                "Getting the length of a multi-dimensional MultiDiscrete space."
+            )
         return len(self.nvec)
 
     def __eq__(self, other):

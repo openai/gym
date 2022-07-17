@@ -1,5 +1,4 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
-from collections import namedtuple
 from typing import NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -11,21 +10,17 @@ from gym.spaces.space import Space
 from gym.utils import seeding
 
 
-class GraphInstance(namedtuple("GraphInstance", ["nodes", "edges", "edge_links"])):
-    r"""Returns a NamedTuple representing a graph object.
+class GraphInstance(NamedTuple):
+    """A Graph space instance.
 
-    Args:
-        nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
-        (...) must adhere to the shape of the node space.
-
-        edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
-        (...) must adhere to the shape of the edge space.
-
-        edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
-
-    Returns:
-        A NamedTuple representing a graph with `.nodes`, `.edges`, and `.edge_links`.
+    * nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes, (...) must adhere to the shape of the node space.
+    * edges (np.ndarray): an (m x ...) sized array representing the features for m nodes, (...) must adhere to the shape of the edge space.
+    * edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
     """
+
+    nodes: np.ndarray
+    edges: np.ndarray
+    edge_links: np.ndarray
 
 
 class Graph(Space):

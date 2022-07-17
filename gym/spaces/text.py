@@ -1,5 +1,5 @@
 """Implementation of a space that represents textual strings."""
-from typing import Any, FrozenSet, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class Text(Space[str]):
         self,
         max_length: int,
         *,
-        min_length: int = 0,
+        min_length: int = 1,
         charset: Union[Set[str], str] = alphanumeric,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
@@ -37,9 +37,9 @@ class Text(Space[str]):
         Both bounds for text length are inclusive.
 
         Args:
-            min_length (int): Minimum text length (in characters).
+            min_length (int): Minimum text length (in characters). Defaults to 1 to prevent empty strings.
             max_length (int): Maximum text length (in characters).
-            charset (Union[set, SupportsIndex]): Character set, defaults to the lower and upper english alphabet plus latin digits.
+            charset (Union[set], str): Character set, defaults to the lower and upper english alphabet plus latin digits.
             seed: The seed for sampling from the space.
         """
         assert np.issubdtype(
@@ -59,6 +59,9 @@ class Text(Space[str]):
         self.max_length: int = int(max_length)
         self.charset: FrozenSet[str] = frozenset(charset)
         self._charlist: List[str] = list(charset)
+        self._charindex: Dict[str, np.int32] = {
+            val: np.int32(i) for i, val in enumerate(self._charlist)
+        }
         self._charset_str: str = "".join(sorted(self._charlist))
 
         # As the shape is dynamic (between min_length and max_length) then None
@@ -121,3 +124,7 @@ class Text(Space[str]):
             and self.max_length == other.max_length
             and self.charset == other.charset
         )
+
+    def character_index(self, char: str) -> np.int32:
+        """The character index in the space's `_charlist`."""
+        return self._charindex[char]

@@ -19,6 +19,7 @@ from gym.spaces import (
     MultiBinary,
     MultiDiscrete,
     Space,
+    Text,
     Tuple,
 )
 
@@ -70,6 +71,18 @@ def _flatdim_tuple(space: Tuple) -> int:
 @flatdim.register(Dict)
 def _flatdim_dict(space: Dict) -> int:
     return sum(flatdim(s) for s in space.spaces.values())
+
+
+@flatdim.register(Graph)
+def _flatdim_graph(space: Graph):
+    return NotImplementedError(
+        "As gym space Graph have a dynamic size, therefore you cannot know the flattened size."
+    )
+
+
+@flatdim.register(Text)
+def _flatdim_text(space: Text) -> int:
+    return space.max_length
 
 
 T = TypeVar("T")
@@ -137,7 +150,7 @@ def _flatten_dict(space, x) -> np.ndarray:
 
 
 @flatten.register(Graph)
-def _flatten_graph(space, x) -> np.ndarray:
+def _flatten_graph(space, x) -> GraphInstance:
     """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space, see `.flatten` docstring."""
 
     def _graph_unflatten(space, x):
@@ -154,6 +167,14 @@ def _flatten_graph(space, x) -> np.ndarray:
     edges = _graph_unflatten(space.edge_space, x.edges)
 
     return GraphInstance(nodes, edges, x.edge_links)
+
+
+@flatten.register(Text)
+def _flatten_text(space: Text, x: str) -> np.ndarray:
+    arr = np.full(space.max_length, len(space.charset), dtype=np.int32)
+    for i, val in enumerate(x):
+        arr[i] = space.character_index(val)
+    return arr
 
 
 @singledispatch
@@ -240,6 +261,11 @@ def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
     edges = _graph_unflatten(space.edge_space, x.edges)
 
     return GraphInstance(nodes, edges, x.edge_links)
+
+
+@unflatten.register(Text)
+def _unflatten_text(space: Text, x: np.ndarray) -> str:
+    return "".join([space._charlist[val] for val in x if val < len(space.charset)])
 
 
 @singledispatch
@@ -340,4 +366,11 @@ def _flatten_space_graph(space: Graph) -> Graph:
         edge_space=flatten_space(space.edge_space)
         if space.edge_space is not None
         else None,
+    )
+
+
+@flatten_space.register(Text)
+def _flatten_space_text(space: Text) -> Box:
+    return Box(
+        low=0, high=len(space.charset), shape=(space.max_length,), dtype=np.int32
     )

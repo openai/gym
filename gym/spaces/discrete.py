@@ -81,18 +81,19 @@ class Discrete(Space[int]):
         if isinstance(x, int):
             as_int = x
         elif isinstance(x, (np.generic, np.ndarray)) and (
-            x.dtype.char in np.typecodes["AllInteger"] and x.shape == ()
+            np.issubdtype(x.dtype, np.integer) and x.shape == ()
         ):
             as_int = int(x)  # type: ignore
         else:
             return False
+
         return self.start <= as_int < self.start + self.n
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
         if self.start != 0:
-            return "Discrete(%d, start=%d)" % (self.n, self.start)
-        return "Discrete(%d)" % self.n
+            return f"Discrete({self.n:d}, start={self.start:d})"
+        return f"Discrete({self.n:d})"
 
     def __eq__(self, other) -> bool:
         """Check whether ``other`` is equivalent to this instance."""
@@ -110,8 +111,6 @@ class Discrete(Space[int]):
         Args:
             state: The new state
         """
-        super().__setstate__(state)
-
         # Don't mutate the original state
         state = dict(state)
 
@@ -120,5 +119,4 @@ class Discrete(Space[int]):
         if "start" not in state:
             state["start"] = 0
 
-        # Update our state
-        self.__dict__.update(state)
+        super().__setstate__(state)
