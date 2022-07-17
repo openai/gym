@@ -119,7 +119,7 @@ class BaseMujocoEnv(gym.Env):
 
     def _step_mujoco_simulation(self, ctrl, n_frames):
         """
-        Step over the MuJoCo simulaion.
+        Step over the MuJoCo simulation.
         """
         raise NotImplementedError
 
