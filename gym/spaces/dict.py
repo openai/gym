@@ -1,4 +1,5 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
+import sys
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -8,10 +9,14 @@ from typing import Sequence as TypingSequence
 from typing import Tuple, Union
 
 import numpy as np
-from typing_extensions import OrderedDict as TypingOrderedDict
 
 from gym.spaces.space import Space
 from gym.utils import seeding
+
+if sys.version_info >= (3, 8):
+    from typing import OrderedDict as TypingOrderedDict
+else:
+    from typing_extensions import OrderedDict as TypingOrderedDict
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):

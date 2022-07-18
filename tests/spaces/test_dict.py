@@ -21,7 +21,7 @@ def test_dict_init():
 
     with pytest.raises(
         AssertionError,
-        match=r"^Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: <class 'gym\.spaces\.discrete\.Discrete'>$",
+        match=r"^Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: ",
     ):
         Dict(Discrete(2))
 
