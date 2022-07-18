@@ -87,8 +87,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         for key in render_kwargs:
             assert key in pixel_keys, (
-                "The argument render_kwargs should map elements of "
-                "pixel_keys to dictionaries of keyword arguments. "
+                "The argument render_kwargs should map elements of pixel_keys to dictionaries of keyword arguments. "
                 f"Found key '{key}' in render_kwargs but not in pixel_keys."
             )
 
@@ -116,33 +115,31 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 )
 
         if pixels_only:
-            self.observation_space = spaces.Dict()
+            new_obs_spaces = {}
         elif self._observation_is_dict:
-            self.observation_space = copy.deepcopy(wrapped_observation_space)
+            new_obs_spaces = copy.deepcopy(wrapped_observation_space).spaces
         else:
-            self.observation_space = spaces.Dict({STATE_KEY: wrapped_observation_space})
+            new_obs_spaces = {STATE_KEY: wrapped_observation_space}
 
         # Extend observation space with pixels.
-
         self.env.reset()
-        pixels_spaces = {}
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
 
+            assert isinstance(pixels, np.ndarray), f"Expects the render data to be a numpy ndarray, actual type: {type(pixels)}"
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
             elif np.issubdtype(pixels.dtype, np.float):
                 low, high = (-float("inf"), float("inf"))
             else:
-                raise TypeError(pixels.dtype)
+                raise TypeError(f"Expect pixel dtype to be integer or float, actual dtype: {pixels.dtype}")
 
-            pixels_space = spaces.Box(
+            new_obs_spaces[pixel_key] = spaces.Box(
                 shape=pixels.shape, low=low, high=high, dtype=pixels.dtype
             )
-            pixels_spaces[pixel_key] = pixels_space
 
-        self.observation_space.spaces.update(pixels_spaces)
+        self.observation_space = spaces.Dict(new_obs_spaces)
 
         self._pixels_only = pixels_only
         self._render_kwargs = render_kwargs

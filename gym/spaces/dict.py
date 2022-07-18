@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 from typing import Dict as TypingDict
 from typing import List, Optional, Tuple, Union
+from typing import Sequence as TypingSequence
 
 import numpy as np
 from typing_extensions import OrderedDict as TypingOrderedDict
@@ -57,7 +58,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             Union[
                 TypingDict[str, Space],
                 TypingOrderedDict[str, Space],
-                Sequence[Tuple[str, Space]],
+                TypingSequence[Tuple[str, Space]],
             ]
         ] = None,
         seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
