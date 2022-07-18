@@ -135,13 +135,17 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             pixels = self.env.render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
 
-            assert isinstance(pixels, np.ndarray), f"Expects the render data to be a numpy ndarray, actual type: {type(pixels)}"
+            assert isinstance(
+                pixels, np.ndarray
+            ), f"Expects the render data to be a numpy ndarray, actual type: {type(pixels)}"
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
             elif np.issubdtype(pixels.dtype, np.float):
                 low, high = (-float("inf"), float("inf"))
             else:
-                raise TypeError(f"Expect pixel dtype to be integer or float, actual dtype: {pixels.dtype}")
+                raise TypeError(
+                    f"Expect pixel dtype to be integer or float, actual dtype: {pixels.dtype}"
+                )
 
             new_obs_spaces[pixel_key] = spaces.Box(
                 shape=pixels.shape, low=low, high=high, dtype=pixels.dtype

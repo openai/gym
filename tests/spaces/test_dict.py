@@ -11,6 +11,12 @@ def test_dict_init():
         AssertionError,
         match=r"^A Dict space cannot be empty and can only be initialised with a dictionary OR keywords\.$",
     ):
+        Dict()
+
+    with pytest.raises(
+        AssertionError,
+        match=r"^A Dict space cannot be empty and can only be initialised with a dictionary OR keywords\.$",
+    ):
         Dict({"a": Discrete(2)}, b=Discrete(3))
 
     with pytest.raises(

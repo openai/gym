@@ -109,7 +109,8 @@ def test_single_array_observation(pixels_only):
     else:
         assert len(wrapped_env.observation_space.spaces) == 2
         assert list(wrapped_env.observation_space.spaces.keys()) == [
-            pixel_key, STATE_KEY
+            pixel_key,
+            STATE_KEY,
         ]
 
     observation = wrapped_env.reset()

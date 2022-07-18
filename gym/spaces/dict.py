@@ -3,8 +3,9 @@ from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Any
 from typing import Dict as TypingDict
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional
 from typing import Sequence as TypingSequence
+from typing import Tuple, Union
 
 import numpy as np
 from typing_extensions import OrderedDict as TypingOrderedDict
