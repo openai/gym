@@ -126,7 +126,7 @@ class EnvSpec:
     * max_episode_steps: The max number of steps that the environment can take before truncation
     * order_enforce: If to enforce the order of `reset` before `step` and `render` functions
     * autoreset: If to automatically reset the environment on episode end
-    * disable_env_checker: If to disable the environment checker wrapper by default in `gym.make`
+    * disable_env_checker: If to disable the environment checker wrapper in `gym.make`, by default False (runs the environment checker)
     * kwargs: Additional keyword arguments passed to the environments through `gym.make`
     """
 
@@ -558,8 +558,9 @@ def make(
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
-        disable_env_checker: If to run the env checker, None will default to the environment `spec.disable_env_checker`
-            (that is by default True), otherwise will run according to the parameter (True = not run, False = run)
+        disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
+            (which is by default False, running the environment checker),
+            otherwise will run according to this parameter (`True` = not run, `False` = run)
         kwargs: Additional arguments to pass to the environment constructor.
 
     Returns:

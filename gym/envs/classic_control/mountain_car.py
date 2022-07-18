@@ -158,9 +158,7 @@ class MountainCarEnv(gym.Env):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
-        low, high = utils.maybe_parse_reset_bounds(
-            options, -0.6, 0.4  # default low
-        )  # default high
+        low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()
