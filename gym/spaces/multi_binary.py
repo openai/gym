@@ -57,8 +57,8 @@ class MultiBinary(Space[np.ndarray]):
         A sample is drawn by independent, fair coin tosses (one toss per binary variable of the space).
 
         Args:
-            mask: An optional np.ndarray to mask samples with expected shape of ``space.shape``.
-                Where mask == 0 then the samples will be 0.
+            mask: An optional np.ndarray to mask samples with expected shape of ``space.shape + (2,)``.
+                Where for each binary action, it expects (2,) shape mask in ``dtype=np.int8``.
 
         Returns:
             Sampled values from space

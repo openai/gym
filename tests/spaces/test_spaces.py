@@ -9,10 +9,17 @@ import numpy as np
 import pytest
 
 from gym import Space
-from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Text
 from gym.utils import seeding
 from gym.utils.env_checker import data_equivalence
-from tests.spaces.utils import TESTING_SPACES, TESTING_SPACES_IDS
+from tests.spaces.utils import (
+    TESTING_COMPOSITE_SPACES,
+    TESTING_COMPOSITE_SPACES_IDS,
+    TESTING_FUNDAMENTAL_SPACES,
+    TESTING_FUNDAMENTAL_SPACES_IDS,
+    TESTING_SPACES,
+    TESTING_SPACES_IDS,
+)
 
 # Due to this test taking a 1ms each then we don't mind generating so many tests
 TESTING_SPACES_PERMUTATIONS = list(
@@ -39,9 +46,7 @@ def test_space_equality(space_1, space_2):
     assert space_1 != space_2
 
 
-@pytest.mark.parametrize(
-    "space", TESTING_SPACES, ids=[f"{space}" for space in TESTING_SPACES]
-)
+@pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
 def test_seed_reproducibility(space):
     space_1 = space
     space_2 = copy.deepcopy(space)
@@ -147,7 +152,7 @@ def test_space_pickling(space):
     assert data_equivalence(space_sample, file_unpickled_sample)
 
 
-@pytest.mark.parametrize("space", TESTING_SPACES)
+@pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
 def test_space_sample(space):
     assert space.sample() is not None
 
@@ -171,20 +176,7 @@ CHI_SQUARED = np.array(
 
 
 @pytest.mark.parametrize(
-    "space",
-    [
-        Discrete(1),
-        Discrete(5),
-        Discrete(8, start=-20),
-        Box(low=0, high=255, shape=(2,), dtype=np.uint8),
-        Box(low=-np.inf, high=np.inf, shape=(3,)),
-        Box(low=1.0, high=np.inf, shape=(3,)),
-        Box(low=-np.inf, high=2.0, shape=(3,)),
-        Box(low=np.array([0, 2]), high=np.array([10, 4])),
-        MultiDiscrete([3, 5]),
-        MultiDiscrete(np.array([[3, 5], [2, 1]])),
-        MultiBinary([2, 4]),
-    ],
+    "space", TESTING_FUNDAMENTAL_SPACES, ids=TESTING_FUNDAMENTAL_SPACES_IDS
 )
 def test_sample(space: Space, n_trials: int = 1_000):
     """Test the space sample has the expected distribution with the chi-squared test and KS test.
@@ -201,8 +193,10 @@ def test_sample(space: Space, n_trials: int = 1_000):
     samples = np.array([space.sample() for _ in range(n_trials)])
     assert len(samples) == n_trials
 
-    # todo add Box space test
-    if isinstance(space, Discrete):
+    if isinstance(space, Box):
+        # TODO: Add KS testing for continuous uniform distribution
+        pass
+    elif isinstance(space, Discrete):
         expected_frequency = np.ones(space.n) * n_trials / space.n
         observed_frequency = np.zeros(space.n)
         for sample in samples:
@@ -265,40 +259,76 @@ def test_sample(space: Space, n_trials: int = 1_000):
                 assert _variance < CHI_SQUARED[_degrees_of_freedom]
 
         _chi_squared_test(space.nvec, expected_frequency, observed_frequency)
+    elif isinstance(space, Text):
+        expected_frequency = (
+            np.ones(len(space.charset))
+            * n_trials
+            * (space.min_length + (space.max_length - space.min_length) / 2)
+            / len(space.charset)
+        )
+        observed_frequency = np.zeros(len(space.charset))
+        for sample in samples:
+            for x in sample:
+                observed_frequency[space.character_index(x)] += 1
+        degrees_of_freedom = len(space.charset) - 1
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == sum(len(sample) for sample in samples)
+
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency) / expected_frequency
+        )
+        if degrees_of_freedom == 61:
+            # scipy.stats.chi2.isf(0.05, df=61)
+            assert variance < 80.23209784876272
+        else:
+            assert variance < CHI_SQUARED[degrees_of_freedom]
+    else:
+        raise NotImplementedError()
+
+
+SAMPLE_MASK_RNG, _ = seeding.np_random(1)
 
 
 @pytest.mark.parametrize(
     "space,mask",
-    [
-        (Discrete(5), np.array([0, 1, 1, 0, 1], dtype=np.int8)),
-        (Discrete(4, start=-20), np.array([1, 1, 0, 1], dtype=np.int8)),
-        (Discrete(4, start=1), np.array([0, 0, 0, 0], dtype=np.int8)),
-        (MultiBinary([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
-        (
-            MultiDiscrete([5, 3]),
+    itertools.zip_longest(
+        TESTING_FUNDAMENTAL_SPACES,
+        [
+            # Discrete
+            np.array([1, 1, 0], dtype=np.int8),
+            np.array([0, 1, 0], dtype=np.int8),
+            # Box
+            None,
+            None,
+            None,
+            None,
+            None,
+            # Multi-discrete
+            (np.array([1, 1], dtype=np.int8), np.array([0, 0], dtype=np.int8)),
             (
-                np.array([0, 1, 1, 0, 1], dtype=np.int8),
-                np.array([0, 1, 1], dtype=np.int8),
+                (np.array([1, 0], dtype=np.int8), np.array([0, 1, 1], dtype=np.int8)),
+                (np.array([1, 1, 0], dtype=np.int8), np.array([0, 1], dtype=np.int8)),
             ),
-        ),
-        (
-            MultiDiscrete(np.array([4, 2])),
-            (np.array([0, 0, 0, 0], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
-        ),
-        (
-            MultiDiscrete(np.array([[2, 2], [4, 3]])),
-            (
-                (np.array([0, 1], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
-                (
-                    np.array([0, 1, 1, 0], dtype=np.int8),
-                    np.array([1, 0, 0], dtype=np.int8),
-                ),
-            ),
-        ),
-    ],
+            # Multi-binary
+            np.array([0, 1, 1, 1, 0, 0, 1, 1], dtype=np.int8),
+            np.array([[0, 1, 1], [0, 0, 1]], dtype=np.int8),
+            # Text
+            (None, SAMPLE_MASK_RNG.integers(low=0, high=2, size=62, dtype=np.int8)),
+            (4, SAMPLE_MASK_RNG.integers(low=0, high=2, size=62, dtype=np.int8)),
+            (None, np.array([1, 1, 0, 1, 0, 0], dtype=np.int8)),
+        ],
+    ),
+    ids=TESTING_FUNDAMENTAL_SPACES_IDS,
 )
-def test_space_sample_mask(space, mask, n_trials: int = 100):
+def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
     """Test the space sample with mask works using the pearson chi-squared test."""
+    if isinstance(space, Box):
+        # The box space can't have a sample mask
+        assert mask is None
+        return
+    assert mask is not None
+
     space.seed(1)
     samples = np.array([space.sample(mask) for _ in range(n_trials)])
 
@@ -388,66 +418,94 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
                 assert _variance < CHI_SQUARED[_degrees_of_freedom]
 
         _chi_squared_test(space.nvec, mask, expected_frequency, observed_frequency)
+    elif isinstance(space, Text):
+        length, charlist_mask = mask
+
+        if length is None:
+            expected_length = (
+                space.min_length + (space.max_length - space.min_length) / 2
+            )
+        else:
+            expected_length = length
+
+        if np.any(charlist_mask == 1):
+            expected_frequency = (
+                np.ones(len(space.charset))
+                * n_trials
+                * expected_length
+                / np.sum(charlist_mask)
+                * charlist_mask
+            )
+        else:
+            expected_frequency = np.zeros(len(space.charset))
+
+        observed_frequency = np.zeros(len(space.charset))
+        for sample in samples:
+            for char in sample:
+                observed_frequency[space.character_index(char)] += 1
+
+        degrees_of_freedom = max(np.sum(charlist_mask) - 1, 0)
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == sum(len(sample) for sample in samples)
+
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency)
+            / np.clip(expected_frequency, 1, None)
+        )
+        if degrees_of_freedom == 26:
+            # scipy.stats.chi2.isf(0.05, df=29)
+            assert variance < 38.88513865983007
+        elif degrees_of_freedom == 31:
+            # scipy.stats.chi2.isf(0.05, df=31)
+            assert variance < 44.985343280365136
+        else:
+            assert variance < CHI_SQUARED[degrees_of_freedom]
     else:
         raise NotImplementedError()
 
 
 @pytest.mark.parametrize(
     "space,mask",
-    [
-        (
-            Dict(a=Discrete(2), b=MultiDiscrete([2, 4])),
-            {
-                "a": np.array([0, 1], dtype=np.int8),
-                "b": (
-                    np.array([0, 1], dtype=np.int8),
-                    np.array([1, 1, 0, 0], dtype=np.int8),
-                ),
-            },
-        ),
-        (
-            Tuple([Box(0, 1, ()), Discrete(3), MultiBinary([2, 1])]),
+    itertools.zip_longest(
+        TESTING_COMPOSITE_SPACES,
+        [
+            # Tuple spaces
             (
-                None,
-                np.array([0, 1, 0], dtype=np.int8),
-                np.array([[0], [1]], dtype=np.int8),
+                np.array([0, 1, 1, 0, 1], dtype=np.int8),
+                np.array([0, 0, 1, 0], dtype=np.int8),
             ),
-        ),
-        (
-            Dict(a=Tuple([Box(0, 1, ()), Discrete(3)]), b=Discrete(3)),
+            (np.array([1, 1, 0, 0, 0], dtype=np.int8), None),
+            (
+                np.array([1, 1, 0, 0, 0], dtype=np.int8),
+                (None, np.array([0, 1], dtype=np.int8)),
+            ),
+            (
+                np.array([0, 0, 0], dtype=np.int8),
+                {"position": None, "velocity": np.array([1, 1], dtype=np.int8)},
+            ),
+            # Dict spaces
+            {"position": np.array([0, 1, 1, 0, 1], dtype=np.int8), "velocity": None},
             {
-                "a": (None, np.array([1, 0, 0], dtype=np.int8)),
-                "b": np.array([0, 1, 1], dtype=np.int8),
+                "a": None,
+                "b": {"b_1": None, "b_2": None},
+                "c": np.array([1, 0, 0, 1], dtype=np.int8),
             },
-        ),
-        (
-            Graph(node_space=Discrete(5), edge_space=Discrete(3)),
+            # Graph spaces
+            (None, np.array([1, 1, 0, 0, 0], dtype=np.int8)),
             (
                 tuple(
                     np.random.randint(low=0, high=2, size=5, dtype=np.int8)
                     for _ in range(10)
                 ),
-                np.array([1, 1, 1], dtype=np.int8),
-            ),
-        ),
-        (
-            Graph(node_space=Discrete(3), edge_space=Box(low=0, high=1, shape=(5,))),
-            (
-                tuple(
-                    np.random.randint(low=0, high=2, size=3, dtype=np.int8)
-                    for _ in range(10)
-                ),
                 None,
             ),
-        ),
-        (
-            Graph(
-                node_space=Box(low=-100, high=100, shape=(3,)), edge_space=Discrete(3)
-            ),
-            (None, np.array([1, 1, 0], dtype=np.int8)),
-        ),
-    ],
+            (None, None),
+        ],
+    ),
+    ids=TESTING_COMPOSITE_SPACES_IDS,
 )
-def test_composite_space_sample_mask(space, mask):
+def test_composite_space_sample_mask(space: Space, mask):
     """Test that composite space samples use the mask correctly."""
+    assert mask is not None
     space.sample(mask)

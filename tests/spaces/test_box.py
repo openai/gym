@@ -10,11 +10,11 @@ from gym.spaces import Box
     "box,expected_shape",
     [
         (  # Test with same 1-dim low and high shape
-            Box(low=np.zeros(2), high=np.ones(2)),
+            Box(low=np.zeros(2), high=np.ones(2), dtype=np.int32),
             (2,),
         ),
         (  # Test with same multi-dim low and high shape
-            Box(low=np.zeros((2, 1)), high=np.ones((2, 1))),
+            Box(low=np.zeros((2, 1)), high=np.ones((2, 1)), dtype=np.int32),
             (2, 1),
         ),
         (  # Test with scalar low high and different shape

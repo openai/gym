@@ -99,7 +99,7 @@ def _modify_space(space: spaces.Space, attribute: str, value):
         ],
         [
             AssertionError,
-            spaces.Dict(),
+            spaces.Dict({}),
             "An empty Dict observation space is not allowed.",
         ],
     ],
@@ -168,7 +168,7 @@ def test_check_observation_space(test, space, message: str):
             spaces.Tuple([]),
             "An empty Tuple action space is not allowed.",
         ],
-        [AssertionError, spaces.Dict(), "An empty Dict action space is not allowed."],
+        [AssertionError, spaces.Dict({}), "An empty Dict action space is not allowed."],
     ],
 )
 def test_check_action_space(

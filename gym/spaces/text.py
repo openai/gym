@@ -75,31 +75,59 @@ class Text(Space[str]):
         Args:
             mask: An optional tuples of length and mask for the text.
                 The length is expected to be between the `min_length` and `max_length` otherwise a random integer between `min_length` and `max_length` is selected.
-                For the mask, we expect a numpy array of length of the charset passed with dtype == np.int8
+                For the mask, we expect a numpy array of length of the charset passed with `dtype == np.int8`.
+                If the charlist mask is all zero then an empty string is returned no matter the `min_length`
 
         Returns:
             A sampled string from the space
         """
         if mask is not None:
+            assert isinstance(
+                mask, tuple
+            ), f"Expects the mask type to be a tuple, actual type: {type(mask)}"
+            assert (
+                len(mask) == 2
+            ), f"Expects the mask length to be two, actual length: {len(mask)}"
             length, charlist_mask = mask
             if length is not None:
-                assert self.min_length <= length <= self.max_length
+                assert np.issubdtype(
+                    type(length), np.integer
+                ), f"Expects the Text sample length to be an integer, actual type: {type(length)}"
+                assert (
+                    self.min_length <= length <= self.max_length
+                ), f"Expects the Text sample length be between {self.min_length} and {self.max_length}, actual length: {length}"
 
             if charlist_mask is not None:
-                assert isinstance(charlist_mask, np.ndarray)
-                assert charlist_mask.dtype is np.int8
-                assert charlist_mask.shape == (len(self._charlist),)
+                assert isinstance(
+                    charlist_mask, np.ndarray
+                ), f"Expects the Text sample mask to be an np.ndarray, actual type: {type(charlist_mask)}"
+                assert (
+                    charlist_mask.dtype == np.int8
+                ), f"Expects the Text sample mask to be an np.ndarray, actual dtype: {charlist_mask.dtype}"
+                assert charlist_mask.shape == (
+                    len(self.charset),
+                ), f"expects the Text sample mask to be {(len(self.charset),)}, actual shape: {charlist_mask.shape}"
+                assert np.all(
+                    np.logical_or(charlist_mask == 0, charlist_mask == 1)
+                ), f"Expects all masks values to 0 or 1, actual values: {charlist_mask}"
         else:
             length, charlist_mask = None, None
 
         if length is None:
-            length = self.np_random.randint(self.min_length, self.max_length + 1)
+            length = self.np_random.integers(self.min_length, self.max_length + 1)
 
         if charlist_mask is None:
             string = self.np_random.choice(self._charlist, size=length)
         else:
-            masked_charlist = self._charlist[np.where(mask)[0]]
-            string = self.np_random.choice(masked_charlist, size=length)
+            valid_mask = charlist_mask == 1
+            valid_indexes = np.where(valid_mask)[0]
+            if len(valid_indexes) == 0:
+                string = ""
+            else:
+                string = "".join(
+                    self._charlist[index]
+                    for index in self.np_random.choice(valid_indexes, size=length)
+                )
 
         return "".join(string)
 

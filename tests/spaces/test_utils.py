@@ -8,26 +8,34 @@ from gym.utils.env_checker import data_equivalence
 from tests.spaces.utils import TESTING_SPACES, TESTING_SPACES_IDS
 
 TESTING_SPACES_EXPECTED_FLATDIMS = [
+    # Discrete
     3,
     3,
+    # Box
     1,
     4,
     2,
     2,
     2,
+    # Multi-discrete
     4,
     10,
+    # Multi-binary
     8,
     6,
-    10,
-    10,
-    10,
-    15,
+    # Text
+    6,
+    6,
+    6,
+    # Tuple
+    9,
     7,
     10,
     6,
+    # Dict
     7,
     17,
+    # Graph
     None,
     None,
     None,
