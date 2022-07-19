@@ -42,7 +42,6 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
         dt = self.dt
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
-        self.last_u = u  # for rendering
         th_normalized = ((th + jnp.pi) % (2 * jnp.pi)) - jnp.pi
         costs = th_normalized**2 + 0.1 * thdot**2 + 0.001 * (u**2)
 
