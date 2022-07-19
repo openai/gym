@@ -12,7 +12,7 @@ from jax.random import PRNGKey
 from gym.functional import FuncEnv, StepReturn
 
 
-class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
+class Pendulum(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
     """Pendulum but in jax and functional."""
 
     max_speed = 8
