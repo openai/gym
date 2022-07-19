@@ -18,6 +18,16 @@ try:
 except ImportError:
     raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
+try:
+    # As pygame is necessary for using the environment (reset and step) even without a render mode
+    #   therefore, pygame is a necessary import for the environment.
+    import pygame
+    from pygame import gfxdraw
+except ImportError:
+    raise DependencyNotInstalled(
+        "pygame is not installed, run `pip install gym[box2d]`"
+    )
+
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -526,8 +536,8 @@ class CarRacing(gym.Env, EzPickle):
         self.state = self._render("single_state_pixels")
 
         step_reward = 0
-        done = False
-        info = {}
+        terminated = False
+        truncated = False
         if action is not None:  # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
@@ -536,18 +546,17 @@ class CarRacing(gym.Env, EzPickle):
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
             if self.tile_visited_count == len(self.track) or self.new_lap:
-                done = True
-                # Termination due to finishing lap
+                # Truncation due to finishing lap
                 # This should not be treated as a failure
                 # but like a timeout
-                info["TimeLimit.truncated"] = True
+                truncated = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
-                done = True
+                terminated = True
                 step_reward = -100
 
         self.renderer.render_step()
-        return self.state, step_reward, done, info
+        return self.state, step_reward, terminated, truncated, {}
 
     def render(self, mode: str = "human"):
         if self.render_mode is not None:
@@ -557,15 +566,8 @@ class CarRacing(gym.Env, EzPickle):
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]
-        try:
-            import pygame
-        except ImportError:
-            raise DependencyNotInstalled(
-                "pygame is not installed, run `pip install gym[box2d]`"
-            )
 
         pygame.font.init()
-
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
@@ -662,8 +664,6 @@ class CarRacing(gym.Env, EzPickle):
             self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def _render_indicators(self, W, H):
-        import pygame
-
         s = W / 40.0
         h = H / 40.0
         color = (0, 0, 0)
@@ -734,9 +734,6 @@ class CarRacing(gym.Env, EzPickle):
     def _draw_colored_polygon(
         self, surface, poly, color, zoom, translation, angle, clip=True
     ):
-        import pygame
-        from pygame import gfxdraw
-
         poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
@@ -755,8 +752,6 @@ class CarRacing(gym.Env, EzPickle):
             gfxdraw.filled_polygon(self.surf, poly, color)
 
     def _create_image_array(self, screen, size):
-        import pygame
-
         scaled_screen = pygame.transform.smoothscale(screen, size)
         return np.transpose(
             np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
@@ -764,8 +759,6 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
-            import pygame
-
             pygame.display.quit()
             self.isopen = False
             pygame.quit()
@@ -773,7 +766,6 @@ class CarRacing(gym.Env, EzPickle):
 
 if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])
-    import pygame
 
     def register_input():
         for event in pygame.event.get():
@@ -811,13 +803,13 @@ if __name__ == "__main__":
         restart = False
         while True:
             register_input()
-            s, r, done, info = env.step(a)
+            s, r, terminated, truncated, info = env.step(a)
             total_reward += r
-            if steps % 200 == 0 or done:
+            if steps % 200 == 0 or terminated or truncated:
                 print("\naction " + str([f"{x:+0.2f}" for x in a]))
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
             isopen = env.render()
-            if done or restart or isopen is False:
+            if terminated or truncated or restart or isopen is False:
                 break
     env.close()

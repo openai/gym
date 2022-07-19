@@ -38,8 +38,13 @@ class PusherEnv(MuJocoPyEnv, utils.EzPickle):
         self.renderer.render_step()
 
         ob = self._get_obs()
-        done = False
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         assert self.viewer is not None

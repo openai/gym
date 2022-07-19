@@ -36,10 +36,10 @@ def test_vector_env_equal(shared_memory):
         # fmt: on
 
         if any(sync_dones):
-            assert "terminal_observation" in async_infos
-            assert "_terminal_observation" in async_infos
-            assert "terminal_observation" in sync_infos
-            assert "_terminal_observation" in sync_infos
+            assert "final_observation" in async_infos
+            assert "_final_observation" in async_infos
+            assert "final_observation" in sync_infos
+            assert "_final_observation" in sync_infos
 
         assert np.all(async_observations == sync_observations)
         assert np.all(async_rewards == sync_rewards)

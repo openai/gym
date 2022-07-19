@@ -85,6 +85,10 @@ def test_create_shared_memory_custom_space(n, ctx, space):
         create_shared_memory(space, n=n, ctx=ctx)
 
 
+def _write_shared_memory(space, i, shared_memory, sample):
+    write_to_shared_memory(space, i, sample, shared_memory)
+
+
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
@@ -105,14 +109,14 @@ def test_write_to_shared_memory(space):
         else:
             raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
-    def write(i, shared_memory, sample):
-        write_to_shared_memory(space, i, sample, shared_memory)
-
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
+        Process(
+            target=_write_shared_memory, args=(space, i, shared_memory_n8, samples[i])
+        )
+        for i in range(8)
     ]
 
     for process in processes:

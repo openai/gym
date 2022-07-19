@@ -4,9 +4,9 @@ from gym.core import ActType
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
-    passive_env_render_check,
-    passive_env_reset_check,
-    passive_env_step_check,
+    env_render_passive_checker,
+    env_reset_passive_checker,
+    env_step_passive_checker,
 )
 
 
@@ -15,15 +15,15 @@ class PassiveEnvChecker(gym.Wrapper):
 
     def __init__(self, env):
         """Initialises the wrapper with the environments, run the observation and action space tests."""
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
 
         assert hasattr(
             env, "action_space"
-        ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
+        ), "The environment must specify an action space. https://www.gymlibrary.ml/content/environment_creation/"
         check_action_space(env.action_space)
         assert hasattr(
             env, "observation_space"
-        ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
+        ), "The environment must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
         check_observation_space(env.observation_space)
 
         self.checked_reset = False
@@ -34,7 +34,7 @@ class PassiveEnvChecker(gym.Wrapper):
         """Steps through the environment that on the first call will run the `passive_env_step_check`."""
         if self.checked_step is False:
             self.checked_step = True
-            return passive_env_step_check(self.env, action)
+            return env_step_passive_checker(self.env, action)
         else:
             return self.env.step(action)
 
@@ -42,7 +42,7 @@ class PassiveEnvChecker(gym.Wrapper):
         """Resets the environment that on the first call will run the `passive_env_reset_check`."""
         if self.checked_reset is False:
             self.checked_reset = True
-            return passive_env_reset_check(self.env, **kwargs)
+            return env_reset_passive_checker(self.env, **kwargs)
         else:
             return self.env.reset(**kwargs)
 
@@ -50,6 +50,6 @@ class PassiveEnvChecker(gym.Wrapper):
         """Renders the environment that on the first call will run the `passive_env_render_check`."""
         if self.checked_render is False:
             self.checked_render = True
-            return passive_env_render_check(self.env, *args, **kwargs)
+            return env_render_passive_checker(self.env, *args, **kwargs)
         else:
             return self.env.render(*args, **kwargs)

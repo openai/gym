@@ -92,9 +92,9 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -123,13 +123,13 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

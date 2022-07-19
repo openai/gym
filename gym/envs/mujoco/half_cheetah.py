@@ -35,8 +35,14 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         reward_ctrl = -0.1 * np.square(action).sum()
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
-        done = False
-        return ob, reward, done, dict(reward_run=reward_run, reward_ctrl=reward_ctrl)
+        terminated = False
+        return (
+            ob,
+            reward,
+            terminated,
+            False,
+            dict(reward_run=reward_run, reward_ctrl=reward_ctrl),
+        )
 
     def _get_obs(self):
         return np.concatenate(
