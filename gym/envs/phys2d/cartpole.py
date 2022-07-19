@@ -55,8 +55,6 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
 
     def initial(self, rng: PRNGKey):
         """Initial state generation."""
-        if rng is None:
-            rng = jax.random.PRNGKey(np.random.default_rng().integers(0, 2**32 - 1))
         return jax.random.uniform(
             key=rng, minval=-self.x_init, maxval=self.x_init, shape=(4,)
         )
