@@ -9,13 +9,13 @@ from gym.spaces import Box, Dict, Discrete
 def test_dict_init():
     with pytest.raises(
         AssertionError,
-        match=r"^A Dict space cannot be empty and can only be initialised with a dictionary OR keywords\.$",
+        match=r"^The Dict space cannot be empty\.$",
     ):
         Dict()
 
     with pytest.raises(
         AssertionError,
-        match=r"^A Dict space cannot be empty and can only be initialised with a dictionary OR keywords\.$",
+        match=r"^The Dict space cannot be initialised with both a dictionary AND keywords",
     ):
         Dict({"a": Discrete(2)}, b=Discrete(3))
 

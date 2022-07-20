@@ -89,9 +89,8 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             seed: Optionally, you can use this argument to seed the RNGs of the spaces that make up the :class:`Dict` space.
             **spaces_kwargs: If ``spaces`` is ``None``, you need to pass the constituent spaces as keyword arguments, as described above.
         """
-        assert (spaces is None) != (
-            len(spaces_kwargs) == 0
-        ), "A Dict space cannot be empty and can only be initialised with a dictionary OR keywords."
+        assert spaces is not None or len(spaces_kwargs) > 0, "The Dict space cannot be empty."
+        assert spaces is None or len(spaces_kwargs) == 0, f"The Dict space cannot be initialised with both a dictionary AND keywords, dictionary: {spaces} and keywords: {spaces_kwargs}"
 
         if spaces is None:
             spaces = spaces_kwargs
@@ -108,13 +107,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         ), f"Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: {type(spaces)}"
 
         self.spaces = spaces
-        assert all(
-            isinstance(space, Space) for space in spaces.values()
-        ), "Dict space element is not an instance of Space: " + next(
-            f"key={key}, space={space}"
-            for key, space in spaces.items()
-            if not isinstance(space, Space)
-        )
+        for key, space in self.spaces.items():
+            assert isinstance(space, Space), f"Dict space element is not an instance of Space: key={key}, space={space}"
+
         super().__init__(
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
