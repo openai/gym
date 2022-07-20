@@ -347,6 +347,9 @@ def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarra
 
 @overload
 def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+
+@overload
+def make(id: Literal["LunarLander-v3", "LunarLanderContinuous-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
 def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
@@ -380,7 +383,7 @@ def make(id: Literal[
     "HalfCheetah-v2", "HalfCheetah-v3",
     "Hopper-v2", "Hopper-v3",
     "Swimmer-v2", "Swimmer-v3",
-    "Walker2d-v2", "Walker2d-v3",
+    "Walker2d-v2", "Walker2d-v3","LunarLander-v3",
     "Ant-v2"
 ], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
 
