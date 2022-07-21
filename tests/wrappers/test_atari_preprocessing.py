@@ -8,6 +8,7 @@ from tests.testing_env import GenericTestEnv, old_step_fn
 
 class AleTesting:
     """A testing implementation for the ALE object in atari games."""
+
     grayscale_obs_space = Box(low=0, high=255, shape=(210, 160), dtype=np.uint8, seed=1)
     rgb_obs_space = Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8, seed=1)
 
