@@ -89,11 +89,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             seed: Optionally, you can use this argument to seed the RNGs of the spaces that make up the :class:`Dict` space.
             **spaces_kwargs: If ``spaces`` is ``None``, you need to pass the constituent spaces as keyword arguments, as described above.
         """
-        assert spaces is not None or len(spaces_kwargs) > 0, "The Dict space cannot be empty."
-        assert spaces is None or len(spaces_kwargs) == 0, f"The Dict space cannot be initialised with both a dictionary AND keywords, dictionary: {spaces} and keywords: {spaces_kwargs}"
-
-        if spaces is None:
-            spaces = spaces_kwargs
+        # Convert the spaces into an OrderedDict
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             try:
                 spaces = OrderedDict(sorted(spaces.items()))
@@ -101,14 +97,27 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 spaces = OrderedDict(spaces.items())
         elif isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
+        elif spaces is None:
+            spaces = OrderedDict()
+        else:
+            assert isinstance(
+                spaces, OrderedDict
+            ), f"Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: {type(spaces)}"
 
-        assert isinstance(
-            spaces, OrderedDict
-        ), f"Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: {type(spaces)}"
+        # Add kwargs to spaces to allow both dictionary and keywords to be used
+        for key, space in spaces_kwargs.items():
+            if key not in spaces:
+                spaces[key] = space
+            else:
+                raise ValueError(
+                    f"Dict space keyword '{key}' already exists in the spaces dictionary."
+                )
 
         self.spaces = spaces
         for key, space in self.spaces.items():
-            assert isinstance(space, Space), f"Dict space element is not an instance of Space: key={key}, space={space}"
+            assert isinstance(
+                space, Space
+            ), f"Dict space element is not an instance of Space: key='{key}', space={space}"
 
         super().__init__(
             None, None, seed  # type: ignore

@@ -56,7 +56,7 @@ class Box(Space[np.ndarray]):
         low: Union[SupportsFloat, np.ndarray],
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
-        dtype: Type = np.float32,
+        dtype: Union[Type, object] = np.float32,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         r"""Constructor of :class:`Box`.
@@ -232,7 +232,7 @@ class Box(Space[np.ndarray]):
         """Convert a batch of samples from this space to a JSONable data type."""
         return np.array(sample_n).tolist()
 
-    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> List[np.ndarray]:
+    def from_jsonable(self, sample_n: Sequence[Union[float, int]]) -> List[np.ndarray]:
         """Convert a JSONable data type to a batch of samples from this space."""
         return [np.asarray(sample) for sample in sample_n]
 
@@ -248,7 +248,7 @@ class Box(Space[np.ndarray]):
         return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other) -> bool:
-        """Check whether `other` is equivalent to this instance. Doesn't check dtype equivalence. """
+        """Check whether `other` is equivalent to this instance. Doesn't check dtype equivalence."""
         return (
             isinstance(other, Box)
             and (self.shape == other.shape)

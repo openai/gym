@@ -9,25 +9,19 @@ from gym.spaces import Box, Dict, Discrete
 def test_dict_init():
     with pytest.raises(
         AssertionError,
-        match=r"^The Dict space cannot be empty\.$",
-    ):
-        Dict()
-
-    with pytest.raises(
-        AssertionError,
-        match=r"^The Dict space cannot be initialised with both a dictionary AND keywords",
-    ):
-        Dict({"a": Discrete(2)}, b=Discrete(3))
-
-    with pytest.raises(
-        AssertionError,
         match=r"^Unexpected Dict space input, expecting dict, OrderedDict or Sequence, actual type: ",
     ):
         Dict(Discrete(2))
 
     with pytest.raises(
+        ValueError,
+        match="Dict space keyword 'a' already exists in the spaces dictionary",
+    ):
+        Dict({"a": Discrete(3)}, a=Box(0, 1))
+
+    with pytest.raises(
         AssertionError,
-        match="Dict space element is not an instance of Space: key=b, space=Box",
+        match="Dict space element is not an instance of Space: key='b', space=Box",
     ):
         Dict(a=Discrete(2), b="Box")
 

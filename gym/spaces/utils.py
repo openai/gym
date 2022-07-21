@@ -171,7 +171,9 @@ def _flatten_graph(space, x) -> GraphInstance:
 
 @flatten.register(Text)
 def _flatten_text(space: Text, x: str) -> np.ndarray:
-    arr = np.full(shape=(space.max_length,), fill_value=len(space.charset), dtype=np.int32)
+    arr = np.full(
+        shape=(space.max_length,), fill_value=len(space.charset), dtype=np.int32
+    )
     for i, val in enumerate(x):
         arr[i] = space.character_index(val)
     return arr
@@ -265,7 +267,7 @@ def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
 
 @unflatten.register(Text)
 def _unflatten_text(space: Text, x: np.ndarray) -> str:
-    return "".join([space._charlist[val] for val in x if val < len(space.charset)])
+    return "".join([space.charlist[val] for val in x if val < len(space.charset)])
 
 
 @singledispatch

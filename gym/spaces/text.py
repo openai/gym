@@ -1,5 +1,5 @@
 """Implementation of a space that represents textual strings."""
-from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, FrozenSet, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -58,11 +58,11 @@ class Text(Space[str]):
         self.min_length: int = int(min_length)
         self.max_length: int = int(max_length)
         self.charset: FrozenSet[str] = frozenset(charset)
-        self._charlist: List[str] = list(charset)
-        self._charindex: Dict[str, np.int32] = {
-            val: np.int32(i) for i, val in enumerate(self._charlist)
+        self.charlist: Tuple[str, ...] = tuple(charset)
+        self.charindex: Dict[str, np.int32] = {
+            val: np.int32(i) for i, val in enumerate(self.charlist)
         }
-        self._charset_str: str = "".join(sorted(self._charlist))
+        self.charset_str: str = "".join(sorted(self.charlist))
 
         # As the shape is dynamic (between min_length and max_length) then None
         super().__init__(dtype=str, seed=seed)
@@ -117,7 +117,7 @@ class Text(Space[str]):
             length = self.np_random.integers(self.min_length, self.max_length + 1)
 
         if charlist_mask is None:
-            string = self.np_random.choice(self._charlist, size=length)
+            string = self.np_random.choice(self.charlist, size=length)
         else:
             valid_mask = charlist_mask == 1
             valid_indexes = np.where(valid_mask)[0]
@@ -125,7 +125,7 @@ class Text(Space[str]):
                 string = ""
             else:
                 string = "".join(
-                    self._charlist[index]
+                    self.charlist[index]
                     for index in self.np_random.choice(valid_indexes, size=length)
                 )
 
@@ -140,9 +140,7 @@ class Text(Space[str]):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return (
-            f"Text({self.min_length}, {self.max_length}, charset={self._charset_str})"
-        )
+        return f"Text({self.min_length}, {self.max_length}, charset={self.charset_str})"
 
     def __eq__(self, other) -> bool:
         """Check whether ``other`` is equivalent to this instance."""
@@ -155,4 +153,4 @@ class Text(Space[str]):
 
     def character_index(self, char: str) -> np.int32:
         """The character index in the space's `_charlist`."""
-        return self._charindex[char]
+        return self.charindex[char]
