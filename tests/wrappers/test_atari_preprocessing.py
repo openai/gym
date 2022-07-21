@@ -7,34 +7,38 @@ from tests.testing_env import GenericTestEnv, old_step_fn
 
 
 class AleTesting:
+    """A testing implementation for the ALE object in atari games."""
     grayscale_obs_space = Box(low=0, high=255, shape=(210, 160), dtype=np.uint8, seed=1)
     rgb_obs_space = Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8, seed=1)
 
-    def lives(self):
+    def lives(self) -> int:
+        """Returns the number of lives in the atari game."""
         return 1
 
-    def getScreenGrayscale(self, buffer):
+    def getScreenGrayscale(self, buffer: np.ndarray):
+        """Updates the buffer with a random grayscale observation."""
         buffer[...] = self.grayscale_obs_space.sample()
 
-    def getScreenRGB(self, buffer):
+    def getScreenRGB(self, buffer: np.ndarray):
+        """Updates the buffer with a random rgb observation."""
         buffer[...] = self.rgb_obs_space.sample()
 
 
 class AtariTestingEnv(GenericTestEnv):
-    """Testing environment to replicate the ale-py environment."""
+    """A testing environment to replicate the atari (ale-py) environments."""
 
     def __init__(self):
         super().__init__(
             observation_space=Box(
                 low=0, high=255, shape=(210, 160, 3), dtype=np.uint8, seed=1
             ),
-            action_space=Discrete(4, seed=1),
+            action_space=Discrete(3, seed=1),
             step_fn=old_step_fn,
         )
         self.ale = AleTesting()
 
     def get_action_meanings(self):
-        """Testing function."""
+        """Returns the meanings of each of the actions available to the agent. First index must be 'NOOP'."""
         return ["NOOP", "UP", "DOWN"]
 
 
@@ -78,14 +82,15 @@ class AtariTestingEnv(GenericTestEnv):
 def test_atari_preprocessing_grayscale(env, obs_shape):
     assert env.observation_space.shape == obs_shape
 
-    # It is not possible to test that the outputs
+    # It is not possible to test the outputs as we are not using actual observations.
+    # todo: update when ale-py is compatible with the ci
 
     obs = env.reset(seed=0)
     assert obs in env.observation_space
-    obs, info = env.reset(seed=0, return_info=True)
+    obs, _ = env.reset(seed=0, return_info=True)
     assert obs in env.observation_space
 
-    obs, reward, done, info = env.step(env.action_space.sample())
+    obs, _, _, _ = env.step(env.action_space.sample())
     assert obs in env.observation_space
 
     env.close()
