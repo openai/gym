@@ -83,6 +83,20 @@ register(
 )
 
 register(
+    id="LunarLander-reducflag",
+    entry_point="gym.envs.box2d.lunar_lander_flagpos:LunarLander",
+    max_episode_steps=1000,
+    reward_threshold=200,
+)
+
+register(
+    id="LunarLanderContinuous-reducflag",
+    entry_point="gym.envs.box2d.lunar_lander_flagpos:LunarLander",
+    kwargs={"continuous": True},
+    max_episode_steps=1000,
+    reward_threshold=200,
+)
+register(
     id="BipedalWalker-v3",
     entry_point="gym.envs.box2d.bipedal_walker:BipedalWalker",
     max_episode_steps=1600,

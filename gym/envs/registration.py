@@ -350,6 +350,9 @@ def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) ->
 
 @overload
 def make(id: Literal["LunarLander-v3", "LunarLanderContinuous-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+
+@overload
+def make(id: Literal["LunarLander-reducflag", "LunarLanderContinuous-reducflag"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
 def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
