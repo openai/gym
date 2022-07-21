@@ -1,5 +1,13 @@
 """Module of wrapper classes."""
 from gym import error
+
+try:
+    import jumpy
+except ImportError:
+    pass
+else:
+    from gym.dev_wrappers.lambda_reward import clip_rewards_v0, lambda_reward_v0
+
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction

@@ -65,6 +65,10 @@ class InvalidAction(Error):
     """Raised when the user performs an action not contained within the action space."""
 
 
+class InvalidBound(Error):
+    """Raised when the clipping an array with invalid upper and/or lower bound."""
+
+
 # API errors
 
 
