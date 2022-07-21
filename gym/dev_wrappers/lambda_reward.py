@@ -4,6 +4,7 @@ from typing import Callable, Optional, Union
 import jumpy as jp
 
 import gym
+from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidBound
 
 
@@ -23,7 +24,7 @@ class lambda_reward_v0(gym.RewardWrapper):
     def __init__(
         self,
         env: gym.Env,
-        fn: Callable[[Union[float, int, jp.ndarray]], Union[float, int, jp.ndarray]],
+        fn: Callable[[FuncArgType], Union[float, int, jp.ndarray]],
     ):
         """Initialize lambda_reward_v0 wrapper.
 
@@ -72,11 +73,20 @@ class clip_rewards_v0(lambda_reward_v0):
         """
         if min_reward is None and max_reward is None:
             raise InvalidBound("Both `min_reward` and `max_reward` cannot be None")
-        elif max_reward and min_reward and max_reward < min_reward:
-            raise InvalidBound(
-                f"Min reward ({min_reward}) must be less than max reward ({max_reward})"
+
+        elif max_reward is not None and min_reward is not None:
+            array_bounds = isinstance(min_reward, jp.ndarray) or isinstance(
+                max_reward, jp.ndarray
             )
-        else:
-            super().__init__(
-                env, lambda x: jp.clip(x, a_min=min_reward, a_max=max_reward)
+            invalid_bounds = (
+                any(max_reward < min_reward)
+                if array_bounds
+                else max_reward < min_reward
             )
+
+            if invalid_bounds:
+                raise InvalidBound(
+                    f"Min reward ({min_reward}) must be smaller than max reward ({max_reward})"
+                )
+
+        super().__init__(env, lambda x: jp.clip(x, a_min=min_reward, a_max=max_reward))

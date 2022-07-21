@@ -1,15 +1,16 @@
 """Test lambda reward wrapper."""
-import numpy as np
 import pytest
-
-import gym
-from gym.error import InvalidBound
 
 try:
     from gym.wrappers import clip_rewards_v0, lambda_reward_v0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
+import jax.numpy as jnp
+import numpy as np
+
+import gym
+from gym.error import InvalidBound
 
 ENV_ID = "CartPole-v1"
 DISCRETE_ACTION = 0
@@ -98,7 +99,15 @@ def test_clip_reward_within_vector(lower_bound, upper_bound, expected_reward):
     assert np.alltrue(rew == expected_reward)
 
 
-@pytest.mark.parametrize(("lower_bound", "upper_bound"), [(None, None), (1, -1)])
+@pytest.mark.parametrize(
+    ("lower_bound", "upper_bound"),
+    [
+        (None, None),
+        (1, -1),
+        (np.array([1, 1]), np.array([0, 0])),
+        (jnp.array([1, 1]), jnp.array([0, 0])),
+    ],
+)
 def test_clip_reward_incorrect_params(lower_bound, upper_bound):
     """Test reward clipping with incorrect params.
 
