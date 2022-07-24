@@ -623,7 +623,7 @@ def make(
 
     # If we have access to metadata we check that "render_mode" is valid
     if hasattr(env_creator, "metadata"):
-        render_modes = env_creator.metadata["render_modes"]
+        render_modes = env_creator.metadata.get("render_modes", [])
 
         # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
         if (
