@@ -624,45 +624,39 @@ def make(
     # If we have access to metadata we check that "render_mode" is valid and see if the HumanRendering wrapper needs to be applied
     if mode is not None:
         if hasattr(env_creator, "metadata"):
-            if isinstance(env_creator.metadata, dict):
-                if "render_modes" in env_creator.metadata:
-                    render_modes = env_creator.metadata["render_modes"]
+            assert isinstance(
+                env_creator.metadata, dict
+            ), f"Expect the environment creator ({env_creator}) metadata to be dict, actual type: {type(env_creator.metadata)}"
+            if "render_modes" in env_creator.metadata:
+                render_modes = env_creator.metadata["render_modes"]
 
-                    # Apply the `HumanRendering` wrapper, if the mode=="human" but "human" not in render_modes
-                    if (
-                        mode == "human"
-                        and "human" not in render_modes
-                        and (
-                            "single_rgb_array" in render_modes
-                            or "rgb_array" in render_modes
-                        )
-                    ):
-                        logger.warn(
-                            "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
-                            "The HumanRendering wrapper is being applied to your environment."
-                        )
-                        apply_human_rendering = True
-                        if "single_rgb_array" in render_modes:
-                            _kwargs["render_mode"] = "single_rgb_array"
-                        else:
-                            _kwargs["render_mode"] = "rgb_array"
-                    # else:
-                    #   we don't raise an error as the environment may have forgotten to add the "render_modes"
-                    #   if the render mode is not valid for an environment, the environment should raise an error
-                else:
-                    logger.warn(
-                        f"The environment {id} metadata does not include `render_modes`."
+                # Apply the `HumanRendering` wrapper, if the mode=="human" but "human" not in render_modes
+                if (
+                    mode == "human"
+                    and "human" not in render_modes
+                    and (
+                        "single_rgb_array" in render_modes
+                        or "rgb_array" in render_modes
                     )
+                ):
+                    logger.warn(
+                        "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                        "The HumanRendering wrapper is being applied to your environment."
+                    )
+                    apply_human_rendering = True
+                    if "single_rgb_array" in render_modes:
+                        _kwargs["render_mode"] = "single_rgb_array"
+                    else:
+                        _kwargs["render_mode"] = "rgb_array"
+                # else:
+                #   we don't raise an error as the environment may have forgotten to add the "render_modes"
+                #   if the render mode is not valid for an environment, the environment should raise an error
             else:
                 logger.warn(
-                    f"The environment {id} metadata is not a dictionary, actual type: {type(env_creator.metadata)}"
+                    "Applying render_mode to environment without metadata `render_modes`."
                 )
         else:
-            logger.warn(
-                f"The environment creator for {id} does not contain metadata, this could be due to metadata being set during initialisation. Creator: {env_creator}"
-            )
-    # else:
-    #   if no mode is set then we don't run the check
+            logger.warn("Applying render_mode to environment with metadata attribute.")
 
     try:
         env = env_creator(**_kwargs)
