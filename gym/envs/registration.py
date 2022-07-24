@@ -627,6 +627,7 @@ def make(
             assert isinstance(
                 env_creator.metadata, dict
             ), f"Expect the environment creator ({env_creator}) metadata to be dict, actual type: {type(env_creator.metadata)}"
+
             if "render_modes" in env_creator.metadata:
                 render_modes = env_creator.metadata["render_modes"]
 
@@ -651,12 +652,6 @@ def make(
                 # else:
                 #   we don't raise an error as the environment may have forgotten to add the "render_modes"
                 #   if the render mode is not valid for an environment, the environment should raise an error
-            else:
-                logger.warn(
-                    "Applying render_mode to environment without metadata `render_modes`."
-                )
-        else:
-            logger.warn("Applying render_mode to environment with metadata attribute.")
 
     try:
         env = env_creator(**_kwargs)
