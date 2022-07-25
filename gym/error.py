@@ -58,7 +58,7 @@ class ResetNeeded(Error):
 
 
 class ResetNotAllowed(Error):
-    """When the monitor is active, raised when the user tries to step an environment that's not yet done."""
+    """When the monitor is active, raised when the user tries to step an environment that's not yet terminated or truncated."""
 
 
 class InvalidAction(Error):

@@ -73,7 +73,6 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
         info = {
             "reward_fwd": forward_reward,
             "reward_ctrl": -ctrl_cost,
@@ -85,7 +84,7 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, False, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()

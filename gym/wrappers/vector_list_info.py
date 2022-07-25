@@ -3,10 +3,11 @@
 from typing import List
 
 import gym
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class VectorListInfo(gym.Wrapper):
-    """Converts infos of vectorized envinroments from dict to List[dict].
+    """Converts infos of vectorized environments from dict to List[dict].
 
     This wrapper converts the info format of a
     vector environment from a dictionary to a list of dictionaries.
@@ -29,23 +30,30 @@ class VectorListInfo(gym.Wrapper):
 
     """
 
-    def __init__(self, env):
+    def __init__(self, env, new_step_api=False):
         """This wrapper will convert the info into the list format.
 
         Args:
             env (Env): The environment to apply the wrapper
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
         assert getattr(
             env, "is_vector_env", False
         ), "This wrapper can only be used in vectorized environments."
-        super().__init__(env)
+        super().__init__(env, new_step_api)
 
     def step(self, action):
         """Steps through the environment, convert dict info to list."""
-        observation, reward, done, infos = self.env.step(action)
+        observation, reward, terminated, truncated, infos = step_api_compatibility(
+            self.env.step(action), True, True
+        )
         list_info = self._convert_info_to_list(infos)
 
-        return observation, reward, done, list_info
+        return step_api_compatibility(
+            (observation, reward, terminated, truncated, list_info),
+            self.new_step_api,
+            True,
+        )
 
     def reset(self, **kwargs):
         """Resets the environment using kwargs."""

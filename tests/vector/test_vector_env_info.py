@@ -22,18 +22,18 @@ def test_vector_env_info(asynchronous):
         action = env.action_space.sample()
         _, _, dones, infos = env.step(action)
         if any(dones):
-            assert len(infos["terminal_observation"]) == NUM_ENVS
-            assert len(infos["_terminal_observation"]) == NUM_ENVS
+            assert len(infos["final_observation"]) == NUM_ENVS
+            assert len(infos["_final_observation"]) == NUM_ENVS
 
-            assert isinstance(infos["terminal_observation"], np.ndarray)
-            assert isinstance(infos["_terminal_observation"], np.ndarray)
+            assert isinstance(infos["final_observation"], np.ndarray)
+            assert isinstance(infos["_final_observation"], np.ndarray)
 
             for i, done in enumerate(dones):
                 if done:
-                    assert infos["_terminal_observation"][i]
+                    assert infos["_final_observation"][i]
                 else:
-                    assert not infos["_terminal_observation"][i]
-                    assert infos["terminal_observation"][i] is None
+                    assert not infos["_final_observation"][i]
+                    assert infos["final_observation"][i] is None
 
 
 @pytest.mark.parametrize("concurrent_ends", [1, 2, 3])
@@ -49,8 +49,8 @@ def test_vector_env_info_concurrent_termination(concurrent_ends):
             for i, done in enumerate(dones):
                 if i < concurrent_ends:
                     assert done
-                    assert infos["_terminal_observation"][i]
+                    assert infos["_final_observation"][i]
                 else:
-                    assert not infos["_terminal_observation"][i]
-                    assert infos["terminal_observation"][i] is None
+                    assert not infos["_final_observation"][i]
+                    assert infos["final_observation"][i] is None
             return

@@ -13,7 +13,7 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
     in ["Synthesis and stabilization of complex behaviors through online trajectory optimization"](https://ieeexplore.ieee.org/document/6386025).
     The 3D bipedal robot is designed to simulate a human. It has a torso (abdomen) with a
     pair of legs and arms. The legs each consist of two links, and so the arms (representing the
-    knees and elbows respectively). The environment starts with the humanoid layiing on the ground,
+    knees and elbows respectively). The environment starts with the humanoid laying on the ground,
     and then the goal of the environment is to make the humanoid standup and then keep it standing
     by applying torques on the various hinges.
 
@@ -151,11 +151,11 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
     to be low, thereby indicating a laying down humanoid. The initial orientation is
     designed to make it face forward as well.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: Any of the state space values is no longer finite
 
     ### Arguments
 
@@ -228,11 +228,11 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,

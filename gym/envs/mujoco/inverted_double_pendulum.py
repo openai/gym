@@ -40,8 +40,8 @@ class InvertedDoublePendulumEnv(MuJocoPyEnv, utils.EzPickle):
         vel_penalty = 1e-3 * v1**2 + 5e-3 * v2**2
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
-        done = bool(y <= 1)
-        return ob, r, done, {}
+        terminated = bool(y <= 1)
+        return ob, r, terminated, False, {}
 
     def _get_obs(self):
         return np.concatenate(

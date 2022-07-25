@@ -3,6 +3,7 @@ import numpy as np
 
 import gym
 from gym.spaces import Box
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import cv2
@@ -37,6 +38,7 @@ class AtariPreprocessing(gym.Wrapper):
         grayscale_obs: bool = True,
         grayscale_newaxis: bool = False,
         scale_obs: bool = False,
+        new_step_api: bool = False,
     ):
         """Wrapper for Atari 2600 preprocessing.
 
@@ -45,7 +47,7 @@ class AtariPreprocessing(gym.Wrapper):
             noop_max (int): For No-op reset, the max number no-ops actions are taken at reset, to turn off, set to 0.
             frame_skip (int): The number of frames between new observation the agents observations effecting the frequency at which the agent experiences the game.
             screen_size (int): resize Atari frame
-            terminal_on_life_loss (bool): `if True`, then :meth:`step()` returns `done=True` whenever a
+            terminal_on_life_loss (bool): `if True`, then :meth:`step()` returns `terminated=True` whenever a
                 life is lost.
             grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
                 is returned.
@@ -58,7 +60,7 @@ class AtariPreprocessing(gym.Wrapper):
             DependencyNotInstalled: opencv-python package not installed
             ValueError: Disable frame-skipping in the original env
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         if cv2 is None:
             raise gym.error.DependencyNotInstalled(
                 "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
@@ -114,20 +116,22 @@ class AtariPreprocessing(gym.Wrapper):
 
     def step(self, action):
         """Applies the preprocessing for an :meth:`env.step`."""
-        total_reward, done, info = 0.0, False, {}
+        total_reward, terminated, truncated, info = 0.0, False, False, {}
 
         for t in range(self.frame_skip):
-            _, reward, done, info = self.env.step(action)
+            _, reward, terminated, truncated, info = step_api_compatibility(
+                self.env.step(action), True
+            )
             total_reward += reward
-            self.game_over = done
+            self.game_over = terminated
 
             if self.terminal_on_life_loss:
                 new_lives = self.ale.lives()
-                done = done or new_lives < self.lives
-                self.game_over = done
+                terminated = terminated or new_lives < self.lives
+                self.game_over = terminated
                 self.lives = new_lives
 
-            if done:
+            if terminated or truncated:
                 break
             if t == self.frame_skip - 2:
                 if self.grayscale_obs:
@@ -139,7 +143,10 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
-        return self._get_obs(), total_reward, done, info
+        return step_api_compatibility(
+            (self._get_obs(), total_reward, terminated, truncated, info),
+            self.new_step_api,
+        )
 
     def reset(self, **kwargs):
         """Resets the environment using preprocessing."""
@@ -156,9 +163,11 @@ class AtariPreprocessing(gym.Wrapper):
             else 0
         )
         for _ in range(noops):
-            _, _, done, step_info = self.env.step(0)
+            _, _, terminated, truncated, step_info = step_api_compatibility(
+                self.env.step(0), True
+            )
             reset_info.update(step_info)
-            if done:
+            if terminated or truncated:
                 if kwargs.get("return_info", False):
                     _, reset_info = self.env.reset(**kwargs)
                 else:

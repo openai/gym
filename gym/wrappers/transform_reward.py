@@ -16,7 +16,7 @@ class TransformReward(RewardWrapper):
         >>> env = gym.make('CartPole-v1')
         >>> env = TransformReward(env, lambda r: 0.01*r)
         >>> env.reset()
-        >>> observation, reward, done, info = env.step(env.action_space.sample())
+        >>> observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
         >>> reward
         0.01
     """
@@ -28,7 +28,7 @@ class TransformReward(RewardWrapper):
             env: The environment to apply the wrapper
             f: A function that transforms the reward
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
         assert callable(f)
         self.f = f
 

@@ -1,5 +1,5 @@
 """Base class for vectorized environments."""
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -24,7 +24,11 @@ class VectorEnv(gym.Env):
     """
 
     def __init__(
-        self, num_envs: int, observation_space: gym.Space, action_space: gym.Space
+        self,
+        num_envs: int,
+        observation_space: gym.Space,
+        action_space: gym.Space,
+        new_step_api: bool = False,
     ):
         """Base class for vectorized environments.
 
@@ -32,6 +36,7 @@ class VectorEnv(gym.Env):
             num_envs: Number of environments in the vectorized environment.
             observation_space: Observation space of a single environment.
             action_space: Action space of a single environment.
+            new_step_api (bool): Whether the vector environment's step method outputs two boolean arrays (new API) or one boolean array (old API)
         """
         self.num_envs = num_envs
         self.is_vector_env = True
@@ -45,6 +50,12 @@ class VectorEnv(gym.Env):
         # kept in separate properties
         self.single_observation_space = observation_space
         self.single_action_space = action_space
+
+        self.new_step_api = new_step_api
+        if not self.new_step_api:
+            deprecation(
+                "Initializing vector env in old step API which returns one bool array instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
+            )
 
     def reset_async(
         self,
@@ -135,7 +146,7 @@ class VectorEnv(gym.Env):
             actions: element of :attr:`action_space` Batch of actions.
 
         Returns:
-            Batch of observations, rewards, done and infos
+            Batch of (observations, rewards, terminated, truncated, infos) or (observations, rewards, dones, infos)
         """
         self.step_async(actions)
         return self.step_wait()
@@ -143,7 +154,7 @@ class VectorEnv(gym.Env):
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
 
-    def call_wait(self, **kwargs) -> List[Any]:
+    def call_wait(self, **kwargs) -> List[Any]:  # type: ignore
         """After calling a method in :meth:`call_async`, this function collects the results."""
 
     def call(self, name: str, *args, **kwargs) -> List[Any]:
@@ -251,7 +262,7 @@ class VectorEnv(gym.Env):
             infos[k], infos[f"_{k}"] = info_array, array_mask
         return infos
 
-    def _init_info_arrays(self, dtype: type) -> np.ndarray:
+    def _init_info_arrays(self, dtype: type) -> Tuple[np.ndarray, np.ndarray]:
         """Initialize the info array.
 
         Initialize the info array. If the dtype is numeric
