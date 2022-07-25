@@ -52,7 +52,7 @@ class FuncEnv(Generic[StateType, ObsType, ActType, RewardType, TerminalType]):
         raise NotImplementedError
 
     def terminal(self, state: StateType) -> bool:
-        """Terminated."""
+        """Terminal state."""
         raise NotImplementedError
 
     def transform(self, func: Callable[[Callable], Callable]):
