@@ -2,7 +2,7 @@
 import pytest
 
 try:
-    from gym.wrappers import clip_rewards_v0, lambda_reward_v0
+    from gym.wrappers import ClipRewardsV0, LambdaRewardV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -29,7 +29,7 @@ def test_lambda_reward(reward_fn, expected_reward):
     to reward.
     """
     env = gym.make(ENV_ID)
-    env = lambda_reward_v0(env, reward_fn)
+    env = LambdaRewardV0(env, reward_fn)
     env.reset(seed=SEED)
 
     _, rew, _, _ = env.step(DISCRETE_ACTION)
@@ -52,7 +52,7 @@ def test_lambda_reward_within_vector(reward_fn, expected_reward):
     """
     actions = [DISCRETE_ACTION for _ in range(NUM_ENVS)]
     env = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    env = lambda_reward_v0(env, reward_fn)
+    env = LambdaRewardV0(env, reward_fn)
     env.reset(seed=SEED)
 
     _, rew, _, _ = env.step(actions)
@@ -71,7 +71,7 @@ def test_clip_reward(lower_bound, upper_bound, expected_reward):
     accordingly to the input args.
     """
     env = gym.make(ENV_ID)
-    env = clip_rewards_v0(env, lower_bound, upper_bound)
+    env = ClipRewardsV0(env, lower_bound, upper_bound)
     env.reset(seed=SEED)
     _, rew, _, _ = env.step(DISCRETE_ACTION)
 
@@ -91,7 +91,7 @@ def test_clip_reward_within_vector(lower_bound, upper_bound, expected_reward):
     actions = [DISCRETE_ACTION for _ in range(NUM_ENVS)]
 
     env = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    env = clip_rewards_v0(env, lower_bound, upper_bound)
+    env = ClipRewardsV0(env, lower_bound, upper_bound)
     env.reset(seed=SEED)
 
     _, rew, _, _ = env.step(actions)
@@ -120,4 +120,4 @@ def test_clip_reward_incorrect_params(lower_bound, upper_bound):
     env = gym.make(ENV_ID)
 
     with pytest.raises(InvalidBound):
-        env = clip_rewards_v0(env, lower_bound, upper_bound)
+        env = ClipRewardsV0(env, lower_bound, upper_bound)

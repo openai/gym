@@ -10,13 +10,13 @@ from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidBound
 
 
-class lambda_reward_v0(gym.RewardWrapper):
+class LambdaRewardV0(gym.RewardWrapper):
     """A reward wrapper that allows a custom function to modify the step reward.
 
     Example:
         >>> import gym
         >>> env = gym.make("CartPole-v1")
-        >>> env = lambda_reward_v0(env, lambda r: 2 * r + 1)
+        >>> env = LambdaRewardV0(env, lambda r: 2 * r + 1)
         >>> env.reset()
         >>> _, rew, _, _ = env.step(0)
         >>> rew
@@ -28,7 +28,7 @@ class lambda_reward_v0(gym.RewardWrapper):
         env: gym.Env,
         fn: Callable[[FuncArgType], Union[float, int, jp.ndarray]],
     ):
-        """Initialize lambda_reward_v0 wrapper.
+        """Initialize LambdaRewardV0 wrapper.
 
         Args:
             env (Env): The environment to apply the wrapper
@@ -47,13 +47,13 @@ class lambda_reward_v0(gym.RewardWrapper):
         return self.fn(reward)
 
 
-class clip_rewards_v0(lambda_reward_v0):
+class ClipRewardsV0(LambdaRewardV0):
     """A wrapper that clips the rewards for an environment between an upper and lower bound.
 
     Example with an upper and lower bound:
         >>> import gym
         >>> env = gym.make("CartPole-v1")
-        >>> env = clip_rewards_v0(env, 0, 0.5)
+        >>> env = ClipRewardsV0(env, 0, 0.5)
         >>> env.reset()
         >>> _, rew, _, _ = env.step(1)
         >>> rew
