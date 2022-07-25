@@ -66,7 +66,7 @@ class ClipRewardsV0(LambdaRewardV0):
         min_reward: Optional[Union[float, jp.ndarray]] = None,
         max_reward: Optional[Union[float, jp.ndarray]] = None,
     ):
-        """Initialize clip_reward_v0 wrapper.
+        """Initialize ClipRewardsV0 wrapper.
 
         Args:
             env (Env): The environment to apply the wrapper
