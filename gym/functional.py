@@ -2,13 +2,17 @@
 
 from typing import Any, Callable, Dict, Generic, Optional, Tuple, TypeVar
 
+import numpy as np
+
 StateType = TypeVar("StateType")
 ActType = TypeVar("ActType")
 ObsType = TypeVar("ObsType")
-StepReturn = Tuple[StateType, ObsType, float, bool]
+RewardType = TypeVar("RewardType")
+TerminalType = TypeVar("TerminalType")
+RenderStateType = TypeVar("RenderStateType")
 
 
-class FuncEnv(Generic[StateType, ObsType, ActType]):
+class FuncEnv(Generic[StateType, ObsType, ActType, RewardType, TerminalType]):
     """Base class (template) for functional envs.
 
     This API is meant to be used in a stateless manner, with the environment state being passed around explicitly.
@@ -37,12 +41,30 @@ class FuncEnv(Generic[StateType, ObsType, ActType]):
         """Observation."""
         raise NotImplementedError
 
-    def step(self, state: StateType, action: ActType, rng: Any) -> StepReturn:
+    def transition(self, state: StateType, action: ActType, rng: Any) -> StateType:
         """Transition."""
+        raise NotImplementedError
+
+    def reward(
+        self, state: StateType, action: ActType, next_state: StateType
+    ) -> RewardType:
+        """Reward."""
+        raise NotImplementedError
+
+    def terminal(self, state: StateType) -> bool:
+        """Terminated."""
         raise NotImplementedError
 
     def transform(self, func: Callable[[Callable], Callable]):
         """Functional transformations."""
         self.initial = func(self.initial)
-        self.step = func(self.step)
+        self.transition = func(self.transition)
         self.observation = func(self.observation)
+        self.reward = func(self.reward)
+        self.terminal = func(self.terminal)
+
+    def render_image(
+        self, state: StateType, render_state: RenderStateType
+    ) -> Tuple[RenderStateType, np.ndarray]:
+        """Show the state."""
+        raise NotImplementedError

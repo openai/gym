@@ -2,17 +2,19 @@
 Implementation of a Jax-accelerated cartpole environment.
 """
 
-from typing import Union
+from typing import Tuple, Union
 
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pygame
 from jax.random import PRNGKey
+from pygame import gfxdraw
 
-from gym.functional import FuncEnv, StepReturn
+from gym.functional import ActType, FuncEnv, RenderStateType, StateType
 
 
-class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
+class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
     """Cartpole but in jax and functional.
 
     Example usage:
@@ -53,15 +55,18 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
     x_threshold = 2.4
     x_init = 0.05
 
+    screen_width = 600
+    screen_height = 400
+
     def initial(self, rng: PRNGKey):
         """Initial state generation."""
         return jax.random.uniform(
             key=rng, minval=-self.x_init, maxval=self.x_init, shape=(4,)
         )
 
-    def step(
+    def transition(
         self, state: jnp.ndarray, action: Union[int, jnp.ndarray], rng: None = None
-    ) -> StepReturn:
+    ) -> StateType:
         """Cartpole transition."""
         x, x_dot, theta, theta_dot = state
         force = jnp.sign(action - 0.5) * self.force_mag
@@ -83,6 +88,17 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
         theta = theta + self.tau * theta_dot
         theta_dot = theta_dot + self.tau * thetaacc
 
+        state = jnp.array((x, x_dot, theta, theta_dot), dtype=jnp.float32)
+
+        return state
+
+    def observation(self, state: jnp.ndarray) -> jnp.ndarray:
+        """Cartpole observation."""
+        return state
+
+    def terminal(self, state: jnp.ndarray) -> bool:
+        x, x_dot, theta, theta_dot = state
+
         terminated = (
             (x < -self.x_threshold)
             | (x > self.x_threshold)
@@ -90,12 +106,76 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int]):
             | (theta > self.theta_threshold_radians)
         )
 
+        return terminated
+
+    def reward(self, state: StateType, action: ActType, next_state: StateType) -> float:
+        terminated = self.terminal(state)
+
         reward = jax.lax.cond(terminated, lambda: 0.0, lambda: 1.0)
+        return reward
 
-        state = jnp.array((x, x_dot, theta, theta_dot), dtype=jnp.float32)
+    def render_image(
+        self, state: StateType, render_state: Tuple[pygame.Surface, pygame.time.Clock]
+    ) -> Tuple[RenderStateType, np.ndarray]:
 
-        return state, self.observation(state), reward, terminated
+        screen, clock = render_state
 
-    def observation(self, state: jnp.ndarray) -> jnp.ndarray:
-        """Cartpole observation."""
-        return state
+        world_width = self.x_threshold * 2
+        scale = self.screen_width / world_width
+        polewidth = 10.0
+        polelen = scale * (2 * self.length)
+        cartwidth = 50.0
+        cartheight = 30.0
+
+        x = state
+
+        surf = pygame.Surface((self.screen_width, self.screen_height))
+        surf.fill((255, 255, 255))
+
+        l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
+        axleoffset = cartheight / 4.0
+        cartx = x[0] * scale + self.screen_width / 2.0  # MIDDLE OF CART
+        carty = 100  # TOP OF CART
+        cart_coords = [(l, b), (l, t), (r, t), (r, b)]
+        cart_coords = [(c[0] + cartx, c[1] + carty) for c in cart_coords]
+        gfxdraw.aapolygon(surf, cart_coords, (0, 0, 0))
+        gfxdraw.filled_polygon(surf, cart_coords, (0, 0, 0))
+
+        l, r, t, b = (
+            -polewidth / 2,
+            polewidth / 2,
+            polelen - polewidth / 2,
+            -polewidth / 2,
+        )
+
+        pole_coords = []
+        for coord in [(l, b), (l, t), (r, t), (r, b)]:
+            coord = pygame.math.Vector2(coord).rotate_rad(-x[2])
+            coord = (coord[0] + cartx, coord[1] + carty + axleoffset)
+            pole_coords.append(coord)
+        gfxdraw.aapolygon(surf, pole_coords, (202, 152, 101))
+        gfxdraw.filled_polygon(surf, pole_coords, (202, 152, 101))
+
+        gfxdraw.aacircle(
+            surf,
+            int(cartx),
+            int(carty + axleoffset),
+            int(polewidth / 2),
+            (129, 132, 203),
+        )
+        gfxdraw.filled_circle(
+            surf,
+            int(cartx),
+            int(carty + axleoffset),
+            int(polewidth / 2),
+            (129, 132, 203),
+        )
+
+        gfxdraw.hline(surf, 0, self.screen_width, carty, (0, 0, 0))
+
+        surf = pygame.transform.flip(surf, False, True)
+        screen.blit(surf, (0, 0))
+
+        return (screen, clock), np.transpose(
+            np.array(pygame.surfarray.pixels3d(screen)), axes=(1, 0, 2)
+        )
