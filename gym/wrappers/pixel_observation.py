@@ -81,6 +81,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)
+        self.render_history = []
 
         if render_kwargs is None:
             render_kwargs = {}
@@ -135,7 +136,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         self.env.reset()
         pixels_spaces = {}
         for pixel_key in pixel_keys:
-            pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = self._render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
 
             if not hasattr(pixels, "dtype") or not hasattr(pixels, "shape"):
@@ -184,10 +185,24 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             observation[STATE_KEY] = wrapped_observation
 
         pixel_observations = {
-            pixel_key: self.env.render(**self._render_kwargs[pixel_key])
+            pixel_key: self._render(**self._render_kwargs[pixel_key])
             for pixel_key in self._pixel_keys
         }
 
         observation.update(pixel_observations)
 
         return observation
+
+    def render(self, *args, **kwargs):
+        """Renders the environment."""
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            render = self.render_history + render
+            self.render_history = []
+        return render
+
+    def _render(self, *args, **kwargs):
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            self.render_history += render
+        return render

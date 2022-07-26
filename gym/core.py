@@ -426,7 +426,9 @@ class Wrapper(Env[ObsType, ActType]):
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
-    def render(self, *args, **kwargs):
+    def render(
+        self, *args, **kwargs
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Renders the environment."""
         return self.env.render(*args, **kwargs)
 
