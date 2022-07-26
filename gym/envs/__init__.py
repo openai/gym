@@ -98,6 +98,13 @@ register(
     reward_threshold=200,
 )
 
+register(
+    id="BipedalWalker-v4",
+    entry_point="gym.envs.phys2d.bipedal_walker:BipedalWalker",
+    max_episode_steps=1600,
+    reward_threshold=300,
+)
+
 # Toy Text
 # ----------------------------------------
 
