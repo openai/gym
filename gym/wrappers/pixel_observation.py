@@ -81,6 +81,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)
+        self.render_history = []
 
         if render_kwargs is None:
             render_kwargs = {}
@@ -191,3 +192,17 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         observation.update(pixel_observations)
 
         return observation
+
+    def render(self, *args, **kwargs):
+        """Renders the environment."""
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            render = self.render_history + render
+            self.render_history = []
+        return render
+
+    def _render(self, *args, **kwargs):
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            self.render_history += render
+        return render

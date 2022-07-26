@@ -325,8 +325,6 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: Optional[dict] = None
         self.new_step_api = new_step_api
 
-        self.render_history = []
-
         if not self.new_step_api:
             deprecation(
                 "Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
@@ -432,20 +430,7 @@ class Wrapper(Env[ObsType, ActType]):
         self, *args, **kwargs
     ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Renders the environment."""
-        render = self.env.render(*args, **kwargs)
-        if isinstance(render, list):
-            render = self.render_history + render
-            self.render_history = []
-        return render
-
-    def _render(
-        self, *args, **kwargs
-    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
-        """Internal call of render. Used to avoid popping frames when render is called internally."""
-        render = self.env.render(*args, **kwargs)
-        if isinstance(render, list):
-            self.render_history += render
-        return render
+        return self.env.render(*args, **kwargs)
 
     def close(self):
         """Closes the environment."""
