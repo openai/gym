@@ -161,11 +161,11 @@ class FrozenLakeEnv(Env):
     }
 
     def __init__(
-            self,
-            render_mode: Optional[str] = None,
-            desc=None,
-            map_name="4x4",
-            is_slippery=True,
+        self,
+        render_mode: Optional[str] = None,
+        desc=None,
+        map_name="4x4",
+        is_slippery=True,
     ):
         if desc is None and map_name is None:
             desc = generate_random_map()
@@ -232,7 +232,7 @@ class FrozenLakeEnv(Env):
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.cell_size = (
             self.window_size[0] // self.ncol,
-            self.window_size[1] // self.nrow
+            self.window_size[1] // self.nrow,
         )
         self.window_surface = None
         self.clock = None
@@ -253,11 +253,11 @@ class FrozenLakeEnv(Env):
         return (int(s), r, t, False, {"prob": p})
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
@@ -302,26 +302,36 @@ class FrozenLakeEnv(Env):
                 self.window_surface = pygame.Surface(self.window_size)
 
         assert (
-                self.window_surface is not None
+            self.window_surface is not None
         ), "Something went wrong with pygame. This should never happen."
 
         if self.clock is None:
             self.clock = pygame.time.Clock()
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
-            self.hole_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.cracked_hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
-            self.cracked_hole_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.cracked_hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.ice_img is None:
             file_name = path.join(path.dirname(__file__), "img/ice.png")
-            self.ice_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.ice_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.goal_img is None:
             file_name = path.join(path.dirname(__file__), "img/goal.png")
-            self.goal_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.goal_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.start_img is None:
             file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.start_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.start_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.elf_images is None:
             elfs = [
                 path.join(path.dirname(__file__), "img/elf_left.png"),
@@ -329,8 +339,10 @@ class FrozenLakeEnv(Env):
                 path.join(path.dirname(__file__), "img/elf_right.png"),
                 path.join(path.dirname(__file__), "img/elf_up.png"),
             ]
-            self.elf_images = [pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
-                               for f_name in elfs]
+            self.elf_images = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in elfs
+            ]
 
         desc = self.desc.tolist()
         assert isinstance(desc, list), f"desc should be a list or an array, got {desc}"

@@ -100,7 +100,7 @@ class CliffWalkingEnv(Env):
         self.cell_size = (60, 60)
         self.window_size = (
             self.shape[1] * self.cell_size[1],
-            self.shape[0] * self.cell_size[0]
+            self.shape[0] * self.cell_size[0],
         )
         self.window_surface = None
         self.clock = None
@@ -204,10 +204,14 @@ class CliffWalkingEnv(Env):
             ]
         if self.start_img is None:
             file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.start_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.start_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.goal_img is None:
             file_name = path.join(path.dirname(__file__), "img/cookie.png")
-            self.goal_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.goal_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.mountain_bg_img is None:
             bg_imgs = [
                 path.join(path.dirname(__file__), "img/mountain_bg1.png"),
@@ -228,7 +232,9 @@ class CliffWalkingEnv(Env):
             ]
         if self.cliff_img is None:
             file_name = path.join(path.dirname(__file__), "img/mountain_cliff.png")
-            self.cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+            self.cliff_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
 
         for s in range(self.nS):
             row, col = np.unravel_index(s, self.shape)
