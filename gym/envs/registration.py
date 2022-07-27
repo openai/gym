@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import contextlib
 import copy
 import difflib
@@ -10,13 +8,14 @@ import sys
 import warnings
 from dataclasses import dataclass, field
 from typing import (
-    Any,
     Callable,
+    Dict,
+    Iterable,
+    List,
     Optional,
     Sequence,
     SupportsFloat,
     Tuple,
-    Type,
     Union,
     overload,
 )
@@ -24,7 +23,14 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    HumanRendering,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
+from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -34,20 +40,24 @@ else:
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
-
-    class Literal(str):
-        def __class_getitem__(cls, item):
-            return Any
-
+    from typing_extensions import Literal
 
 from gym import Env, error, logger
 
-ENV_ID_RE: re.Pattern = re.compile(
+ENV_ID_RE = re.compile(
     r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
 )
 
 
-def load(name: str) -> Type:
+def load(name: str) -> callable:
+    """Loads an environment with name and returns an environment creation function
+
+    Args:
+        name: The environment name
+
+    Returns:
+        Calls the environment constructor
+    """
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
     fn = getattr(mod, attr_name)
@@ -62,6 +72,15 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
 
     2016-10-31: We're experimentally expanding the environment ID format
     to include an optional namespace.
+
+    Args:
+        id: The environment id to parse
+
+    Returns:
+        A tuple of environment namespace, environment name and version number
+
+    Raises:
+        Error: If the environment id does not a valid environment regex
     """
     match = ENV_ID_RE.fullmatch(id)
     if not match:
@@ -76,9 +95,17 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     return namespace, name, version
 
 
-def get_env_id(ns: Optional[str], name: str, version: Optional[int]):
-    """Get the full env ID given a name and (optional) version and namespace.
-    Inverse of parse_env_id."""
+def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
+    """Get the full env ID given a name and (optional) version and namespace. Inverse of :meth:`parse_env_id`.
+
+    Args:
+        ns: The environment namespace
+        name: The environment name
+        version: The environment version
+
+    Returns:
+        The environment id
+    """
 
     full_name = name
     if version is not None:
@@ -90,13 +117,32 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]):
 
 @dataclass
 class EnvSpec:
+    """A specification for creating environments with `gym.make`.
+
+    * id: The string used to create the environment with `gym.make`
+    * entry_point: The location of the environment to create from
+    * reward_threshold: The reward threshold for completing the environment.
+    * nondeterministic: If the observation of an environment cannot be repeated with the same initial state, random number generator state and actions.
+    * max_episode_steps: The max number of steps that the environment can take before truncation
+    * order_enforce: If to enforce the order of `reset` before `step` and `render` functions
+    * autoreset: If to automatically reset the environment on episode end
+    * disable_env_checker: If to disable the environment checker wrapper in `gym.make`, by default False (runs the environment checker)
+    * kwargs: Additional keyword arguments passed to the environments through `gym.make`
+    """
+
     id: str
     entry_point: Optional[Union[Callable, str]] = field(default=None)
     reward_threshold: Optional[float] = field(default=None)
     nondeterministic: bool = field(default=False)
+
+    # Wrappers
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
+    disable_env_checker: bool = field(default=False)
+    new_step_api: bool = field(default=False)
+
+    # Environment arguments
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -170,7 +216,18 @@ def _check_name_exists(ns: Optional[str], name: str):
 
 def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
     """Check if an env version exists in a namespace. If it doesn't, print a helpful error message.
-    This is a complete test whether an environment identifier is valid, and will provide the best available hints."""
+    This is a complete test whether an environment identifier is valid, and will provide the best available hints.
+
+    Args:
+        ns: The environment namespace
+        name: The environment space
+        version: The environment version
+
+    Raises:
+        DeprecatedEnv: The environment doesn't exist but a default version does
+        VersionNotFound: The ``version`` used doesn't exist
+        DeprecatedEnv: Environment version is deprecated
+    """
     if get_env_id(ns, name, version) in registry:
         return
 
@@ -213,7 +270,7 @@ def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
 
 
 def find_highest_version(ns: Optional[str], name: str) -> Optional[int]:
-    version: list[int] = [
+    version: List[int] = [
         spec_.version
         for spec_ in registry.values()
         if spec_.namespace == ns and spec_.name == name and spec_.version is not None
@@ -274,39 +331,39 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 @overload
-def make(id: Literal["CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Box2d
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["CarRacing-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 
 # Toy Text
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Mujoco
 # ----------------------------------------
@@ -336,24 +393,64 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 # fmt: on
 
 
+class EnvRegistry(dict):
+    """A glorified dictionary for compatibility reasons.
+
+    Turns out that some existing code directly used the old `EnvRegistry` code,
+    even though the intended API was just `register` and `make`.
+    This reimplements some old methods, so that e.g. pybullet environments will still work.
+
+    Ideally, nobody should ever use these methods, and they will be removed soon.
+    """
+
+    # TODO: remove this at 1.0
+
+    def make(self, path: str, **kwargs) -> Env:
+        logger.warn(
+            "The `registry.make` method is deprecated. Please use `gym.make` instead."
+        )
+        return make(path, **kwargs)
+
+    def register(self, id: str, **kwargs) -> None:
+        logger.warn(
+            "The `registry.register` method is deprecated. Please use `gym.register` instead."
+        )
+        return register(id, **kwargs)
+
+    def all(self) -> Iterable[EnvSpec]:
+        logger.warn(
+            "The `registry.all` method is deprecated. Please use `registry.values` instead."
+        )
+        return self.values()
+
+    def spec(self, path: str) -> EnvSpec:
+        logger.warn(
+            "The `registry.spec` method is deprecated. Please use `gym.spec` instead."
+        )
+        return spec(path)
+
+    def namespace(self, ns: str):
+        logger.warn(
+            "The `registry.namespace` method is deprecated. Please use `gym.namespace` instead."
+        )
+        return namespace(ns)
+
+    @property
+    def env_specs(self):
+        logger.warn(
+            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. Please use `registry` directly as a dictionary instead."
+        )
+        return self
+
+
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = dict()
+registry: Dict[str, EnvSpec] = EnvRegistry()
 current_namespace: Optional[str] = None
 
 
 def _check_spec_register(spec: EnvSpec):
     """Checks whether the spec is valid to be registered. Helper function for `register`."""
-    global registry, current_namespace
-    if current_namespace is not None:
-        if spec.namespace is not None:
-            logger.warn(
-                f"Custom namespace `{spec.namespace}` is being overridden "
-                f"by namespace `{current_namespace}`. If you are developing a "
-                "plugin you shouldn't specify a namespace in `register` "
-                "calls. The namespace is specified through the "
-                "entry point package metadata."
-            )
-
+    global registry
     latest_versioned_spec = max(
         (
             spec_
@@ -407,19 +504,25 @@ def namespace(ns: str):
 
 
 def register(id: str, **kwargs):
-    """
-    Register an environment with gym. The `id` parameter corresponds to the name of the environment,
-    with the syntax as follows:
-    `(namespace)/(env_name)-v(version)`
-    where `namespace` is optional.
+    """Register an environment with gym.
+
+    The `id` parameter corresponds to the name of the environment, with the syntax as follows:
+    `(namespace)/(env_name)-v(version)` where `namespace` is optional.
 
     It takes arbitrary keyword arguments, which are passed to the `EnvSpec` constructor.
+
+    Args:
+        id: The environment id
+        **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
     ns, name, version = parse_env_id(id)
 
     if current_namespace is not None:
-        if kwargs.get("namespace") is not None:
+        if (
+            kwargs.get("namespace") is not None
+            and kwargs.get("namespace") != current_namespace
+        ):
             logger.warn(
                 f"Custom namespace `{kwargs.get('namespace')}` is being overridden "
                 f"by namespace `{current_namespace}`. If you are developing a "
@@ -441,25 +544,43 @@ def register(id: str, **kwargs):
 
 
 def make(
-    id: str | EnvSpec,
+    id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    new_step_api: bool = False,
+    disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
-    """
-    Create an environment according to the given ID.
+    """Create an environment according to the given ID.
 
     Args:
-        id: Name of the environment.
+        id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
+        disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
+            (which is by default False, running the environment checker),
+            otherwise will run according to this parameter (`True` = not run, `False` = run)
         kwargs: Additional arguments to pass to the environment constructor.
+
     Returns:
         An instance of the environment.
+
+    Raises:
+        Error: If the ``id`` doesn't exist then an error is raised
     """
     if isinstance(id, EnvSpec):
         spec_ = id
     else:
+        module, id = (None, id) if ":" not in id else id.split(":")
+        if module is not None:
+            try:
+                importlib.import_module(module)
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    f"{e}. Environment registration via importing a module failed. "
+                    f"Check whether '{module}' contains env registration and can be imported."
+                )
         spec_ = registry.get(id)
 
         ns, name, version = parse_env_id(id)
@@ -489,40 +610,105 @@ def make(
     _kwargs = spec_.kwargs.copy()
     _kwargs.update(kwargs)
 
-    # TODO: add a minimal env checker on initialization
     if spec_.entry_point is None:
         raise error.Error(f"{spec_.id} registered but entry_point is not specified")
     elif callable(spec_.entry_point):
-        cls = spec_.entry_point
+        env_creator = spec_.entry_point
     else:
         # Assume it's a string
-        cls = load(spec_.entry_point)
+        env_creator = load(spec_.entry_point)
 
-    env = cls(**_kwargs)
+    mode = _kwargs.get("render_mode")
+    apply_human_rendering = False
 
+    # If we have access to metadata we check that "render_mode" is valid and see if the HumanRendering wrapper needs to be applied
+    if mode is not None and hasattr(env_creator, "metadata"):
+        assert isinstance(
+            env_creator.metadata, dict
+        ), f"Expect the environment creator ({env_creator}) metadata to be dict, actual type: {type(env_creator.metadata)}"
+
+        if "render_modes" in env_creator.metadata:
+            render_modes = env_creator.metadata["render_modes"]
+            if not isinstance(render_modes, Sequence):
+                logger.warn(
+                    f"Expects the environment metadata render_modes to be a Sequence (tuple or list), actual type: {type(render_modes)}"
+                )
+
+            # Apply the `HumanRendering` wrapper, if the mode=="human" but "human" not in render_modes
+            if (
+                mode == "human"
+                and "human" not in render_modes
+                and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+            ):
+                logger.warn(
+                    "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                    "The HumanRendering wrapper is being applied to your environment."
+                )
+                apply_human_rendering = True
+                if "single_rgb_array" in render_modes:
+                    _kwargs["render_mode"] = "single_rgb_array"
+                else:
+                    _kwargs["render_mode"] = "rgb_array"
+            elif mode not in render_modes:
+                logger.warn(
+                    f"The environment is being initialised with mode ({mode}) that is not in the possible render_modes ({render_modes})."
+                )
+        else:
+            logger.warn(
+                f"The environment creator metadata doesn't include `render_modes`, contains: {list(env_creator.metadata.keys())}"
+            )
+
+    try:
+        env = env_creator(**_kwargs)
+    except TypeError as e:
+        if (
+            str(e).find("got an unexpected keyword argument 'render_mode'") >= 0
+            and apply_human_rendering
+        ):
+            raise error.Error(
+                f"You passed render_mode='human' although {id} doesn't implement human-rendering natively. "
+                "Gym tried to apply the HumanRendering wrapper but it looks like your environment is using the old "
+                "rendering API, which is not supported by the HumanRendering wrapper."
+            )
+        else:
+            raise e
+
+    # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)
     spec_.kwargs = _kwargs
-
     env.unwrapped.spec = spec_
 
+    # Run the environment checker as the lowest level wrapper
+    if disable_env_checker is False or (
+        disable_env_checker is None and spec_.disable_env_checker is False
+    ):
+        env = PassiveEnvChecker(env)
+
+    env = StepAPICompatibility(env, new_step_api)
+
+    # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
+    # Add the time limit wrapper
     if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps)
+        env = TimeLimit(env, max_episode_steps, new_step_api)
     elif spec_.max_episode_steps is not None:
-        env = TimeLimit(env, spec_.max_episode_steps)
+        env = TimeLimit(env, spec_.max_episode_steps, new_step_api)
 
+    # Add the autoreset wrapper
     if autoreset:
-        env = AutoResetWrapper(env)
+        env = AutoResetWrapper(env, new_step_api)
+
+    # Add human rendering wrapper
+    if apply_human_rendering:
+        env = HumanRendering(env)
 
     return env
 
 
 def spec(env_id: str) -> EnvSpec:
-    """
-    Retrieve the spec for the given environment from the global registry.
-    """
+    """Retrieve the spec for the given environment from the global registry."""
     spec_ = registry.get(env_id)
     if spec_ is None:
         ns, name, version = parse_env_id(env_id)

@@ -9,27 +9,34 @@ from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
 class BrokenRecordableEnv:
-    metadata = {"render_modes": [None, "rgb_array"]}
+    metadata = {"render_modes": ["rgb_array"]}
 
-    def render(self, mode=None):
+    def __init__(self, render_mode="rgb_array"):
+        self.render_mode = render_mode
+
+    def render(self, mode="human"):
         pass
 
 
 class UnrecordableEnv:
     metadata = {"render_modes": [None]}
 
-    def render(self, mode=None):
+    def __init__(self, render_mode=None):
+        self.render_mode = render_mode
+
+    def render(self, mode="human"):
         pass
 
 
 def test_record_simple():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
+    assert rec.encoder is not None
     proc = rec.encoder.proc
 
-    assert proc.poll() is None  # subprocess is running
+    assert proc is not None and proc.poll() is None  # subprocess is running
 
     rec.close()
 
@@ -43,15 +50,16 @@ def test_record_simple():
 
 def test_autoclose():
     def record():
-        env = gym.make("CartPole-v1")
+        env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
         rec = VideoRecorder(env)
         env.reset()
         rec.capture_frame()
 
         rec_path = rec.path
+        assert rec.encoder is not None
         proc = rec.encoder.proc
 
-        assert proc.poll() is None  # subprocess is running
+        assert proc is not None and proc.poll() is None  # subprocess is running
 
         # The function ends without an explicit `rec.close()` call
         # The Python interpreter will implicitly do `del rec` on garbage cleaning
@@ -62,7 +70,7 @@ def test_autoclose():
     gc.collect()  # do explicit garbage collection for test
     time.sleep(5)  # wait for subprocess exiting
 
-    assert proc.poll() is not None  # subprocess is terminated
+    assert proc is not None and proc.poll() is not None  # subprocess is terminated
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
@@ -96,7 +104,7 @@ def test_record_breaking_render_method():
 
 
 def test_text_envs():
-    env = gym.make("FrozenLake-v1")
+    env = gym.make("FrozenLake-v1", render_mode="rgb_array", disable_env_checker=True)
     video = VideoRecorder(env)
     try:
         env.reset()

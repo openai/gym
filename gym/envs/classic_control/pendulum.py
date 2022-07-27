@@ -7,14 +7,22 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
+
+DEFAULT_X = np.pi
+DEFAULT_Y = 1.0
 
 
 class PendulumEnv(gym.Env):
     """
        ### Description
 
-    The inverted pendulum swingup problem is based on the classic problem in control theory. The system consists of a pendulum attached at one end to a fixed point, and the other end being free. The pendulum starts in a random position and the goal is to apply torque on the free end to swing it into an upright position, with its center of gravity right above the fixed point.
+    The inverted pendulum swingup problem is based on the classic problem in control theory.
+    The system consists of a pendulum attached at one end to a fixed point, and the other end being free.
+    The pendulum starts in a random position and the goal is to apply torque on the free end to swing it
+    into an upright position, with its center of gravity right above the fixed point.
 
     The diagram below specifies the coordinate system used for the implementation of the pendulum's
     dynamic equations.
@@ -36,7 +44,8 @@ class PendulumEnv(gym.Env):
 
     ### Observation Space
 
-    The observation is a `ndarray` with shape `(3,)` representing the x-y coordinates of the pendulum's free end and its angular velocity.
+    The observation is a `ndarray` with shape `(3,)` representing the x-y coordinates of the pendulum's free
+    end and its angular velocity.
 
     | Num | Observation      | Min  | Max |
     |-----|------------------|------|-----|
@@ -51,20 +60,22 @@ class PendulumEnv(gym.Env):
     *r = -(theta<sup>2</sup> + 0.1 * theta_dt<sup>2</sup> + 0.001 * torque<sup>2</sup>)*
 
     where `$\theta$` is the pendulum's angle normalized between *[-pi, pi]* (with 0 being in the upright position).
-    Based on the above equation, the minimum reward that can be obtained is *-(pi<sup>2</sup> + 0.1 * 8<sup>2</sup> + 0.001 * 2<sup>2</sup>) = -16.2736044*, while the maximum reward is zero (pendulum is
-    upright with zero velocity and no torque applied).
+    Based on the above equation, the minimum reward that can be obtained is
+    *-(pi<sup>2</sup> + 0.1 * 8<sup>2</sup> + 0.001 * 2<sup>2</sup>) = -16.2736044*,
+    while the maximum reward is zero (pendulum is upright with zero velocity and no torque applied).
 
     ### Starting State
 
     The starting state is a random angle in *[-pi, pi]* and a random angular velocity in *[-1,1]*.
 
-    ### Episode Termination
+    ### Episode Truncation
 
-    The episode terminates at 200 time steps.
+    The episode truncates at 200 time steps.
 
     ### Arguments
 
-    - `g`: acceleration of gravity measured in *(m s<sup>-2</sup>)* used to calculate the pendulum dynamics. The default value is g = 10.0 .
+    - `g`: acceleration of gravity measured in *(m s<sup>-2</sup>)* used to calculate the pendulum dynamics.
+      The default value is g = 10.0 .
 
     ```
     gym.make('Pendulum-v1', g=9.81)
@@ -77,20 +88,26 @@ class PendulumEnv(gym.Env):
 
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
-    def __init__(self, g=10.0):
+    def __init__(self, render_mode: Optional[str] = None, g=10.0):
         self.max_speed = 8
         self.max_torque = 2.0
         self.dt = 0.05
         self.g = g
         self.m = 1.0
         self.l = 1.0
+
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
+        self.screen_dim = 500
         self.screen = None
         self.clock = None
         self.isopen = True
-
-        self.screen_dim = 500
 
         high = np.array([1.0, 1.0, self.max_speed], dtype=np.float32)
         # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
@@ -118,7 +135,8 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
-        return self._get_obs(), -costs, False, {}
+        self.renderer.render_step()
+        return self._get_obs(), -costs, False, False, {}
 
     def reset(
         self,
@@ -128,9 +146,22 @@ class PendulumEnv(gym.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        high = np.array([np.pi, 1])
-        self.state = self.np_random.uniform(low=-high, high=high)
+        if options is None:
+            high = np.array([DEFAULT_X, DEFAULT_Y])
+        else:
+            # Note that if you use custom reset bounds, it may lead to out-of-bound
+            # state/observations.
+            x = options.get("x_init") if "x_init" in options else DEFAULT_X
+            y = options.get("y_init") if "y_init" in options else DEFAULT_Y
+            x = utils.verify_number_and_cast(x)
+            y = utils.verify_number_and_cast(y)
+            high = np.array([x, y])
+        low = -high  # We enforce symmetric limits.
+        self.state = self.np_random.uniform(low=low, high=high)
         self.last_u = None
+
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return self._get_obs()
         else:
@@ -141,6 +172,13 @@ class PendulumEnv(gym.Env):
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -151,8 +189,13 @@ class PendulumEnv(gym.Env):
 
         if self.screen is None:
             pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.screen_dim, self.screen_dim)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -194,7 +237,8 @@ class PendulumEnv(gym.Env):
         img = pygame.image.load(fname)
         if self.last_u is not None:
             scale_img = pygame.transform.smoothscale(
-                img, (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2)
+                img,
+                (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2),
             )
             is_flip = bool(self.last_u > 0)
             scale_img = pygame.transform.flip(scale_img, is_flip, True)
@@ -217,12 +261,10 @@ class PendulumEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        else:  # mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:

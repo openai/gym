@@ -9,7 +9,9 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 
 class MountainCarEnv(gym.Env):
@@ -38,20 +40,20 @@ class MountainCarEnv(gym.Env):
 
     The observation is a `ndarray` with shape `(2,)` where the elements correspond to the following:
 
-    | Num | Observation                                                 | Min                | Max    | Unit |
-    |-----|-------------------------------------------------------------|--------------------|--------|------|
-    | 0   | position of the car along the x-axis                        | -Inf               | Inf    | position (m) |
-    | 1   | velocity of the car                                         | -Inf               | Inf  | position (m) |
+    | Num | Observation                          | Min  | Max | Unit         |
+    |-----|--------------------------------------|------|-----|--------------|
+    | 0   | position of the car along the x-axis | -Inf | Inf | position (m) |
+    | 1   | velocity of the car                  | -Inf | Inf | position (m) |
 
     ### Action Space
 
     There are 3 discrete deterministic actions:
 
-    | Num | Observation                                                 | Value   | Unit |
-    |-----|-------------------------------------------------------------|---------|------|
-    | 0   | Accelerate to the left                                      | Inf    | position (m) |
-    | 1   | Don't accelerate                                            | Inf  | position (m) |
-    | 2   | Accelerate to the right                                     | Inf    | position (m) |
+    | Num | Observation             | Value | Unit         |
+    |-----|-------------------------|-------|--------------|
+    | 0   | Accelerate to the left  | Inf   | position (m) |
+    | 1   | Don't accelerate        | Inf   | position (m) |
+    | 2   | Accelerate to the right | Inf   | position (m) |
 
     ### Transition Dynamics:
 
@@ -61,22 +63,26 @@ class MountainCarEnv(gym.Env):
 
     *position<sub>t+1</sub> = position<sub>t</sub> + velocity<sub>t+1</sub>*
 
-    where force = 0.001 and gravity = 0.0025. The collisions at either end are inelastic with the velocity set to 0 upon collision with the wall. The position is clipped to the range `[-1.2, 0.6]` and velocity is clipped to the range `[-0.07, 0.07]`.
+    where force = 0.001 and gravity = 0.0025. The collisions at either end are inelastic with the velocity set to 0
+    upon collision with the wall. The position is clipped to the range `[-1.2, 0.6]` and
+    velocity is clipped to the range `[-0.07, 0.07]`.
 
 
     ### Reward:
 
-    The goal is to reach the flag placed on top of the right hill as quickly as possible, as such the agent is penalised with a reward of -1 for each timestep it isn't at the goal and is not penalised (reward = 0) for when it reaches the goal.
+    The goal is to reach the flag placed on top of the right hill as quickly as possible, as such the agent is
+    penalised with a reward of -1 for each timestep.
 
     ### Starting State
 
-    The position of the car is assigned a uniform random value in *[-0.6 , -0.4]*. The starting velocity of the car is always assigned to 0.
+    The position of the car is assigned a uniform random value in *[-0.6 , -0.4]*.
+    The starting velocity of the car is always assigned to 0.
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates if either of the following happens:
-    1. The position of the car is greater than or equal to 0.5 (the goal position on top of the right hill)
-    2. The length of the episode is 200.
+    The episode ends if either of the following happens:
+    1. Termination: The position of the car is greater than or equal to 0.5 (the goal position on top of the right hill)
+    2. Truncation: The length of the episode is 200.
 
 
     ### Arguments
@@ -90,9 +96,12 @@ class MountainCarEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
-    def __init__(self, goal_velocity=0):
+    def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
@@ -105,6 +114,11 @@ class MountainCarEnv(gym.Env):
         self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
+        self.screen_width = 600
+        self.screen_height = 400
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -125,11 +139,14 @@ class MountainCarEnv(gym.Env):
         if position == self.min_position and velocity < 0:
             velocity = 0
 
-        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
+        terminated = bool(
+            position >= self.goal_position and velocity >= self.goal_velocity
+        )
         reward = -1.0
 
         self.state = (position, velocity)
-        return np.array(self.state, dtype=np.float32), reward, done, {}
+        self.renderer.render_step()
+        return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
         self,
@@ -139,7 +156,12 @@ class MountainCarEnv(gym.Env):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
-        self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
+        # Note that if you use custom reset bounds, it may lead to out-of-bound
+        # state/observations.
+        low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
+        self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -149,6 +171,13 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -157,21 +186,24 @@ class MountainCarEnv(gym.Env):
                 "pygame is not installed, run `pip install gym[classic_control]`"
             )
 
-        screen_width = 600
-        screen_height = 400
-
-        world_width = self.max_position - self.min_position
-        scale = screen_width / world_width
-        carwidth = 40
-        carheight = 20
         if self.screen is None:
             pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((screen_width, screen_height))
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.screen_width, self.screen_height)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((screen_width, screen_height))
+        world_width = self.max_position - self.min_position
+        scale = self.screen_width / world_width
+        carwidth = 40
+        carheight = 20
+
+        self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))
 
         pos = self.state[0]
@@ -235,12 +267,10 @@ class MountainCarEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def get_keys_to_action(self):
         # Control with left and right arrow keys.

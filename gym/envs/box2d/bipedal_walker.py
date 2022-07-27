@@ -1,7 +1,7 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 
@@ -9,6 +9,7 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
+from gym.utils.renderer import Renderer
 
 try:
     import Box2D
@@ -23,6 +24,9 @@ try:
 except ImportError:
     raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
+
+if TYPE_CHECKING:
+    import pygame
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -159,17 +163,18 @@ class BipedalWalker(gym.Env, EzPickle):
 
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": FPS,
+    }
 
-    def __init__(self, hardcore: bool = False):
+    def __init__(self, render_mode: Optional[str] = None, hardcore: bool = False):
         EzPickle.__init__(self)
-        self.screen = None
-        self.clock = None
         self.isopen = True
 
         self.world = Box2D.b2World()
-        self.terrain = None
-        self.hull = None
+        self.terrain: List[Box2D.b2Body] = []
+        self.hull: Optional[Box2D.b2Body] = None
 
         self.prev_shaping = None
 
@@ -252,6 +257,11 @@ class BipedalWalker(gym.Env, EzPickle):
         # ]
         # state += [l.fraction for l in self.lidar]
 
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+        self.screen: Optional[pygame.Surface] = None
+        self.clock = None
+
     def _destroy(self):
         if not self.terrain:
             return
@@ -276,6 +286,9 @@ class BipedalWalker(gym.Env, EzPickle):
         self.terrain = []
         self.terrain_x = []
         self.terrain_y = []
+
+        stair_steps, stair_width, stair_height = 0, 0, 0
+        original_y = 0
         for i in range(TERRAIN_LENGTH):
             x = i * TERRAIN_STEP
             self.terrain_x.append(x)
@@ -441,8 +454,8 @@ class BipedalWalker(gym.Env, EzPickle):
             (self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM), 0), True
         )
 
-        self.legs = []
-        self.joints = []
+        self.legs: List[Box2D.b2Body] = []
+        self.joints: List[Box2D.b2RevoluteJoint] = []
         for i in [-1, +1]:
             leg = self.world.CreateDynamicBody(
                 position=(init_x, init_y - LEG_H / 2 - LEG_DOWN),
@@ -500,12 +513,15 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
+        self.renderer.reset()
         if not return_info:
             return self.step(np.array([0, 0, 0, 0]))[0]
         else:
             return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action: np.ndarray):
+        assert self.hull is not None
+
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
@@ -583,15 +599,23 @@ class BipedalWalker(gym.Env, EzPickle):
             reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
             # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
-        done = False
+        terminated = False
         if self.game_over or pos[0] < 0:
             reward = -100
-            done = True
+            terminated = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
-            done = True
-        return np.array(state, dtype=np.float32), reward, done, {}
+            terminated = True
+        self.renderer.render_step()
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode: str = "human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode: str = "human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -600,7 +624,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 "pygame is not installed, run `pip install gym[box2d]`"
             )
 
-        if self.screen is None:
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
@@ -653,18 +677,19 @@ class BipedalWalker(gym.Env, EzPickle):
         self.lidar_render = (self.lidar_render + 1) % 100
         i = self.lidar_render
         if i < 2 * len(self.lidar):
-            l = (
+            single_lidar = (
                 self.lidar[i]
                 if i < len(self.lidar)
                 else self.lidar[len(self.lidar) - i - 1]
             )
-            pygame.draw.line(
-                self.surf,
-                color=(255, 0, 0),
-                start_pos=(l.p1[0] * SCALE, l.p1[1] * SCALE),
-                end_pos=(l.p2[0] * SCALE, l.p2[1] * SCALE),
-                width=1,
-            )
+            if hasattr(single_lidar, "p1") and hasattr(single_lidar, "p2"):
+                pygame.draw.line(
+                    self.surf,
+                    color=(255, 0, 0),
+                    start_pos=(single_lidar.p1[0] * SCALE, single_lidar.p1[1] * SCALE),
+                    end_pos=(single_lidar.p2[0] * SCALE, single_lidar.p2[1] * SCALE),
+                    width=1,
+                )
 
         for obj in self.drawlist:
             for f in obj.fixtures:
@@ -717,18 +742,17 @@ class BipedalWalker(gym.Env, EzPickle):
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
+
         if mode == "human":
+            assert self.screen is not None
+            self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
-            )
-        else:
-            return self.isopen
+                np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
+            )[:, -VIEWPORT_W:]
 
     def close(self):
         if self.screen is not None:
@@ -764,9 +788,9 @@ if __name__ == "__main__":
     SUPPORT_KNEE_ANGLE = +0.1
     supporting_knee_angle = SUPPORT_KNEE_ANGLE
     while True:
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = env.step(a)
         total_reward += r
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("\naction " + str([f"{x:+0.2f}" for x in a]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
             print("hull " + str([f"{x:+0.2f}" for x in s[0:4]]))
@@ -829,6 +853,5 @@ if __name__ == "__main__":
         a[3] = knee_todo[1]
         a = np.clip(0.5 * a, -1.0, 1.0)
 
-        env.render()
-        if done:
+        if terminated or truncated:
             break

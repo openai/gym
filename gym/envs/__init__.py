@@ -83,32 +83,8 @@ register(
 )
 
 register(
-    id="CarRacing-v1",
+    id="CarRacing-v2",
     entry_point="gym.envs.box2d.car_racing:CarRacing",
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
-register(
-    id="CarRacingDomainRandomize-v1",
-    entry_point="gym.envs.box2d.car_racing:CarRacing",
-    kwargs={"domain_randomize": True},
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
-register(
-    id="CarRacingDiscrete-v1",
-    entry_point="gym.envs.box2d.car_racing:CarRacing",
-    kwargs={"continuous": False},
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
-register(
-    id="CarRacingDomainRandomizeDiscrete-v1",
-    entry_point="gym.envs.box2d.car_racing:CarRacing",
-    kwargs={"domain_randomize": True, "continuous": False},
     max_episode_steps=1000,
     reward_threshold=900,
 )
@@ -163,8 +139,22 @@ register(
 )
 
 register(
+    id="Reacher-v4",
+    entry_point="gym.envs.mujoco.reacher_v4:ReacherEnv",
+    max_episode_steps=50,
+    reward_threshold=-3.75,
+)
+
+register(
     id="Pusher-v2",
     entry_point="gym.envs.mujoco:PusherEnv",
+    max_episode_steps=100,
+    reward_threshold=0.0,
+)
+
+register(
+    id="Pusher-v4",
+    entry_point="gym.envs.mujoco.pusher_v4:PusherEnv",
     max_episode_steps=100,
     reward_threshold=0.0,
 )
@@ -177,8 +167,22 @@ register(
 )
 
 register(
+    id="InvertedPendulum-v4",
+    entry_point="gym.envs.mujoco.inverted_pendulum_v4:InvertedPendulumEnv",
+    max_episode_steps=1000,
+    reward_threshold=950.0,
+)
+
+register(
     id="InvertedDoublePendulum-v2",
     entry_point="gym.envs.mujoco:InvertedDoublePendulumEnv",
+    max_episode_steps=1000,
+    reward_threshold=9100.0,
+)
+
+register(
+    id="InvertedDoublePendulum-v4",
+    entry_point="gym.envs.mujoco.inverted_double_pendulum_v4:InvertedDoublePendulumEnv",
     max_episode_steps=1000,
     reward_threshold=9100.0,
 )
@@ -198,6 +202,13 @@ register(
 )
 
 register(
+    id="HalfCheetah-v4",
+    entry_point="gym.envs.mujoco.half_cheetah_v4:HalfCheetahEnv",
+    max_episode_steps=1000,
+    reward_threshold=4800.0,
+)
+
+register(
     id="Hopper-v2",
     entry_point="gym.envs.mujoco:HopperEnv",
     max_episode_steps=1000,
@@ -207,6 +218,13 @@ register(
 register(
     id="Hopper-v3",
     entry_point="gym.envs.mujoco.hopper_v3:HopperEnv",
+    max_episode_steps=1000,
+    reward_threshold=3800.0,
+)
+
+register(
+    id="Hopper-v4",
+    entry_point="gym.envs.mujoco.hopper_v4:HopperEnv",
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
@@ -226,6 +244,13 @@ register(
 )
 
 register(
+    id="Swimmer-v4",
+    entry_point="gym.envs.mujoco.swimmer_v4:SwimmerEnv",
+    max_episode_steps=1000,
+    reward_threshold=360.0,
+)
+
+register(
     id="Walker2d-v2",
     max_episode_steps=1000,
     entry_point="gym.envs.mujoco:Walker2dEnv",
@@ -235,6 +260,12 @@ register(
     id="Walker2d-v3",
     max_episode_steps=1000,
     entry_point="gym.envs.mujoco.walker2d_v3:Walker2dEnv",
+)
+
+register(
+    id="Walker2d-v4",
+    max_episode_steps=1000,
+    entry_point="gym.envs.mujoco.walker2d_v4:Walker2dEnv",
 )
 
 register(
@@ -252,6 +283,13 @@ register(
 )
 
 register(
+    id="Ant-v4",
+    entry_point="gym.envs.mujoco.ant_v4:AntEnv",
+    max_episode_steps=1000,
+    reward_threshold=6000.0,
+)
+
+register(
     id="Humanoid-v2",
     entry_point="gym.envs.mujoco:HumanoidEnv",
     max_episode_steps=1000,
@@ -264,7 +302,19 @@ register(
 )
 
 register(
+    id="Humanoid-v4",
+    entry_point="gym.envs.mujoco.humanoid_v4:HumanoidEnv",
+    max_episode_steps=1000,
+)
+
+register(
     id="HumanoidStandup-v2",
     entry_point="gym.envs.mujoco:HumanoidStandupEnv",
+    max_episode_steps=1000,
+)
+
+register(
+    id="HumanoidStandup-v4",
+    entry_point="gym.envs.mujoco.humanoidstandup_v4:HumanoidStandupEnv",
     max_episode_steps=1000,
 )

@@ -1,25 +1,43 @@
+"""Wrapper for limiting the time steps of an environment."""
 from typing import Optional
 
 import gym
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class TimeLimit(gym.Wrapper):
-    """This wrapper will issue a `done` signal if a maximum number of timesteps is exceeded.
+    """This wrapper will issue a `truncated` signal if a maximum number of timesteps is exceeded.
 
-    Oftentimes, it is **very** important to distinguish `done` signals that were produced by the
-    `TimeLimit` wrapper (truncations) and those that originate from the underlying environment (terminations).
-    This can be done by looking at the `info` that is returned when `done` signal was issued.
+    If a truncation is not defined inside the environment itself, this is the only place that the truncation signal is issued.
+    Critically, this is different from the `terminated` signal that originates from the underlying environment as part of the MDP.
 
+    (deprecated)
+    This information is passed through ``info`` that is returned when `done`-signal was issued.
     The done-signal originates from the time limit (i.e. it signifies a *truncation*) if and only if
-    the key `"TimeLimit.truncated"` exists in `info` and the corresponding value is `True`.
+    the key `"TimeLimit.truncated"` exists in ``info`` and the corresponding value is ``True``. This will be removed in favour
+    of only issuing a `truncated` signal in future versions.
 
-    Args:
-        env: The environment that will be wrapped
-        max_episode_steps (Optional[int]): The maximum number of steps until a done-signal occurs. If it is `None`, the value from `env.spec` (if available) will be used
+    Example:
+       >>> from gym.envs.classic_control import CartPoleEnv
+       >>> from gym.wrappers import TimeLimit
+       >>> env = CartPoleEnv()
+       >>> env = TimeLimit(env, max_episode_steps=1000)
     """
 
-    def __init__(self, env, max_episode_steps: Optional[int] = None):
-        super().__init__(env)
+    def __init__(
+        self,
+        env: gym.Env,
+        max_episode_steps: Optional[int] = None,
+        new_step_api: bool = False,
+    ):
+        """Initializes the :class:`TimeLimit` wrapper with an environment and the number of steps after which truncation will occur.
+
+        Args:
+            env: The environment to apply the wrapper
+            max_episode_steps: An optional max episode steps (if ``Ǹone``, ``env.spec.max_episode_steps`` is used)
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
+        """
+        super().__init__(env, new_step_api)
         if max_episode_steps is None and self.env.spec is not None:
             max_episode_steps = env.spec.max_episode_steps
         if self.env.spec is not None:
@@ -28,13 +46,38 @@ class TimeLimit(gym.Wrapper):
         self._elapsed_steps = None
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
+        """Steps through the environment and if the number of steps elapsed exceeds ``max_episode_steps`` then truncate.
+
+        Args:
+            action: The environment step action
+
+        Returns:
+            The environment step ``(observation, reward, done, info)`` with "TimeLimit.truncated"=True
+            when truncated (the number of steps elapsed >= max episode steps) or
+            "TimeLimit.truncated"=False if the environment terminated
+        """
+        observation, reward, terminated, truncated, info = step_api_compatibility(
+            self.env.step(action),
+            True,
+        )
         self._elapsed_steps += 1
+
         if self._elapsed_steps >= self._max_episode_steps:
-            info["TimeLimit.truncated"] = not done
-            done = True
-        return observation, reward, done, info
+            truncated = True
+
+        return step_api_compatibility(
+            (observation, reward, terminated, truncated, info),
+            self.new_step_api,
+        )
 
     def reset(self, **kwargs):
+        """Resets the environment with :param:`**kwargs` and sets the number of steps elapsed to zero.
+
+        Args:
+            **kwargs: The kwargs to reset the environment with
+
+        Returns:
+            The reset environment
+        """
         self._elapsed_steps = 0
         return self.env.reset(**kwargs)
