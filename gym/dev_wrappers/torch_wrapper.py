@@ -1,3 +1,13 @@
+"""
+This wrapper will convert torch inputs for the actions and observations to Jax arrays
+for an underlying Jax environment then convert the return observations from Jax arrays
+back to torch tensors.
+
+Functionality for converting between torch and jax types originally copied from
+https://github.com/google/brax/blob/9d6b7ced2a13da0d074b5e9fbd3aad8311e26997/brax/io/torch.py
+Under the Apache 2.0 license. Copyright is held by the authors
+"""
+
 from typing import Dict, Optional, Tuple, Union
 
 from gym import Env, Wrapper
@@ -16,14 +26,7 @@ Device = Union[str, torch.device]
 
 class JaxToTorchV0(Wrapper):
     def __init__(self, env: Union[Wrapper, Env], device: Optional[torch.device] = None):
-        """This wrapper will convert torch inputs for the actions and observations to Jax arrays
-        for an underlying Jax environment then convert the return observations from Jax arrays
-        back to torch tensors.
-
-        Functionality for converting between torch and jax types originally copied from
-        https://github.com/google/brax/blob/9d6b7ced2a13da0d074b5e9fbd3aad8311e26997/brax/io/torch.py
-        Under the Apache 2.0 license. Copyright is held by the authors
-
+        """
         Args:
             env: The Jax-based environment to wrap
             device: The device the torch Tensors should be moved to
