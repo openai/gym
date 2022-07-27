@@ -38,7 +38,7 @@ class LambdaAcionV0(gym.ActionWrapper):
         Dict(left_arm: Discrete(4), right_arm: Box(0.0, 5.0, (1,), float32))
         >>> _ = env.reset()
         >>> obs, rew, done, info = env.step({"left_arm": 1, "right_arm": 1})
-        >>> info["action"] # the executed action whitin the environment
+        >>> info["action"] # the executed action within the environment
         {'action': OrderedDict([('left_arm', 1), ('right_arm', 11)])})
 
     Vectorized environment:
