@@ -17,14 +17,14 @@ from gym.dev_wrappers.utils.update_dtype import update_dtype
 from gym.spaces.utils import apply_function, flatten, flatten_space
 
 
-class lambda_observations_v0(gym.ObservationWrapper):
+class LambdaObservationsV0(gym.ObservationWrapper):
     """Lambda observation wrapper where a function is provided that is applied to the observation.
 
     Example:
         >>> import gym
         >>> from gym.spaces import Dict, Discrete
         >>> env = gym.make("CartPole-v1")
-        >>> env = lambda_observations_v0(env, lambda obs, arg: obs * arg, 10)
+        >>> env = LambdaObservationsV0(env, lambda obs, arg: obs * arg, 10)
         >>> obs, rew, done, info = env.step(1)
         >>> obs
         array([ 0.09995892, 4.3283587, 0.23945259, -6.1516], dtype=float32)
@@ -36,7 +36,7 @@ class lambda_observations_v0(gym.ObservationWrapper):
         ...         right_arm=Box(-5, 5, (1,))
         ...     )
         ... )
-        >>> env = lambda_observations_v0(
+        >>> env = LambdaObservationsV0(
         ...     env,
         ...     lambda obs, arg: obs * arg,
         ...     {"left_arm": 0, "right_arm": float('inf')},
@@ -75,20 +75,20 @@ class lambda_observations_v0(gym.ObservationWrapper):
         return apply_function(self.observation_space, observation, self.func, self.args)
 
 
-class filter_observations_v0(lambda_observations_v0):
+class FilterObservationsV0(LambdaObservationsV0):
     """Filter Dict or Tuple observation space by the keys or indexes respectively.
 
     Example with Dict observation:
         >>> import gym
         >>> from gym.spaces import Tuple, Dict, Discrete, Box
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3)))
-        >>> env = filter_observations_v0(env, {'obs': True, 'time': False})
+        >>> env = FilterObservationsV0(env, {'obs': True, 'time': False})
         >>> env.observation_space
         Dict(obs: Box(-1.0, 1.0, (1,), float32))
 
     Example with Tuple observation:
         >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, (1,)), Box(-2, 2, (1,)), Discrete(3)]))
-        >>> env = filter_observations_v0(env, [True, False, True])
+        >>> env = FilterObservationsV0(env, [True, False, True])
         >>> env.observation_space
         Tuple(Box(-1.0, 1.0, (1,), float32), Discrete(3))
 
@@ -96,14 +96,14 @@ class filter_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, (1,))]),
         ...                                           Dict(obs=Box(-1, 1, (1,)), time=Discrete(3))])
         ... )
-        >>> env = filter_observations_v0(env, [[True, False], {"obs": True, "time": False}])
+        >>> env = FilterObservationsV0(env, [[True, False], {"obs": True, "time": False}])
         >>> env.observation_space
         Tuple(Tuple(Discrete(3)), Dict(obs: Box(-1.0, 1.0, (1,), float32)))
 
         >>> env = ExampleEnv(observation_space=Dict(
         ...     observation_space=Dict(x=Tuple([Discrete(2), Box(-1,1,(1,))]), y=Dict(box=Box(-1,1,(1,))))
         ... )
-        >>> env = filter_observations_v0(env, {'x': [True, False], 'y': {'box': True}})
+        >>> env = FilterObservationsV0(env, {'x': [True, False], 'y': {'box': True}})
         >>> env.observation_space
         Dict(x:Tuple(Discrete(2)), y:Dict(box:Box(-1.0, 1.0, (1,), float32)))
     """
@@ -149,7 +149,7 @@ class filter_observations_v0(lambda_observations_v0):
         return filter_space(space, args)
 
 
-class flatten_observations_v0(lambda_observations_v0):
+class FlattenObservationsV0(LambdaObservationsV0):
     """A wrapper that flattens observations returned by :meth:`step` and :meth:`reset`.
 
     Basic Example, fully flattens the environment observation:
@@ -158,7 +158,7 @@ class flatten_observations_v0(lambda_observations_v0):
         >>> env = gym.make("CarRacing-v2", continuous=False)
         >>> env.observation_space
         Box(0, 255, (96, 96, 3), uint8)
-        >>> env = flatten_observations_v0(env)
+        >>> env = FlattenObservationsV0(env)
         >>> env.observation_space
         Box(0, 255, (27648,), uint8)
         >>> obs, _, _, _  = env.step(1)
@@ -166,13 +166,13 @@ class flatten_observations_v0(lambda_observations_v0):
         (27648,)
 
         >>> env = ExampleEnv(observation_space=Dict(left_eye=Box(0, 1, (10, 10, 3)), right_eye=Box(0, 1, (20, 20, 3))))
-        >>> env = flatten_observations_v0(env)
+        >>> env = FlattenObservationsV0(env)
         >>> env.observation_space
         Box(0.0, 1.0, (1500,), float32)
 
     Partially flatten example with composite observation spaces:
         >>> env = ExampleEnv(observation_space=Dict(left_arm=Box(-1, 1, (3, 3)), right_arm=Box(-1, 1, (3, 3))))
-        >>> env = flatten_observations_v0(env, {"left_arm": True, "right_arm": False})
+        >>> env = FlattenObservationsV0(env, {"left_arm": True, "right_arm": False})
         >>> env.observation_space
         Dict(left_arm: Box(-1.0, 1.0, (9,), float32)), right_arm: Box(-1.0, 1.0, (3, 3), float32))
     """
@@ -208,7 +208,7 @@ class flatten_observations_v0(lambda_observations_v0):
         )
 
 
-class grayscale_observations_v0(lambda_observations_v0):
+class GrayscaleObservationsV0(LambdaObservationsV0):
     """A wrapper that converts color observations to grayscale that are returned by :meth:`step` and :meth:`reset`.
 
     Basic Example with Box observation space:
@@ -217,7 +217,7 @@ class grayscale_observations_v0(lambda_observations_v0):
         >>> env = gym.make("CarRacing-v1")
         >>> env.observation_space
         Box(0, 255, (96, 96, 3), uint8)
-        >>> env = grayscale_observations_v0(env)
+        >>> env = GrayscaleObservationV0(env)
         >>> env.observation_space
         Box(0, 255, (96, 96), uint8)
 
@@ -225,7 +225,7 @@ class grayscale_observations_v0(lambda_observations_v0):
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
         >>> env.observation_space
         Box(0, 255, (3, 96, 96, 3), uint8)
-        >>> env = grayscale_observations_v0(env)
+        >>> env = GrayscaleObservationV0(env)
         >>> env.observation_space
         Box(0, 255, (3, 96), uint8)
 
@@ -233,7 +233,7 @@ class grayscale_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 255, (96, 96, 3), np.uint8), time=Discrete(10)))
         >>> env.observation_space
         Dict(obs: Box(0, 255, (96, 96, 3), uint8), time: Discrete(10))
-        >>> env = grayscale_observations_v0(env, {"obs": True, "time": False})
+        >>> env = GrayscaleObservationV0(env, {"obs": True, "time": False})
         >>> env.observation_space
         Dict(obs: Box(0, 255, (96, 96), uint8), time: Discrete(10))
     """
@@ -261,7 +261,7 @@ class grayscale_observations_v0(lambda_observations_v0):
         return grayscale_space(env.observation_space, args, grayscale_space)
 
 
-class resize_observations_v0(lambda_observations_v0):
+class ResizeObservationsV0(LambdaObservationsV0):
     """A wrapper that resizes an observation returned by :meth:`step` and :meth:`reset` to a new shape.
 
     Basic Example with Box observation space:
@@ -270,7 +270,7 @@ class resize_observations_v0(lambda_observations_v0):
         >>> env = gym.make("CarRacing-v1")
         >>> env.observation_space
         Box(0, 255, (96, 96, 3), uint8)
-        >>> env = resize_observations_v0(env, (64, 64, 3))
+        >>> env = ResizeObservationsV0(env, (64, 64, 3))
         >>> env.observation_space
         Box(0, 255, (64, 64, 3), uint8)
 
@@ -278,7 +278,7 @@ class resize_observations_v0(lambda_observations_v0):
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
         >>> env.observation_space
         Box(0, 255, (3, 96, 96, 3), uint8)
-        >>> env = resize_observations_v0(env, (64, 64, 3))
+        >>> env = ResizeObservationsV0(env, (64, 64, 3))
         >>> env.observation_space
         Box(0, 255, (3, 64, 64, 3), uint8)
 
@@ -286,7 +286,7 @@ class resize_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
         >>> env.observation_space
         Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10))
-        >>> env = resize_observations_v0(env, {"obs": (64, 64, 3)})
+        >>> env = ResizeObservationsV0(env, {"obs": (64, 64, 3)})
         >>> env.observation_space
        Dict(obs=Box(0, 1, (64, 64, 3)), time=Discrete(10))
     """
@@ -326,7 +326,7 @@ class resize_observations_v0(lambda_observations_v0):
         return resize_space(env.observation_space, args, resize_space)
 
 
-class reshape_observations_v0(lambda_observations_v0):
+class ReshapeObservationsV0(LambdaObservationsV0):
     """A wrapper that reshapes an observation returned by :meth:`step` and :meth:`reset` to a new shape.
 
     Basic Example with Box observation space:
@@ -335,7 +335,7 @@ class reshape_observations_v0(lambda_observations_v0):
         >>> env = gym.make("CarRacing-v1")
         >>> env.observation_space
         Box(0, 255, (96, 96, 3), uint8)
-        >>> env = reshape_observations_v0(env, (96, 36, 8))
+        >>> env = ReshapeObservationsV0(env, (96, 36, 8))
         >>> env.observation_space
         Box(0.0, 255.0, (96, 36, 8), uint8)
 
@@ -343,7 +343,7 @@ class reshape_observations_v0(lambda_observations_v0):
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
         >>> env.observation_space
         Box(0, 255, (3, 96, 96, 3), uint8)
-        >>> env = reshape_observations_v0(env, (96, 36, 8))
+        >>> env = ReshapeObservationsV0(env, (96, 36, 8))
         >>> env.observation_space
         Box(0, 255, (3, 96, 36, 8), uint8)
 
@@ -351,7 +351,7 @@ class reshape_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
         >>> env.observation_space
         Dict(obs: Box(0.0, 1.0, (96, 96, 3), float32), time: Discrete(10))
-        >>> env = reshape_observations_v0(env, {"obs": (96, 36, 8)})
+        >>> env = ReshapeObservationsV0(env, {"obs": (96, 36, 8)})
         >>> env.observation_space
         Dict(obs: Box(0.0, 1.0, (96, 36, 8), float32), time: Discrete(10))
     """
@@ -377,7 +377,7 @@ class reshape_observations_v0(lambda_observations_v0):
         return reshape_space(env.observation_space, args, reshape_space)
 
 
-class observations_dtype_v0(lambda_observations_v0):
+class ObservationsDtypeV0(LambdaObservationsV0):
     """A wrapper that converts the observation dtype returned by :meth:`step` and :meth:`reset` to a new shape.
 
     Basic Example:
@@ -386,7 +386,7 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> env = gym.make("CartPole-v1")
         >>> env.observation_space
         Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32)
-        >>> env = observations_dtype_v0(env, np.dtype('int32'))
+        >>> env = ObservationsDtypeV0(env, np.dtype('int32'))
         >>> env.observation_space
         Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), int32)
         >>> env.observation_space.sample()
@@ -399,7 +399,7 @@ class observations_dtype_v0(lambda_observations_v0):
         ...         right_arm=Box(-10,10,(1,), dtype=int)
         ...     )
         ... )
-        >>> env = observations_dtype_v0(env, {"left_arm": np.dtype('float64')})
+        >>> env = ObservationsDtypeV0(env, {"left_arm": np.dtype('float64')})
         >>> env.observation_space.sample()
         OrderedDict([('left_arm', array([2.43149078])), ('right_arm', array([-5]))])
 
@@ -409,7 +409,7 @@ class observations_dtype_v0(lambda_observations_v0):
         ...     Box(-10,10,(1,), dtype=int),
         ...     ])
         ... )
-        >>> env = observations_dtype_v0(env, [np.dtype('float64'), None, np.dtype('float64')])
+        >>> env = ObservationsDtypeV0(env, [np.dtype('float64'), None, np.dtype('float64')])
         >>> env.observation_space
         Tuple(Box(-10, 10, (1,), float64), Box(-10, 10, (1,), int64), Box(-10, 10, (1,), float64))
         >>> env.observation_space.sample()
@@ -421,7 +421,7 @@ class observations_dtype_v0(lambda_observations_v0):
         ...         y=Box(1,1,(1,), dtype=np.float32)
         ...     )
         ... )
-        >>> env = observations_dtype_v0(env, {"x": [None, np.dtype('int32')], "y": np.dtype('int32')})
+        >>> env = ObservationsDtypeV0(env, {"x": [None, np.dtype('int32')], "y": np.dtype('int32')})
         >>> env.observation_space.sample()
         OrderedDict([('x', (array([1.], dtype=float32), array([1], dtype=int32))), ('y', array([1], dtype=int32))])
     """

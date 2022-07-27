@@ -16,7 +16,7 @@ from tests.dev_wrappers.mock_data import (
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import reshape_observations_v0
+    from gym.wrappers import ReshapeObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -42,7 +42,7 @@ except ImportError:
 )
 def test_reshape_observations_v0_box(env, args):
     """Test correct reshaping of box observation spaces."""
-    wrapped_env = reshape_observations_v0(env, args)
+    wrapped_env = ReshapeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     assert wrapped_env.observation_space.shape == args
@@ -62,7 +62,7 @@ def test_reshape_observations_v0_box_impossible():
     env = TestingEnv(observation_space=BOX_SPACE)
 
     with pytest.raises(ValueError):
-        reshape_observations_v0(env, NEW_BOX_DIM_IMPOSSIBLE)
+        ReshapeObservationsV0(env, NEW_BOX_DIM_IMPOSSIBLE)
 
 
 @pytest.mark.parametrize(
@@ -79,7 +79,7 @@ def test_reshape_observations_v0_dict(env, args):
     Expected behaviour is that the reshape observation
     space matches the shape provided in `args`.
     """
-    wrapped_env = reshape_observations_v0(env, args)
+    wrapped_env = ReshapeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     for k in wrapped_env.observation_space.keys():
@@ -111,7 +111,7 @@ def test_reshape_observations_v0_nested_dict(env, args):
     Expected behaviour is that the reshape observation
     space matches the shape provided in `args`.
     """
-    wrapped_env = reshape_observations_v0(env, args)
+    wrapped_env = ReshapeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     nested_arg = args["nested"]
@@ -133,7 +133,7 @@ def test_reshape_observations_v0_tuple():
     env = TestingEnv(observation_space=TUPLE_SPACE)
     args = [None, NEW_BOX_DIM]
 
-    wrapped_env = reshape_observations_v0(env, args)
+    wrapped_env = ReshapeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     for i, arg in enumerate(args):

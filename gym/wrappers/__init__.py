@@ -5,18 +5,18 @@ try:
     import jumpy
 
     from gym.dev_wrappers.lambda_action import (
-        clip_actions_v0,
-        lambda_action_v0,
-        scale_actions_v0,
+        ClipActionsV0,
+        LambdaAcionV0,
+        ScaleActionsV0,
     )
     from gym.dev_wrappers.lambda_observations import (
-        filter_observations_v0,
-        flatten_observations_v0,
-        grayscale_observations_v0,
-        lambda_observations_v0,
-        observations_dtype_v0,
-        reshape_observations_v0,
-        resize_observations_v0,
+        FilterObservationsV0,
+        FlattenObservationsV0,
+        GrayscaleObservationsV0,
+        LambdaObservationsV0,
+        ObservationsDtypeV0,
+        ReshapeObservationsV0,
+        ResizeObservationsV0,
     )
 except ImportError:
     pass

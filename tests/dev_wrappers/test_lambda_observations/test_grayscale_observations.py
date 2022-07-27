@@ -4,7 +4,7 @@ import gym
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS
 
 try:
-    from gym.wrappers import grayscale_observations_v0
+    from gym.wrappers import GrayscaleObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -22,7 +22,7 @@ except ImportError:
 )
 def test_grayscale_observation_v0(env):
     """Test correct transformation of observation in grayscale."""
-    wrapped_env = grayscale_observations_v0(env)
+    wrapped_env = GrayscaleObservationsV0(env)
     wrapped_env.reset()
 
     obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
@@ -44,7 +44,7 @@ def test_grayscale_observation_v0(env):
 )
 def test_grayscale_observation_v0_vectorenv(env):
     """Test correct transformation of observation in grayscale."""
-    wrapped_env = grayscale_observations_v0(env)
+    wrapped_env = GrayscaleObservationsV0(env)
     wrapped_env.reset()
 
     obs, _, _, _, _ = wrapped_env.step([DISCRETE_ACTION] * NUM_ENVS)

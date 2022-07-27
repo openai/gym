@@ -17,7 +17,7 @@ from tests.dev_wrappers.mock_data import (
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import observations_dtype_v0
+    from gym.wrappers import ObservationsDtypeV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -31,7 +31,7 @@ except ImportError:
 )
 def test_observation_dtype_v0(env, args):
     """Test correct dtype is applied to observation."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
@@ -53,7 +53,7 @@ def test_observation_dtype_v0(env, args):
 )
 def test_observation_dtype_v0_within_vector(env, args):
     """Test correct dtype is applied to observation in vectorized envs."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     observations, _, _, _, _ = wrapped_env.step(
         [DISCRETE_ACTION for _ in range(NUM_ENVS)]
@@ -79,7 +79,7 @@ def test_observation_dtype_v0_within_vector(env, args):
 )
 def test_observation_dtype_v0_dict(env, args):
     """Test correct dtype is applied to observation."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
@@ -107,7 +107,7 @@ def test_observation_dtype_v0_dict(env, args):
 )
 def test_observation_dtype_v0_nested_dict(env, args):
     """Test correct dtype is applied to observation."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
@@ -135,7 +135,7 @@ def test_observation_dtype_v0_nested_dict(env, args):
 )
 def test_observation_dtype_v0_tuple(env, args):
     """Test correct dtype is applied to observation."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
@@ -163,7 +163,7 @@ def test_observation_dtype_v0_tuple(env, args):
 )
 def test_observation_dtype_v0_nested_tuple(env, args):
     """Test correct dtype is applied to observation."""
-    wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 

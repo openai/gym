@@ -12,7 +12,7 @@ from tests.dev_wrappers.mock_data import (
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import flatten_observations_v0
+    from gym.wrappers import FlattenObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -31,7 +31,7 @@ except ImportError:
 def test_flatten_observation_v0(env):
     """Test correct flattening of observation space."""
     flattened_shape = reduce(op.mul, env.observation_space.shape, 1)
-    wrapped_env = flatten_observations_v0(env)
+    wrapped_env = FlattenObservationsV0(env)
     wrapped_env.reset()
 
     obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
@@ -45,7 +45,7 @@ def test_flatten_observation_v0(env):
     [(TestingEnv(observation_space=DICT_SPACE), FLATTENEND_DICT_SIZE)],
 )
 def test_dict_flatten_observation_v0(env, flattened_size):
-    wrapped_env = flatten_observations_v0(env)
+    wrapped_env = FlattenObservationsV0(env)
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert wrapped_env.observation_space.shape[0] == flattened_size  # pyright: ignore

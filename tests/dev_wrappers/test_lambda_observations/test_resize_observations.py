@@ -6,7 +6,7 @@ from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import resize_observations_v0
+    from gym.wrappers import ResizeObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -22,7 +22,7 @@ DICT_SPACE = Dict(key_1=Box(-1, 1, (10, 10)), key_2=Box(-1, 1, (10, 10)))
 )
 def test_resize_observations_box_v0(env, args):
     """Test correct resizing of box observations."""
-    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     assert wrapped_env.observation_space.shape == args
@@ -45,7 +45,7 @@ def test_resize_observations_box_v0(env, args):
 )
 def test_resize_observations_v0_vector(env, args):
     """Test correct resizing of box observations in vector env."""
-    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     assert wrapped_env.observation_space.shape == (NUM_ENVS, *args)
@@ -67,7 +67,7 @@ def test_resize_observations_v0_vector(env, args):
 )
 def test_resize_observations_tuple_v0(env, args):
     """Test correct resizing of `Tuple` observations."""
-    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
@@ -98,7 +98,7 @@ def test_resize_observations_tuple_v0(env, args):
 )
 def test_resize_observations_dict_v0(env, args):
     """Test correct resizing of `Dict` observations."""
-    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)

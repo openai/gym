@@ -7,7 +7,7 @@ from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import lambda_observations_v0
+    from gym.wrappers import LambdaObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -21,7 +21,7 @@ def test_lambda_observation_v0(env, func, args):
     env.reset(seed=SEED)
     obs, _, _, _, _ = env.step(DISCRETE_ACTION)
 
-    wrapped_env = lambda_observations_v0(env, func, args)
+    wrapped_env = LambdaObservationsV0(env, func, args)
     wrapped_env.reset(seed=SEED)
     lambda_obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
@@ -48,7 +48,7 @@ def test_lambda_observation_v0_vector_env(env, func, args):
     env.reset(seed=SEED)
     obs, _, _, _, _ = env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
 
-    wrapped_env = lambda_observations_v0(env, func, args)
+    wrapped_env = LambdaObservationsV0(env, func, args)
     wrapped_env.reset(seed=SEED)
     lambda_obs, _, _, _, _ = wrapped_env.step(
         [DISCRETE_ACTION for _ in range(NUM_ENVS)]
@@ -79,7 +79,7 @@ def test_composite_space_lambda_observation_v0(env, func, args):
     env.reset(seed=SEED)
     obs, _, _, _ = env.step(DISCRETE_ACTION)
 
-    wrapped_env = lambda_observations_v0(env, func, args)
+    wrapped_env = LambdaObservationsV0(env, func, args)
     wrapped_env.reset(seed=SEED)
     lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 

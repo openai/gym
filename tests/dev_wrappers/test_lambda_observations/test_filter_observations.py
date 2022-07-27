@@ -6,7 +6,7 @@ from tests.dev_wrappers.mock_data import DISCRETE_ACTION
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import filter_observations_v0
+    from gym.wrappers import FilterObservationsV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -22,7 +22,7 @@ except ImportError:
 )
 def test_dict_filter_observation_v0(env, args):
     """Test correct filtering of `Dict` observation space."""
-    wrapped_env = filter_observations_v0(env, args)
+    wrapped_env = FilterObservationsV0(env, args)
 
     assert wrapped_env.observation_space.get("obs", False)
     assert not wrapped_env.observation_space.get("time", False)
@@ -47,7 +47,7 @@ def test_dict_filter_observation_v0(env, args):
 )
 def test_tuple_filter_observation_v0(env, args, filtered_space_size):
     """Test correct filtering of `Tuple` observation space."""
-    wrapped_env = filter_observations_v0(env, args)
+    wrapped_env = FilterObservationsV0(env, args)
 
     assert len(wrapped_env.observation_space) == filtered_space_size
 
@@ -75,7 +75,7 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 )
 def test_nested_filter_observation_v0(env, args):
     """Test correct filtering of `Tuple` observation space."""
-    wrapped_env = filter_observations_v0(env, args)
+    wrapped_env = FilterObservationsV0(env, args)
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert len(obs["x"]) == 1
