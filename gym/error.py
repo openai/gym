@@ -65,6 +65,20 @@ class InvalidAction(Error):
     """Raised when the user performs an action not contained within the action space."""
 
 
+class InvalidBound(Error):
+    """Raised when the clipping an array with invalid upper and/or lower bound."""
+
+
+class InvalidRGBShape(Error):
+    """Raised when trying to apply functions intended for RGB shapes to not-RGB shapes."""
+
+
+class InvalidSpaceOperation(Error):
+    """Raised when passing argument to perform not supported operation on `space` objects."""
+
+
+class InvalidSpaceArguments(Error):
+    """Raised when using incompatible dtype arguments in lambda_wrappers."""
 # API errors
 
 

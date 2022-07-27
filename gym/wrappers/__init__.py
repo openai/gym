@@ -1,5 +1,26 @@
 """Module of wrapper classes."""
 from gym import error
+
+try:
+    import jumpy
+
+    from gym.dev_wrappers.lambda_action import (
+        lambda_action_v0,
+        clip_actions_v0,
+        scale_actions_v0,
+    )
+    from gym.dev_wrappers.lambda_observations import (
+        lambda_observations_v0,
+        filter_observations_v0,
+        flatten_observations_v0,
+        reshape_observations_v0,
+        resize_observations_v0,
+        grayscale_observations_v0,
+        observations_dtype_v0,
+    )
+except ImportError:
+    pass
+
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction

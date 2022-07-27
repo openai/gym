@@ -6,10 +6,12 @@ These functions mostly take care of flattening and unflattening elements of spac
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import TypeVar, Union, cast
+from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, cast
 
 import numpy as np
 
+from gym.dev_wrappers import FuncArgType
+from gym.error import InvalidSpaceArguments
 from gym.spaces import (
     Box,
     Dict,
@@ -341,3 +343,92 @@ def _flatten_space_graph(space: Graph) -> Graph:
         if space.edge_space is not None
         else None,
     )
+
+
+@singledispatch
+def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> Any:
+    """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.
+    Example with fundamental space::
+        >>> box = Box(-1, 1, (1,))
+        >>> apply_function(box, 1, lambda x, arg: x * arg, 10)
+        ... 10
+    Example with dict (composite) space::
+        >>> space = Dict(left_arm=Box(-1, 1, (1,)), right_arm=Box(-1, 1, (1,)))
+        >>> x = {"left_arm": 1, "right_arm": 1}
+        >>> args = {"left_arm": 10, "right_arm": -10}
+        >>> apply_function(space, x, lambda x, arg: x * arg, args)
+        ... OrderedDict([('left_arm', 10), ('right_arm', -10)])
+    Example with tuple (composite) space::
+        >>> space = Tuple([Box(-1, 1, (1,)), Box(-1, 1, (1,))])
+        >>> x = [1, 1]
+        >>> args = [10, -10]
+        >>> apply_function(space, x, lambda x, arg: x * arg, args)
+        ... (10, -10)
+    Args:
+        space: The space of ``x``
+        x: The parameter to apply the function to
+        func: The function to apply to ``x``
+        args: The arguments to use with the function
+    Returns:
+        The updated ``x`` through the applied function and arguments
+    """
+
+
+@apply_function.register(Box)
+@apply_function.register(Discrete)
+def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any]):
+    return func(x, *args)
+
+
+@apply_function.register(MultiBinary)
+@apply_function.register(MultiDiscrete)
+def _apply_function_multidiscrete(
+    space: List, x: Any, func: Callable, *args: Optional[Any]
+):
+    return [
+        apply_function(subspace, val, func, arg)
+        for subspace, val, arg in zip(space, x, *args)
+    ]
+
+
+@apply_function.register(Dict)
+def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any]):
+    if not args:
+        return OrderedDict(
+            [
+                (space_key, apply_function(subspace, val, func, None))
+                for (space_key, subspace), val in zip(space.spaces.items(), x.values())
+            ]
+        )
+    elif isinstance(args, dict):
+        return OrderedDict(
+            [
+                (k, apply_function(subspace, val, func, args.get(k)))
+                if args.get(k) is not None
+                else (k, val)
+                for (k, subspace), val in zip(space.spaces.items(), x.values())
+            ]
+        )
+    else:
+        raise InvalidSpaceArguments(
+            f"You are trying to apply a function on a `Dict` space with arguments of type {type(args)}. This is not supported; you should instead using args of type `dict` or `None`."
+        )
+
+
+@apply_function.register(Tuple)
+def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[Any]):
+    if args is None:
+        return tuple(
+            apply_function(subspace, val, func, None)
+            for subspace, val in zip(space.spaces, x)
+        )
+    elif isinstance(args, Sequence):
+        assert len(args) == len(space)
+        return tuple(
+            apply_function(subspace, val, func, arg) if arg is not None else val
+            for subspace, val, arg in zip(space.spaces, x, args)
+        )
+    else:
+        raise InvalidSpaceArguments(
+            f"You are trying to apply a function on a `Tuple` space with arguments of type {type(args)}. This is not supported; you should instead using args of type `Sequence` or `None`."
+        )
