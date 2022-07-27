@@ -348,6 +348,7 @@ def _flatten_space_graph(space: Graph) -> Graph:
 @singledispatch
 def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> Any:
     """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.
+
     Example with fundamental space::
         >>> box = Box(-1, 1, (1,))
         >>> apply_function(box, 1, lambda x, arg: x * arg, 10)
@@ -364,6 +365,7 @@ def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> A
         >>> args = [10, -10]
         >>> apply_function(space, x, lambda x, arg: x * arg, args)
         ... (10, -10)
+
     Args:
         space: The space of ``x``
         x: The parameter to apply the function to

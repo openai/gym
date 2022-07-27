@@ -31,7 +31,10 @@ except ImportError:
         ),  # Box(0, 255, (96, 96, 3), uint8)
         (
             gym.vector.make(
-                "CarRacing-v2", num_envs=NUM_ENVS, disable_env_checker=True, new_step_api=True
+                "CarRacing-v2",
+                num_envs=NUM_ENVS,
+                disable_env_checker=True,
+                new_step_api=True,
             ),  # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
             (96, 96, 3 * NUM_ENVS),
         ),

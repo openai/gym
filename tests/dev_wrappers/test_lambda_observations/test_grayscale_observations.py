@@ -10,7 +10,15 @@ except ImportError:
 
 
 @pytest.mark.parametrize(
-    ("env"), [gym.make("CarRacing-v2", continuous=False, disable_env_checker=True, new_step_api=True)]
+    ("env"),
+    [
+        gym.make(
+            "CarRacing-v2",
+            continuous=False,
+            disable_env_checker=True,
+            new_step_api=True,
+        )
+    ],
 )
 def test_grayscale_observation_v0(env):
     """Test correct transformation of observation in grayscale."""
@@ -30,7 +38,7 @@ def test_grayscale_observation_v0(env):
             continuous=False,
             num_envs=NUM_ENVS,
             disable_env_checker=True,
-            new_step_api=True
+            new_step_api=True,
         )
     ],
 )

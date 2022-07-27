@@ -41,15 +41,23 @@ def test_observation_dtype_v0(env, args):
 @pytest.mark.parametrize(
     ("env", "args"),
     [
-        (gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True), np.dtype("int32")),
-        (gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True), np.dtype("float32")),
+        (
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            np.dtype("int32"),
+        ),
+        (
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            np.dtype("float32"),
+        ),
     ],
 )
 def test_observation_dtype_v0_within_vector(env, args):
     """Test correct dtype is applied to observation in vectorized envs."""
     wrapped_env = observations_dtype_v0(env, args)
     wrapped_env.reset()
-    observations, _, _, _, _ = wrapped_env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
+    observations, _, _, _, _ = wrapped_env.step(
+        [DISCRETE_ACTION for _ in range(NUM_ENVS)]
+    )
 
     for obs in observations:
         assert obs.dtype == args

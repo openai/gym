@@ -20,7 +20,12 @@ except ImportError:
 @pytest.mark.parametrize(
     ("env"),
     [
-        gym.make("CarRacing-v2", continuous=False, disable_env_checker=True, new_step_api=True),
+        gym.make(
+            "CarRacing-v2",
+            continuous=False,
+            disable_env_checker=True,
+            new_step_api=True,
+        ),
     ],
 )
 def test_flatten_observation_v0(env):

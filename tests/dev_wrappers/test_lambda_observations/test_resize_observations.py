@@ -36,7 +36,9 @@ def test_resize_observations_box_v0(env, args):
     # Box(0, 255, (3, 96, 96, 3), uint8)
     [
         (
-            gym.vector.make("CarRacing-v2", continuous=False, num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make(
+                "CarRacing-v2", continuous=False, num_envs=NUM_ENVS, new_step_api=True
+            ),
             (32, 32, 3),
         )
     ],

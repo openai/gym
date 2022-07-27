@@ -40,7 +40,11 @@ def test_lambda_action_v0(env, fn, action):
     [
         (
             gym.vector.make(
-                "CarRacing-v2", continuous=False, num_envs=NUM_ENVS, asynchronous=False, new_step_api=True
+                "CarRacing-v2",
+                continuous=False,
+                num_envs=NUM_ENVS,
+                asynchronous=False,
+                new_step_api=True,
             ),
             lambda action, _: action.astype(np.int32),
             [np.float64(1.2) for _ in range(NUM_ENVS)],
