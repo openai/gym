@@ -6,7 +6,7 @@ import pytest
 import torch
 
 import gym
-from gym.wrappers import jax_to_torch_v0
+from gym.wrappers import JaxToTorchV0
 
 
 class DummyJaxEnv(gym.Env):
@@ -53,7 +53,7 @@ def test_torch_wrapper_reset_info():
     obs = env.reset()
     assert isinstance(obs, jnp.ndarray) and not isinstance(obs, np.ndarray)
 
-    env = jax_to_torch_v0(env)
+    env = JaxToTorchV0(env)
     torch_obs = env.reset()
     assert isinstance(torch_obs, torch.Tensor)
     assert torch_obs.numpy() == jnp.asarray(obs)
@@ -70,7 +70,7 @@ def test_torch_wrapper_reset_info():
 
 def test_torch_wrapper_step():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = jax_to_torch_v0(env)
+    env = JaxToTorchV0(env)
 
     (obs, *_) = env.step(torch.Tensor(env.action_space.sample()))
     assert isinstance(obs, torch.Tensor)
@@ -79,7 +79,7 @@ def test_torch_wrapper_step():
 
 def test_torch_wrapper_device():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = jax_to_torch_v0(env, device="meta")
+    env = JaxToTorchV0(env, device="meta")
 
     (obs, *_) = env.step(torch.Tensor(env.action_space.sample()))
     assert isinstance(obs, torch.Tensor)

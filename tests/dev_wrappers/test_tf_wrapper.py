@@ -6,7 +6,7 @@ import pytest
 import tensorflow as tf
 
 import gym
-from gym.wrappers import jax_to_tf_v0
+from gym.wrappers import JaxToTFV0
 
 
 class DummyJaxEnv(gym.Env):
@@ -53,7 +53,7 @@ def test_tf_wrapper_reset_info():
     obs = env.reset()
     assert isinstance(obs, jnp.ndarray) and not isinstance(obs, np.ndarray)
 
-    env = jax_to_tf_v0(env)
+    env = JaxToTFV0(env)
     tf_obs = env.reset()
     assert isinstance(tf_obs, tf.Tensor)
     assert tf_obs.numpy() == jnp.asarray(obs)
@@ -70,7 +70,7 @@ def test_tf_wrapper_reset_info():
 
 def test_tf_wrapper_step():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = jax_to_tf_v0(env)
+    env = JaxToTFV0(env)
 
     (obs, *_) = env.step(tf.convert_to_tensor(env.action_space.sample()))
     assert isinstance(obs, tf.Tensor)
