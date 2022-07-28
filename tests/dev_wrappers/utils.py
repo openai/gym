@@ -77,6 +77,7 @@ class TestingEnv(gym.Env):
         return (
             self.observation_space.sample(),
             np.random.randint(self.reward_range[0], self.reward_range[1]),
+            False, # terminated currently not handled
             self.env_length is not None and self.steps_left == 0,
             {"action": action},
         )

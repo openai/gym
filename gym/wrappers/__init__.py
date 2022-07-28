@@ -6,7 +6,7 @@ try:
 
     from gym.dev_wrappers.lambda_action import (
         ClipActionsV0,
-        LambdaAcionV0,
+        LambdaActionV0,
         ScaleActionsV0,
     )
     from gym.dev_wrappers.lambda_observations import (

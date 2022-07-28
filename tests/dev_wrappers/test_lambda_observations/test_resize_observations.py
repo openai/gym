@@ -70,7 +70,7 @@ def test_resize_observations_tuple_v0(env, args):
     wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for i, arg in enumerate(args):
         if not arg:
@@ -101,7 +101,7 @@ def test_resize_observations_dict_v0(env, args):
     wrapped_env = ResizeObservationsV0(env, args)
     wrapped_env.reset(seed=SEED)
 
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for k in obs:
         if k in args:

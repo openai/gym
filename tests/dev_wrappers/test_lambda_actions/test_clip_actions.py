@@ -126,7 +126,7 @@ def test_clip_actions_v0_dict_action(env, args, action):
     correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions["box"] == NEW_BOX_HIGH
@@ -168,7 +168,7 @@ def test_clip_actions_v0_nested_dict_action(env, args, action):
     correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     nested_action = executed_actions["nested"]
@@ -196,7 +196,7 @@ def test_clip_actions_v0_tuple_action(env, args, action):
     correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert np.alltrue(executed_actions == (0, NEW_BOX_HIGH))
@@ -230,7 +230,7 @@ def test_clip_actions_v0_nested_tuple_action(env, args, action):
     correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     nested_action = executed_actions[-1]
@@ -258,7 +258,7 @@ def test_clip_actions_v0_dict_within_tuple(env, args, action):
     within an outer `Tuple` action space is correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions[1]["dict"] == NEW_BOX_HIGH
@@ -281,7 +281,7 @@ def test_clip_actions_v0_tuple_within_dict(env, args, action):
     within an outer `Dict` action space is correctly clipped.
     """
     wrapped_env = ClipActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions["tuple"][0] == NEW_BOX_HIGH

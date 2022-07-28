@@ -120,7 +120,7 @@ def test_scale_action_v0_within_vector(env, args, action, scaled_action):
 def test_scale_actions_v0_nested_dict(env, args, action):
     """Test action rescaling for nested `Dict` action spaces."""
     wrapped_env = ScaleActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions["box"] == BOX_HIGH
@@ -138,7 +138,7 @@ def test_scale_actions_v0_tuple():
     action = [DISCRETE_ACTION, NEW_BOX_HIGH]
 
     wrapped_env = ScaleActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions[0] == action[0]
@@ -163,7 +163,7 @@ def test_scale_actions_v0_tuple():
 def test_scale_actions_v0_nested_tuple(env, args, action):
     """Test action rescaling for nested `Tuple` action spaces."""
     wrapped_env = ScaleActionsV0(env, args)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     nested_action = executed_actions[-1]

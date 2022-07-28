@@ -27,7 +27,7 @@ def test_dict_filter_observation_v0(env, args):
     assert wrapped_env.observation_space.get("obs", False)
     assert not wrapped_env.observation_space.get("time", False)
 
-    obs, _, _, _ = wrapped_env.step(0)
+    obs, _, _, _, _ = wrapped_env.step(0)
 
     assert obs.get("obs", False)
     assert not obs.get("time", False)
@@ -51,7 +51,7 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 
     assert len(wrapped_env.observation_space) == filtered_space_size
 
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert len(obs) == filtered_space_size
 
@@ -76,7 +76,7 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 def test_nested_filter_observation_v0(env, args):
     """Test correct filtering of `Tuple` observation space."""
     wrapped_env = FilterObservationsV0(env, args)
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert len(obs["x"]) == 1
     assert "box" in obs["y"]

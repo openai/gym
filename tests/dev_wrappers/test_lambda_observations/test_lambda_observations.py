@@ -77,11 +77,11 @@ def test_composite_space_lambda_observation_v0(env, func, args):
     Test if function is applied correctly to composite action space.
     """
     env.reset(seed=SEED)
-    obs, _, _, _ = env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = env.step(DISCRETE_ACTION)
 
     wrapped_env = LambdaObservationsV0(env, func, args)
     wrapped_env.reset(seed=SEED)
-    lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    lambda_obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for arg, arg_value in args.items():
         assert np.alltrue(lambda_obs[arg] == obs[arg] * arg_value)

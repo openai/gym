@@ -46,7 +46,7 @@ def test_flatten_observation_v0(env):
 )
 def test_dict_flatten_observation_v0(env, flattened_size):
     wrapped_env = FlattenObservationsV0(env)
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert wrapped_env.observation_space.shape[0] == flattened_size  # pyright: ignore
     assert obs.shape[0] == flattened_size

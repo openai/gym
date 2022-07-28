@@ -29,7 +29,7 @@ def test_lambda_action_v0(env, fn, action):
     Tests if function is correctly applied to environment's action.
     """
     wrapped_env = LambdaActionV0(env, fn, None)
-    _, _, _, info = wrapped_env.step(action)
+    _, _, _, _, info = wrapped_env.step(action)
     executed_action = info["action"]
 
     assert isinstance(executed_action, type(fn(action, None)))

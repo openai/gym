@@ -81,7 +81,7 @@ def test_observation_dtype_v0_dict(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for subspace in obs:
         if subspace in args:
@@ -109,7 +109,7 @@ def test_observation_dtype_v0_nested_dict(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     if "box" in args:
         assert obs["box"].dtype == args["box"]
@@ -137,7 +137,7 @@ def test_observation_dtype_v0_tuple(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for subspace, arg in zip(obs, args):
         if arg:
@@ -165,7 +165,7 @@ def test_observation_dtype_v0_nested_tuple(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = ObservationsDtypeV0(env, args)
     wrapped_env.reset()
-    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+    obs, _, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     if args[0]:
         assert obs[0].dtype == args[0]
