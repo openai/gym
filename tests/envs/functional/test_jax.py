@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 
-from gym.envs.phys2d.cartpole import CartPoleF
-from gym.envs.phys2d.pendulum import PendulumF
-
 jax = pytest.importorskip("jax")
 jnp = pytest.importorskip("jax.numpy")
 jrng = pytest.importorskip("jax.random")
+
+from gym.envs.phys2d.cartpole import CartPoleF  # noqa: E402
+from gym.envs.phys2d.pendulum import PendulumF  # noqa: E402
 
 
 @pytest.mark.parametrize("env_class", [CartPoleF, PendulumF])
