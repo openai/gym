@@ -1,4 +1,4 @@
-"""Test suite for LambdaAcionV0."""
+"""Test suite for LambdaActionV0."""
 import numpy as np
 import pytest
 
@@ -8,7 +8,7 @@ from tests.dev_wrappers.mock_data import BOX_SPACE, NUM_ENVS
 from tests.dev_wrappers.utils import TestingEnv
 
 try:
-    from gym.wrappers import LambdaAcionV0
+    from gym.wrappers import LambdaActionV0
 except ImportError:
     pytest.skip(allow_module_level=True)
 
@@ -28,7 +28,7 @@ def test_lambda_action_v0(env, fn, action):
 
     Tests if function is correctly applied to environment's action.
     """
-    wrapped_env = LambdaAcionV0(env, fn, None)
+    wrapped_env = LambdaActionV0(env, fn, None)
     _, _, _, info = wrapped_env.step(action)
     executed_action = info["action"]
 
@@ -57,7 +57,7 @@ def test_lambda_action_v0_within_vector(env, fn, action):
     Tests if function is correctly applied to environment's action
     in vectorized environment.
     """
-    wrapped_env = LambdaAcionV0(env, fn, [None for _ in range(NUM_ENVS)])
+    wrapped_env = LambdaActionV0(env, fn, [None for _ in range(NUM_ENVS)])
     wrapped_env.reset()
 
     wrapped_env.step(action)

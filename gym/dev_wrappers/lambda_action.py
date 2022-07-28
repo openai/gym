@@ -12,7 +12,7 @@ from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces.utils import apply_function
 
 
-class LambdaAcionV0(gym.ActionWrapper):
+class LambdaActionV0(gym.ActionWrapper):
     """A wrapper that provides a function to modify the action passed to :meth:`step`.
 
     Example to convert continuous actions to discrete:
@@ -20,7 +20,7 @@ class LambdaAcionV0(gym.ActionWrapper):
         >>> from gym.spaces import Dict
         >>> import numpy as np
         >>> env = gym.make("CarRacing-v2", continuous=False)
-        >>> env = LambdaAcionV0(env, lambda action, _: action.astype(np.int32), None)
+        >>> env = LambdaActionV0(env, lambda action, _: action.astype(np.int32), None)
         >>> env.action_space
         Discrete(5)
         >>> _ = env.reset()
@@ -28,7 +28,7 @@ class LambdaAcionV0(gym.ActionWrapper):
 
     Composite action shape:
         >>> env = ExampleEnv(action_space=Dict(left_arm=Discrete(4), right_arm=Box(0.0, 5.0, (1,)))
-        >>> env = LambdaAcionV0(
+        >>> env = LambdaActionV0(
         ...     env,
         ...     lambda action, _: action + 10,
         ...     {"right_arm": True},
@@ -43,7 +43,7 @@ class LambdaAcionV0(gym.ActionWrapper):
 
     Vectorized environment:
         >>> env = gym.vector.make("CarRacing-v2", continuous=False, num_envs=2)
-        >>> env = LambdaAcionV0(
+        >>> env = LambdaActionV0(
         ...     env, lambda action, _: action.astype(np.int32), [None for _ in range(2)]
         ... )
         >>> obs, rew, done, info = env.step([np.float64(1.2), np.float64(1.2)])
@@ -82,7 +82,7 @@ class LambdaAcionV0(gym.ActionWrapper):
         return transform_space_bounds(env.action_space, args, transform_space_bounds)
 
 
-class ClipActionsV0(LambdaAcionV0):
+class ClipActionsV0(LambdaActionV0):
     """A wrapper that clips actions passed to :meth:`step` with an upper and lower bound.
 
     Basic Example:
@@ -126,7 +126,7 @@ class ClipActionsV0(LambdaAcionV0):
         )
 
 
-class ScaleActionsV0(LambdaAcionV0):
+class ScaleActionsV0(LambdaActionV0):
     """A wrapper that scales actions passed to :meth:`step` with a scale factor.
 
     Basic Example:
