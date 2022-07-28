@@ -67,6 +67,7 @@ setup(
         "importlib_metadata >= 4.8.0; python_version < '3.10'",
         "gym_notices >= 0.0.4",
         "dataclasses == 0.8; python_version == '3.6'",
+        "tinyscaler >= 1.2.4; python_version >= '3.7'",
         "brax-jumpy >= 0.1.0; python_version >= '3.7'",
     ],
     license="MIT",
