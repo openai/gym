@@ -306,7 +306,7 @@ class ResizeObservationsV0(LambdaObservationsV0):
         def scale_vector(obs: ObsType, arg: FuncArgType):
             if arg is None:
                 return obs
-            new_obs = jp.zeros((self.env.num_envs, *arg), dtype=obs.dtype)
+            new_obs = jp.zeros((self.env.num_envs, *arg), dtype=obs.dtype.type)
 
             for i, observation in enumerate(obs):
                 new_obs[i] = tinyscaler.scale(observation, arg)
