@@ -51,7 +51,7 @@ class FuncEnv(Generic[StateType, ObsType, ActType, RewardType, TerminalType]):
         """Reward."""
         raise NotImplementedError
 
-    def terminal(self, state: StateType) -> bool:
+    def terminal(self, state: StateType) -> TerminalType:
         """Terminal state."""
         raise NotImplementedError
 

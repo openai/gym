@@ -11,10 +11,11 @@ import pygame
 from jax.random import PRNGKey
 from pygame import gfxdraw
 
+import gym
 from gym.functional import ActType, FuncEnv, RenderStateType, StateType
 
 
-class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
+class CartPoleF(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
     """Cartpole but in jax and functional.
 
     Example usage:
@@ -58,6 +59,9 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
     screen_width = 600
     screen_height = 400
 
+    observation_space = gym.spaces.Box(-np.inf, np.inf, shape=(4,), dtype=np.float32)
+    action_space = gym.spaces.Discrete(2)
+
     def initial(self, rng: PRNGKey):
         """Initial state generation."""
         return jax.random.uniform(
@@ -96,8 +100,8 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
         """Cartpole observation."""
         return state
 
-    def terminal(self, state: jnp.ndarray) -> bool:
-        x, x_dot, theta, theta_dot = state
+    def terminal(self, state: jnp.ndarray) -> jnp.ndarray:
+        x, _, theta, _ = state
 
         terminated = (
             (x < -self.x_threshold)
@@ -108,8 +112,17 @@ class CartPole(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
 
         return terminated
 
-    def reward(self, state: StateType, action: ActType, next_state: StateType) -> float:
-        terminated = self.terminal(state)
+    def reward(
+        self, state: StateType, action: ActType, next_state: StateType
+    ) -> jnp.ndarray:
+        x, _, theta, _ = state
+
+        terminated = (
+            (x < -self.x_threshold)
+            | (x > self.x_threshold)
+            | (theta < -self.theta_threshold_radians)
+            | (theta > self.theta_threshold_radians)
+        )
 
         reward = jax.lax.cond(terminated, lambda: 0.0, lambda: 1.0)
         return reward

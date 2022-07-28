@@ -11,10 +11,11 @@ import pygame
 from jax.random import PRNGKey
 from pygame import gfxdraw
 
+import gym
 from gym.functional import ActType, FuncEnv, RenderStateType, StateType
 
 
-class Pendulum(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
+class PendulumF(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
     """Pendulum but in jax and functional."""
 
     max_speed = 8
@@ -28,10 +29,13 @@ class Pendulum(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
 
     screen_dim = 500
 
+    observation_space = gym.spaces.Box(-np.inf, np.inf, shape=(4,), dtype=np.float32)
+    action_space = gym.spaces.Box(-max_torque, max_torque, shape=(1,), dtype=np.float32)
+
     def initial(self, rng: PRNGKey):
         """Initial state generation."""
         high = jnp.array([self.high_x, self.high_y])
-        return jax.random.uniform(key=rng, minval=-high, maxval=-high)
+        return jax.random.uniform(key=rng, minval=-high, maxval=high, shape=high.shape)
 
     def transition(
         self, state: jnp.ndarray, action: Union[int, jnp.ndarray], rng: None = None
@@ -45,9 +49,9 @@ class Pendulum(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
         l = self.l
         dt = self.dt
 
-        u = np.clip(u, -self.max_torque, self.max_torque)[0]
+        u = jnp.clip(u, -self.max_torque, self.max_torque)[0]
 
-        newthdot = thdot + (3 * g / (2 * l) * np.sin(th) + 3.0 / (m * l**2) * u) * dt
+        newthdot = thdot + (3 * g / (2 * l) * jnp.sin(th) + 3.0 / (m * l**2) * u) * dt
         newthdot = jnp.clip(newthdot, -self.max_speed, self.max_speed)
         newth = th + newthdot * dt
 
@@ -62,7 +66,7 @@ class Pendulum(FuncEnv[jnp.ndarray, jnp.ndarray, int, float, bool]):
         th, thdot = state  # th := theta
         u = action
 
-        u = np.clip(u, -self.max_torque, self.max_torque)[0]
+        u = jnp.clip(u, -self.max_torque, self.max_torque)[0]
 
         th_normalized = ((th + jnp.pi) % (2 * jnp.pi)) - jnp.pi
         costs = th_normalized**2 + 0.1 * thdot**2 + 0.001 * (u**2)
