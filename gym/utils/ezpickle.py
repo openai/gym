@@ -22,6 +22,12 @@ class EzPickle:
         self._ezpickle_args = args
         self._ezpickle_kwargs = kwargs
 
+        # If the environment has kwargs, they will be caught up the in
+        if "kwargs" in self._ezpickle_kwargs:
+            env_kwargs = kwargs.pop("kwargs")
+            for key, value in env_kwargs.items():
+                self._ezpickle_kwargs[key] = value
+
     def __getstate__(self):
         """Returns the object pickle state with args and kwargs."""
         return {
