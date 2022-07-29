@@ -4,7 +4,8 @@ import pytest
 
 import gym
 from gym.envs.registration import EnvSpec
-from gym.utils.env_checker import check_env
+from gym.utils import seeding
+from gym.utils.env_checker import check_env, data_equivalence
 from tests.envs.utils import (
     all_testing_env_specs,
     all_testing_initialised_envs,
@@ -134,7 +135,13 @@ def test_render_modes(spec):
     all_testing_initialised_envs,
     ids=[env.spec.id for env in all_testing_initialised_envs],
 )
-def test_pickle_env(env):
+def test_pickle_env(env: gym.Env):
+    env.np_random, _ = seeding.np_random(0)
     pickled_env = pickle.loads(pickle.dumps(env))
-    pickled_env.reset()
-    pickled_env.step(pickled_env.action_space.sample())
+
+    data_equivalence(env.reset(), pickled_env.reset())
+
+    action = env.action_space.sample()
+    data_equivalence(env.step(action), pickled_env.step(action))
+    env.close()
+    pickled_env.close()

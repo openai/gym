@@ -200,13 +200,14 @@ class CarRacing(gym.Env, EzPickle):
         domain_randomize: bool = False,
         continuous: bool = True,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(**locals())
+
         self.continuous = continuous
         self.domain_randomize = domain_randomize
         self._init_colors()
 
-        self.world: Box2D.b2World
-        self.lap_complete_percent = lap_complete_percent
+        self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
+        self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen: Optional[pygame.Surface] = None
         self.surf = None
         self.clock = None
@@ -480,8 +481,6 @@ class CarRacing(gym.Env, EzPickle):
     ):
         super().reset(seed=seed)
 
-        self.contactListener_keepref = FrictionDetector(self, self.lap_complete_percent)
-        self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0

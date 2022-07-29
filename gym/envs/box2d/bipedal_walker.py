@@ -169,7 +169,7 @@ class BipedalWalker(gym.Env, EzPickle):
     }
 
     def __init__(self, render_mode: Optional[str] = None, hardcore: bool = False):
-        EzPickle.__init__(self)
+        EzPickle.__init__(**locals())
         self.isopen = True
 
         self.world = Box2D.b2World()

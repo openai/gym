@@ -22,7 +22,8 @@ class EzPickle:
         self._ezpickle_args = args
         self._ezpickle_kwargs = kwargs
 
-        # If the environment has kwargs, they will be caught up the in
+        # If the environment has kwargs, they will be caught up as a keyword.
+        #   This remove the kwargs and re-adds all keywords as actual keywords for pickling
         if "kwargs" in self._ezpickle_kwargs:
             env_kwargs = kwargs.pop("kwargs")
             for key, value in env_kwargs.items():
