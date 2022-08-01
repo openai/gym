@@ -115,19 +115,16 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 seeds += self.spaces[key].seed(seed[seed_key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            try:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=False,  # unique subseed for each subspace
-                )
-            except ValueError:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=True,  # we get more than INT_MAX subspaces
-                )
-
+            subseeds = []
+            x = 0
+            assert (
+                len(self.spaces) <= np.iinfo(np.int32).max
+            ), "Spaces too big to seed. Expected spaces.length <= 2147483647"
+            while x < len(self.spaces):
+                subseed = self.np_random.integers(low=0, high=np.iinfo(np.int32).max)
+                if subseed not in subseeds:
+                    subseeds.append(subseed)
+                    x += 1
             for subspace, subseed in zip(self.spaces.values(), subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:
