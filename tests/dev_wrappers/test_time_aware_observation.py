@@ -13,6 +13,7 @@ import gym
 from gym.spaces import Dict
 
 NUM_STEPS = 20
+NUM_ENVS = 3
 SEED = 0
 
 
@@ -22,10 +23,16 @@ SEED = 0
         gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
         gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
         gym.vector.make(
-            "CartPole-v1", disable_env_checker=True, new_step_api=True, num_envs=3
+            "CartPole-v1",
+            disable_env_checker=True,
+            new_step_api=True,
+            num_envs=NUM_ENVS,
         ),
         gym.vector.make(
-            "CarRacing-v2", disable_env_checker=True, new_step_api=True, num_envs=3
+            "CarRacing-v2",
+            disable_env_checker=True,
+            new_step_api=True,
+            num_envs=NUM_ENVS,
         ),
     ],
 )
@@ -48,7 +55,12 @@ def test_time_aware_observation_creation(env):
     "env",
     [
         gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
-        gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
+        gym.make(
+            "CarRacing-v2",
+            disable_env_checker=True,
+            new_step_api=True,
+            continuous=False,
+        ),
     ],
 )
 def test_time_aware_observation_step(env):
@@ -62,11 +74,11 @@ def test_time_aware_observation_step(env):
     wrapped_env = TimeAwareObservationV0(env)
     wrapped_env.reset(seed=SEED)
 
-    for i in range(NUM_STEPS):
+    for timestep in range(1, NUM_STEPS):
         action = env.action_space.sample()
         observation, _, terminated, _, _ = wrapped_env.step(action)
 
-        assert observation["time"] == i + 1
+        assert observation["time"] == timestep
 
         if terminated:
             break
@@ -76,10 +88,16 @@ def test_time_aware_observation_step(env):
     "env",
     [
         gym.vector.make(
-            "CartPole-v1", disable_env_checker=True, new_step_api=True, num_envs=3
+            "CartPole-v1",
+            disable_env_checker=True,
+            new_step_api=True,
+            num_envs=NUM_ENVS,
         ),
         gym.vector.make(
-            "CarRacing-v2", disable_env_checker=True, new_step_api=True, num_envs=3
+            "CarRacing-v2",
+            disable_env_checker=True,
+            new_step_api=True,
+            num_envs=NUM_ENVS,
         ),
     ],
 )
@@ -97,11 +115,12 @@ def test_time_aware_observation_step_within_vector(env):
     wrapped_env = TimeAwareObservationV0(env)
     wrapped_env.reset(seed=SEED)
 
-    for i in range(NUM_STEPS):
+    terminated = np.zeros(NUM_ENVS, dtype=bool)
+    for timestep in range(1, NUM_STEPS):
         action = env.action_space.sample()
         observation, _, terminated, _, _ = wrapped_env.step(action)
 
-        assert np.all(observation["time"] == i + 1)
+        assert np.all(observation["time"] == timestep)
 
         if any(terminated):
             break
