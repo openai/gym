@@ -4,9 +4,13 @@ from collections import OrderedDict
 import numpy as np
 import pytest
 
+try:
+    from gym.wrappers import TimeAwareObservationV0
+except ImportError:
+    pytest.skip(allow_module_level=True)
+
 import gym
 from gym.spaces import Dict
-from gym.wrappers import TimeAwareObservationV0
 
 NUM_STEPS = 20
 SEED = 0
