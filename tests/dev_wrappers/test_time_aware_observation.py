@@ -1,0 +1,109 @@
+"""Test suite for TimeAwareobservationV0."""
+from collections import OrderedDict
+
+import numpy as np
+import pytest
+
+import gym
+from gym.spaces import Dict
+from gym.wrappers import TimeAwareObservationV0
+
+NUM_STEPS = 20
+SEED = 0
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
+        gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
+        gym.vector.make(
+            "CartPole-v1", disable_env_checker=True, new_step_api=True, num_envs=3
+        ),
+        gym.vector.make(
+            "CarRacing-v2", disable_env_checker=True, new_step_api=True, num_envs=3
+        ),
+    ],
+)
+def test_time_aware_observation_creation(env):
+    """Test TimeAwareObservationV0 wrapper creation.
+
+    This test checks if wrapped env with TimeAwareObservationV0
+    is correctly created.
+    """
+    wrapped_env = TimeAwareObservationV0(env)
+    obs = wrapped_env.reset()
+
+    assert isinstance(wrapped_env.observation_space, Dict)
+    assert isinstance(obs, OrderedDict)
+    assert np.all(obs["time"] == 0)
+    assert env.observation_space == wrapped_env.observation_space["obs"]
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
+        gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
+    ],
+)
+def test_time_aware_observation_step(env):
+    """Test TimeAwareObservationV0 step.
+
+    This test checks if wrapped env with TimeAwareObservationV0
+    steps correctly.
+    """
+    env.action_space.seed(SEED)
+
+    wrapped_env = TimeAwareObservationV0(env)
+    wrapped_env.reset(seed=SEED)
+
+    for i in range(NUM_STEPS):
+        action = env.action_space.sample()
+        observation, _, terminated, _, _ = wrapped_env.step(action)
+
+        assert observation["time"] == i + 1
+
+        if terminated:
+            break
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        gym.vector.make(
+            "CartPole-v1", disable_env_checker=True, new_step_api=True, num_envs=3
+        ),
+        gym.vector.make(
+            "CarRacing-v2", disable_env_checker=True, new_step_api=True, num_envs=3
+        ),
+    ],
+)
+def test_time_aware_observation_step_within_vector(env):
+    """Test TimeAwareObservationV0 step in vectorized environment.
+
+    This tests checks if wrapped env with TimeAwareObservationV0
+    steps correctly in vectorized environment.
+
+    When a the i-th environment call `reset` on termination,
+    the i-th `time` observation should also reset.
+    """
+    env.action_space.seed(SEED)
+
+    wrapped_env = TimeAwareObservationV0(env)
+    wrapped_env.reset(seed=SEED)
+
+    for i in range(NUM_STEPS):
+        action = env.action_space.sample()
+        observation, _, terminated, _, _ = wrapped_env.step(action)
+
+        assert np.all(observation["time"] == i + 1)
+
+        if any(terminated):
+            break
+
+    action = env.action_space.sample()
+    observation, _, _, _, _ = wrapped_env.step(action)
+
+    assert np.all(observation["time"][np.where(terminated)] == 1)
+    assert np.all(observation["time"][np.where(~terminated)] != 1)
