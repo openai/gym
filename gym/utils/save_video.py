@@ -1,6 +1,6 @@
 """Utility functions to save rendering videos."""
 import os
-from typing import Callable
+from typing import Callable, Optional
 
 import gym
 from gym import logger
@@ -35,7 +35,7 @@ def save_video(
     video_folder: str,
     episode_trigger: Callable[[int], bool] = None,
     step_trigger: Callable[[int], bool] = None,
-    video_length: int = -1,
+    video_length: Optional[int] = None,
     name_prefix: str = "rl-video",
     episode_index: int = 0,
     step_starting_index: int = 0,
@@ -50,7 +50,7 @@ def save_video(
         video_folder (str): The folder where the recordings will be stored
         episode_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this episode
         step_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this step
-        video_length (int): The length of recorded episodes. If -1, entire episodes are recorded.
+        video_length (int): The length of recorded episodes. If it isn't specified, the entire episode is recorded.
             Otherwise, snippets of the specified length are captured.
         name_prefix (str): Will be prepended to the filename of the recordings.
         episode_index (int): The index of the current episode.
@@ -89,11 +89,6 @@ def save_video(
         episode_trigger = capped_cubic_video_schedule
 
     video_folder = os.path.abspath(video_folder)
-    if os.path.isdir(video_folder):
-        logger.warn(
-            f"Overwriting existing videos at {video_folder} folder "
-            f"(try specifying a different `video_folder` if this is not desired)"
-        )
     os.makedirs(video_folder, exist_ok=True)
     path_prefix = f"{video_folder}/{name_prefix}"
 
@@ -107,6 +102,8 @@ def save_video(
             range(1, len(frames)), start=step_starting_index
         ):
             if step_trigger(step_index):
-                end_index = frame_index + video_length if video_length >= 0 else -1
+                end_index = (
+                    frame_index + video_length if video_length is not None else None
+                )
                 clip = ImageSequenceClip(frames[frame_index:end_index], **kwargs)
                 clip.write_videofile(f"{path_prefix}-step-{step_index}.mp4")
