@@ -37,7 +37,7 @@ def save_video(
     step_trigger: Callable[[int], bool] = None,
     video_length: int = -1,
     name_prefix: str = "rl-video",
-    episode_starting_index: int = 0,
+    episode_index: int = 0,
     step_starting_index: int = 0,
     **kwargs,
 ):
@@ -46,28 +46,45 @@ def save_video(
     This function extract video from a list of render frame episodes.
 
     Args:
-        frames (List[List[RenderFrame]] | List[RenderFrame]): A list of frames to compose the video.
-        In case of single episode, the expected input is a List[RenderFrame].
-        In case of multiple episode, the expected input is a List[List[RenderFrame]].
+        frames (List[RenderFrame]): A list of frames to compose the video.
         video_folder (str): The folder where the recordings will be stored
         episode_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this episode
         step_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this step
         video_length (int): The length of recorded episodes. If -1, entire episodes are recorded.
             Otherwise, snippets of the specified length are captured.
         name_prefix (str): Will be prepended to the filename of the recordings.
-        episode_starting_index (int): The index of the first episode in frames.
+        episode_index (int): The index of the current episode.
         step_starting_index (int): The step index of the first frame.
-        fps (float): Frame per second of the video.
+        **kwargs: The kwargs that will be passed to moviepy's ImageSequenceClip.
+            You need to specify either fps or duration.
+
+    Example:
+        >>> import gym
+        >>> from gym.utils.save_video import save_video
+        >>> env = gym.make("FrozenLake-v1", render_mode="rgb_array")
+        >>> env.reset()
+        >>> step_starting_index = 0
+        >>> episode_index = 0
+        >>> for step_index in range(199):
+        ...    action = env.action_space.sample()
+        ...    _, _, done, _ = env.step(action)
+        ...    if done:
+        ...       save_video(
+        ...          env.render(),
+        ...          "videos",
+        ...          fps=env.metadata["render_fps"],
+        ...          step_starting_index=step_starting_index,
+        ...          episode_index=episode_index
+        ...       )
+        ...       step_starting_index = step_index + 1
+        ...       episode_index += 1
+        ...       env.reset()
+        >>> env.close()
     """
     if not isinstance(frames, list):
         logger.error(
             f"Expected a list of frames, got a {frames.__class__.__name__} instead."
         )
-    if len(frames) == 0:
-        return
-    if not isinstance(frames[0], list):
-        frames = [frames]
-
     if episode_trigger is None and step_trigger is None:
         episode_trigger = capped_cubic_video_schedule
 
@@ -80,19 +97,16 @@ def save_video(
     os.makedirs(video_folder, exist_ok=True)
     path_prefix = f"{video_folder}/{name_prefix}"
 
-    step_index = step_starting_index
-    for episode_index, episode in enumerate(frames, start=episode_starting_index):
+    if episode_trigger is not None and episode_trigger(episode_index):
+        clip = ImageSequenceClip(frames[:video_length], **kwargs)
+        clip.write_videofile(f"{path_prefix}-episode-{episode_index}.mp4")
 
-        if episode_trigger is not None and episode_trigger(episode_index):
-            clip = ImageSequenceClip(episode[:video_length], **kwargs)
-            clip.write_videofile(f"{path_prefix}-episode-{episode_index}.mp4")
-
-        if step_trigger is not None:
-            # skip the first frame since it comes from reset
-            for frame_index in range(1, len(episode)):
-                if step_trigger(step_index):
-                    end_index = frame_index + video_length if video_length > 0 else -1
-                    clip = ImageSequenceClip(episode[frame_index:end_index], **kwargs)
-                    clip.write_videofile(f"{path_prefix}-step-{step_index}.mp4")
-
-                step_index += 1
+    if step_trigger is not None:
+        # skip the first frame since it comes from reset
+        for step_index, frame_index in enumerate(
+            range(1, len(frames)), start=step_starting_index
+        ):
+            if step_trigger(step_index):
+                end_index = frame_index + video_length if video_length >= 0 else -1
+                clip = ImageSequenceClip(frames[frame_index:end_index], **kwargs)
+                clip.write_videofile(f"{path_prefix}-step-{step_index}.mp4")
