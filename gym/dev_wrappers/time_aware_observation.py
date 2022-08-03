@@ -4,6 +4,7 @@ from collections import OrderedDict
 import jumpy as jp
 
 import gym
+import gym.spaces as spaces
 from gym.core import ActType, ObsType
 from gym.spaces import Box, Dict
 
@@ -23,18 +24,27 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
         ...    array([ 0.02768888,  0.1745313 ,  0.03663293, -0.32239535], dtype=float32))])
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env, flatten=False):
         """Initialize :class:`TimeAwareObservationV0`.
 
         Args:
             env: The environment to apply the wrapper
+            flatten: Flatten the observation to a `Box` of a single dimension
         """
         super().__init__(env)
+        self.flatten = flatten
         self.num_envs = getattr(env, "num_envs", 1)
 
-        self.observation_space = Dict(
-            time=Box(0, jp.inf, (self.num_envs,)), obs=env.observation_space
+        self.time_aware_observation_space = Dict(
+            obs=env.observation_space, time=Box(0, jp.inf, (self.num_envs,))
         )
+
+        if self.flatten:
+            self.observation_space = spaces.flatten_space(
+                self.time_aware_observation_space
+            )
+        else:
+            self.observation_space = self.time_aware_observation_space
 
     def observation(self, observation: ObsType):
         """Adds to the observation with the current time step.
@@ -45,7 +55,13 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
         Returns:
             The observation with the time step appended to
         """
-        return OrderedDict(time=self.t, obs=observation)
+        observation = OrderedDict(obs=observation, time=self.t)
+
+        return (
+            spaces.flatten(self.time_aware_observation_space, observation)
+            if self.flatten
+            else observation
+        )
 
     def step(self, action: ActType):
         """Steps through the environment, incrementing the time step.
