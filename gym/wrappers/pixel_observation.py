@@ -81,13 +81,15 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)
+        self.render_history = []
 
         if render_kwargs is None:
             render_kwargs = {}
 
         for key in render_kwargs:
             assert key in pixel_keys, (
-                "The argument render_kwargs should map elements of pixel_keys to dictionaries of keyword arguments. "
+                "The argument render_kwargs should map elements of "
+                "pixel_keys to dictionaries of keyword arguments. "
                 f"Found key '{key}' in render_kwargs but not in pixel_keys."
             )
 
@@ -123,35 +125,39 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 )
 
         if pixels_only:
-            new_obs_spaces = {}
+            self.observation_space = spaces.Dict()
         elif self._observation_is_dict:
-            new_obs_spaces = copy.deepcopy(wrapped_observation_space).spaces
+            self.observation_space = copy.deepcopy(wrapped_observation_space)
         else:
-            new_obs_spaces = {STATE_KEY: wrapped_observation_space}
+            self.observation_space = spaces.Dict({STATE_KEY: wrapped_observation_space})
 
         # Extend observation space with pixels.
+
         self.env.reset()
+        pixels_spaces = {}
         for pixel_key in pixel_keys:
-            pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = self._render(**render_kwargs[pixel_key])
             pixels: np.ndarray = pixels[-1] if isinstance(pixels, List) else pixels
 
-            assert isinstance(
-                pixels, np.ndarray
-            ), f"Expects the render data to be a numpy ndarray, actual type: {type(pixels)}"
+            if not hasattr(pixels, "dtype") or not hasattr(pixels, "shape"):
+                raise TypeError(
+                    f"Render method returns a {pixels.__class__.__name__}, but an array with dtype and shape is expected."
+                    "Be sure to specify the correct render_mode."
+                )
+
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
             elif np.issubdtype(pixels.dtype, np.float):
                 low, high = (-float("inf"), float("inf"))
             else:
-                raise TypeError(
-                    f"Expect pixel dtype to be integer or float, actual dtype: {pixels.dtype}"
-                )
+                raise TypeError(pixels.dtype)
 
-            new_obs_spaces[pixel_key] = spaces.Box(
+            pixels_space = spaces.Box(
                 shape=pixels.shape, low=low, high=high, dtype=pixels.dtype
             )
+            pixels_spaces[pixel_key] = pixels_space
 
-        self.observation_space = spaces.Dict(new_obs_spaces)
+        self.observation_space.spaces.update(pixels_spaces)
 
         self._pixels_only = pixels_only
         self._render_kwargs = render_kwargs
@@ -179,10 +185,24 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             observation[STATE_KEY] = wrapped_observation
 
         pixel_observations = {
-            pixel_key: self.env.render(**self._render_kwargs[pixel_key])
+            pixel_key: self._render(**self._render_kwargs[pixel_key])
             for pixel_key in self._pixel_keys
         }
 
         observation.update(pixel_observations)
 
         return observation
+
+    def render(self, *args, **kwargs):
+        """Renders the environment."""
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            render = self.render_history + render
+            self.render_history = []
+        return render
+
+    def _render(self, *args, **kwargs):
+        render = self.env.render(*args, **kwargs)
+        if isinstance(render, list):
+            self.render_history += render
+        return render

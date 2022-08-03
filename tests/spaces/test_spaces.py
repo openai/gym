@@ -261,16 +261,16 @@ def test_sample(space: Space, n_trials: int = 1_000):
         _chi_squared_test(space.nvec, expected_frequency, observed_frequency)
     elif isinstance(space, Text):
         expected_frequency = (
-            np.ones(len(space.charset))
+            np.ones(len(space.character_set))
             * n_trials
             * (space.min_length + (space.max_length - space.min_length) / 2)
-            / len(space.charset)
+            / len(space.character_set)
         )
-        observed_frequency = np.zeros(len(space.charset))
+        observed_frequency = np.zeros(len(space.character_set))
         for sample in samples:
             for x in sample:
                 observed_frequency[space.character_index(x)] += 1
-        degrees_of_freedom = len(space.charset) - 1
+        degrees_of_freedom = len(space.character_set) - 1
 
         assert observed_frequency.shape == expected_frequency.shape
         assert np.sum(observed_frequency) == sum(len(sample) for sample in samples)
@@ -430,16 +430,16 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
 
         if np.any(charlist_mask == 1):
             expected_frequency = (
-                np.ones(len(space.charset))
+                np.ones(len(space.character_set))
                 * n_trials
                 * expected_length
                 / np.sum(charlist_mask)
                 * charlist_mask
             )
         else:
-            expected_frequency = np.zeros(len(space.charset))
+            expected_frequency = np.zeros(len(space.character_set))
 
-        observed_frequency = np.zeros(len(space.charset))
+        observed_frequency = np.zeros(len(space.character_set))
         for sample in samples:
             for char in sample:
                 observed_frequency[space.character_index(char)] += 1

@@ -5,7 +5,7 @@ import numpy as np
 
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
-from gym.spaces.multi_discrete import SAMPLE_MASK_TYPE, MultiDiscrete
+from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
@@ -88,8 +88,8 @@ class Graph(Space):
         self,
         mask: Optional[
             Tuple[
-                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
-                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
+                Optional[Union[np.ndarray, tuple]],
+                Optional[Union[np.ndarray, tuple]],
             ]
         ] = None,
         num_nodes: int = 10,

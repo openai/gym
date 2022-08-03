@@ -58,7 +58,8 @@ class MultiBinary(Space[np.ndarray]):
 
         Args:
             mask: An optional np.ndarray to mask samples with expected shape of ``space.shape``.
-                Where for each binary action, it expects shape mask in ``dtype=np.int8``.
+                For mask == 0 then the samples will be 0 and mask == 1 then random samples will be generated.
+                The expected mask shape is the space shape and mask dtype is `np.int8`.
 
         Returns:
             Sampled values from space

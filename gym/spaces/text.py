@@ -57,12 +57,13 @@ class Text(Space[str]):
 
         self.min_length: int = int(min_length)
         self.max_length: int = int(max_length)
-        self.charset: FrozenSet[str] = frozenset(charset)
-        self.charlist: Tuple[str, ...] = tuple(charset)
-        self.charindex: Dict[str, np.int32] = {
-            val: np.int32(i) for i, val in enumerate(self.charlist)
+
+        self._char_set: FrozenSet[str] = frozenset(charset)
+        self._char_list: Tuple[str, ...] = tuple(charset)
+        self._char_index: Dict[str, np.int32] = {
+            val: np.int32(i) for i, val in enumerate(tuple(charset))
         }
-        self.charset_str: str = "".join(sorted(self.charlist))
+        self._char_str: str = "".join(sorted(tuple(charset)))
 
         # As the shape is dynamic (between min_length and max_length) then None
         super().__init__(dtype=str, seed=seed)
@@ -105,8 +106,8 @@ class Text(Space[str]):
                     charlist_mask.dtype == np.int8
                 ), f"Expects the Text sample mask to be an np.ndarray, actual dtype: {charlist_mask.dtype}"
                 assert charlist_mask.shape == (
-                    len(self.charset),
-                ), f"expects the Text sample mask to be {(len(self.charset),)}, actual shape: {charlist_mask.shape}"
+                    len(self.character_set),
+                ), f"expects the Text sample mask to be {(len(self.character_set),)}, actual shape: {charlist_mask.shape}"
                 assert np.all(
                     np.logical_or(charlist_mask == 0, charlist_mask == 1)
                 ), f"Expects all masks values to 0 or 1, actual values: {charlist_mask}"
@@ -117,7 +118,7 @@ class Text(Space[str]):
             length = self.np_random.integers(self.min_length, self.max_length + 1)
 
         if charlist_mask is None:
-            string = self.np_random.choice(self.charlist, size=length)
+            string = self.np_random.choice(self.character_list, size=length)
         else:
             valid_mask = charlist_mask == 1
             valid_indexes = np.where(valid_mask)[0]
@@ -125,7 +126,7 @@ class Text(Space[str]):
                 string = ""
             else:
                 string = "".join(
-                    self.charlist[index]
+                    self.character_list[index]
                     for index in self.np_random.choice(valid_indexes, size=length)
                 )
 
@@ -135,12 +136,14 @@ class Text(Space[str]):
         """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, str):
             if self.min_length <= len(x) <= self.max_length:
-                return all(c in self.charset for c in x)
+                return all(c in self.character_set for c in x)
         return False
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return f"Text({self.min_length}, {self.max_length}, charset={self.charset_str})"
+        return (
+            f"Text({self.min_length}, {self.max_length}, characters={self.characters})"
+        )
 
     def __eq__(self, other) -> bool:
         """Check whether ``other`` is equivalent to this instance."""
@@ -148,9 +151,24 @@ class Text(Space[str]):
             isinstance(other, Text)
             and self.min_length == other.min_length
             and self.max_length == other.max_length
-            and self.charset == other.charset
+            and self.character_set == other.character_set
         )
 
+    @property
+    def character_set(self) -> FrozenSet[str]:
+        """Returns the character set for the space."""
+        return self._char_set
+
+    @property
+    def character_list(self) -> Tuple[str, ...]:
+        """Returns a tuple of characters in the space."""
+        return self._char_list
+
     def character_index(self, char: str) -> np.int32:
-        """The character index in the space's `_charlist`."""
-        return self.charindex[char]
+        """Returns a unique index for each character in the space's character set."""
+        return self._char_index[char]
+
+    @property
+    def characters(self) -> str:
+        """Returns a string with all Text characters."""
+        return self._char_str

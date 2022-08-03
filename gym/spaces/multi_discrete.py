@@ -8,9 +8,6 @@ from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
-RECURSIVE_LIST_INT = List[Union["RECURSIVE_LIST_INT", int]]
-SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
-
 
 class MultiDiscrete(Space[np.ndarray]):
     """This represents the cartesian product of arbitrary :class:`Discrete` spaces.
@@ -41,7 +38,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     def __init__(
         self,
-        nvec: Union[np.ndarray, RECURSIVE_LIST_INT],
+        nvec: Union[np.ndarray, list],
         dtype=np.int64,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
@@ -65,7 +62,7 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
-    def sample(self, mask: Optional[SAMPLE_MASK_TYPE] = None) -> np.ndarray:
+    def sample(self, mask: Optional[tuple] = None) -> np.ndarray:
         """Generates a single random sample this space.
 
         Args:
@@ -79,7 +76,8 @@ class MultiDiscrete(Space[np.ndarray]):
         if mask is not None:
 
             def _apply_mask(
-                sub_mask: SAMPLE_MASK_TYPE, sub_nvec: np.ndarray
+                sub_mask: Union[np.ndarray, tuple],
+                sub_nvec: Union[np.ndarray, np.integer],
             ) -> Union[int, List[int]]:
                 # TODO: consider a special case where the mask can be a single np.ndarray, i.e MD([2, 2])
                 if isinstance(sub_nvec, np.ndarray):

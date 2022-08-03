@@ -1,5 +1,4 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
-import sys
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -12,11 +11,6 @@ import numpy as np
 
 from gym.spaces.space import Space
 from gym.utils import seeding
-
-if sys.version_info >= (3, 8):
-    from typing import OrderedDict as TypingOrderedDict
-else:
-    from typing_extensions import OrderedDict as TypingOrderedDict
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):
@@ -63,7 +57,6 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         spaces: Optional[
             Union[
                 TypingDict[str, Space],
-                TypingOrderedDict[str, Space],
                 TypingSequence[Tuple[str, Space]],
             ]
         ] = None,
@@ -123,9 +116,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(
-        self, seed: Optional[Union[TypingDict[str, int], int]] = None
-    ) -> List[int]:
+    def seed(self, seed: Optional[Union[dict, int]] = None) -> List[int]:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
         if isinstance(seed, dict):
@@ -136,11 +127,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 seeds += self.spaces[key].seed(seed[key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            # replace=False - unique subseed for each subspace, if you have more spaces than np.iinfo(int).max then something is terribly wrong
-            subseeds = self.np_random.choice(
-                np.iinfo(int).max,
-                size=len(self.spaces),
-                replace=False,
+            # Using `np.int32` will mean that the same key occurring is extremely low, even for large subspaces
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
             )
             for subspace, subseed in zip(self.spaces.values(), subseeds):
                 seeds += subspace.seed(int(subseed))
@@ -180,9 +169,8 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def contains(self, x) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
-        if isinstance(x, dict):
-            if x.keys() == self.spaces.keys():
-                return all(x[key] in self.spaces[key] for key in self.spaces.keys())
+        if isinstance(x, dict) and x.keys() == self.spaces.keys():
+            return all(x[key] in self.spaces[key] for key in self.spaces.keys())
         return False
 
     def __getitem__(self, key: str) -> Space:
@@ -191,6 +179,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __setitem__(self, key: str, value: Space):
         """Set the space that is associated to `key`."""
+        assert isinstance(value, Space), f"Trying to set {key} to Dict space with value that is not a gym space, actual type: {type(value)}"
         self.spaces[key] = value
 
     def __iter__(self):

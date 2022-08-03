@@ -1,5 +1,5 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Iterable, List, Optional, Sequence, Union, Tuple as TypingTuple
 
 import numpy as np
 
@@ -72,7 +72,7 @@ class Tuple(Space[tuple], Sequence):
 
         return seeds
 
-    def sample(self, mask: Optional[Tuple[Optional[np.ndarray]]] = None) -> tuple:
+    def sample(self, mask: Optional[TypingTuple[Optional[np.ndarray]]] = None) -> tuple:
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
