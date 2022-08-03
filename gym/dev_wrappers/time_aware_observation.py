@@ -16,12 +16,22 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
         >>> import gym
         >>> env = gym.make('CartPole-v1')
         >>> env = TimeAwareObservationV0(env)
-        >>> env.reset()
+        >>> env.observation_space
         Dict(obs: Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32), time: Box(0.0, inf, (1,), float32))
+        >>> _ = env.reset()
         >>> env.step(env.action_space.sample())[0]
         OrderedDict([('time', array([1.])),
         ...  ('obs',
         ...    array([ 0.02768888,  0.1745313 ,  0.03663293, -0.32239535], dtype=float32))])
+
+    Flatten observation space example:
+        >>> env = gym.make('CartPole-v1')
+        >>> env = TimeAwareObservationV0(env, flatten=True)
+        >>> env.observation_space
+        Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38  0.0000000e+00], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38 inf], (5,), float32)
+        >>> _ = env.reset()
+        >>> env.step(env.action_space.sample())[0]
+        array([-0.01232257,  0.19335455, -0.02244143, -0.32388705,  1. ], dtype=float32)
     """
 
     def __init__(self, env: gym.Env, flatten=False):
