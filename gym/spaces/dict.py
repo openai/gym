@@ -179,7 +179,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __setitem__(self, key: str, value: Space):
         """Set the space that is associated to `key`."""
-        assert isinstance(value, Space), f"Trying to set {key} to Dict space with value that is not a gym space, actual type: {type(value)}"
+        assert isinstance(
+            value, Space
+        ), f"Trying to set {key} to Dict space with value that is not a gym space, actual type: {type(value)}"
         self.spaces[key] = value
 
     def __iter__(self):

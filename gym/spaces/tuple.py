@@ -1,5 +1,7 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from typing import Iterable, List, Optional, Sequence, Union, Tuple as TypingTuple
+from typing import Iterable, List, Optional, Sequence
+from typing import Tuple as TypingTuple
+from typing import Union
 
 import numpy as np
 
