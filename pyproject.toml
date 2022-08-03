@@ -32,10 +32,10 @@ reportInvalidTypeVarUse = "none"
 # reportUnknownParameterType = "warning"  # -> raises 1327 warnings
 # reportUnknownVariableType = "warning"  # -> raises 2585 warnings
 # reportUnknownArgumentType = "warning"  # -> raises 2104 warnings
-reportGeneralTypeIssues ="none"  # -> commented out raises 489 errors
+reportGeneralTypeIssues = "none"  # -> commented out raises 489 errors
+reportUntypedFunctionDecorator = "none"  # -> pytest.mark.parameterize issues
 
 reportPrivateUsage = "warning"
-reportUntypedFunctionDecorator = "error"
 reportUnboundVariable = "warning"
 
 [tool.pytest.ini_options]
