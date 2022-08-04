@@ -88,8 +88,8 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     The main API methods that users of this class need to know are:
 
     - :meth:`step` - Takes a step in the environment using an action returning the next observation, reward,
-      if the environment terminated and more information.
-    - :meth:`reset` - Resets the environment to an initial state, returning the initial observation and more information.
+      if the environment terminated and observation information.
+    - :meth:`reset` - Resets the environment to an initial state, returning the initial observation and observation information.
     - :meth:`render` - Renders the environment observation with modes depending on the output
     - :meth:`close` - Closes the environment, important for rendering where pygame is imported
 

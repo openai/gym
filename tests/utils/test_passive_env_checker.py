@@ -283,7 +283,7 @@ def _make_reset_results(results):
             {},
         ],
         [
-            AssertionError,
+            UserWarning,
             _make_reset_results([0, {}]),
             "The result returned by `env.reset()` was not a tuple, actual type: <class 'list'>",
             {},
