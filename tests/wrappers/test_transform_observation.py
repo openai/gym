@@ -20,8 +20,15 @@ def test_transform_observation(env_id):
     assert np.allclose(wrapped_obs, affine_transform(obs))
 
     action = env.action_space.sample()
-    obs, reward, done, _ = env.step(action)
-    wrapped_obs, wrapped_reward, wrapped_done, _ = wrapped_env.step(action)
+    obs, reward, terminated, truncated, _ = env.step(action)
+    (
+        wrapped_obs,
+        wrapped_reward,
+        wrapped_terminated,
+        wrapped_truncated,
+        _,
+    ) = wrapped_env.step(action)
     assert np.allclose(wrapped_obs, affine_transform(obs))
     assert np.allclose(wrapped_reward, reward)
-    assert wrapped_done == done
+    assert wrapped_terminated == terminated
+    assert wrapped_truncated == truncated

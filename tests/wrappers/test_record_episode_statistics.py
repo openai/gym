@@ -18,8 +18,8 @@ def test_record_episode_statistics(env_id, deque_size):
         assert env.episode_returns[0] == 0.0
         assert env.episode_lengths[0] == 0
         for t in range(env.spec.max_episode_steps):
-            _, _, done, info = env.step(env.action_space.sample())
-            if done:
+            _, _, terminated, truncated, info = env.step(env.action_space.sample())
+            if terminated or truncated:
                 assert "episode" in info
                 assert all([item in info["episode"] for item in ["r", "l", "t"]])
                 break

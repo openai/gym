@@ -33,12 +33,12 @@ def test_time_limit_wrapper(double_wrap):
         # if it was already set
         env = TimeLimit(env, max_episode_length)
     env.reset()
-    done = False
+    terminated, truncated = False, False
     n_steps = 0
     info = {}
-    while not done:
+    while not terminated or truncated:
         n_steps += 1
-        _, _, done, info = env.step(env.action_space.sample())
+        _, _, terminated, truncated, info = env.step(env.action_space.sample())
 
     assert n_steps == max_episode_length
     assert "TimeLimit.truncated" in info
@@ -61,7 +61,8 @@ def test_termination_on_last_step(double_wrap):
     if double_wrap:
         env = TimeLimit(env, max_episode_length)
     env.reset()
-    _, _, done, info = env.step(env.action_space.sample())
-    assert done is True
-    assert "TimeLimit.truncated" in info
+    _, _, terminated, truncated, info = env.step(env.action_space.sample())
+    assert terminated is True 
+    assert truncated is True
+    assert "TimeLimit.truncated" in info # part of old API but retained 
     assert info["TimeLimit.truncated"] is False

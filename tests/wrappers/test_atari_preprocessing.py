@@ -91,7 +91,7 @@ def test_atari_preprocessing_grayscale(env, obs_shape):
     obs, _ = env.reset(seed=0, return_info=True)
     assert obs in env.observation_space
 
-    obs, _, _, _ = env.step(env.action_space.sample())
+    obs, _, _, _, _ = env.step(env.action_space.sample())
     assert obs in env.observation_space
 
     env.close()
@@ -115,9 +115,9 @@ def test_atari_preprocessing_scale(grayscale, scaled, max_test_steps=10):
     max_obs = 1 if scaled else 255
     assert np.all(0 <= obs) and np.all(obs <= max_obs)
 
-    done, step_i = False, 0
-    while not done and step_i <= max_test_steps:
-        obs, _, done, _ = env.step(env.action_space.sample())
+    terminated, truncated, step_i = False, False, 0
+    while not (terminated or truncated)) and step_i <= max_test_steps:
+        obs, _, terminated, truncated, _ = env.step(env.action_space.sample())
         assert np.all(0 <= obs) and np.all(obs <= max_obs)
 
         step_i += 1

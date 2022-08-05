@@ -11,8 +11,8 @@ def test_record_video_using_default_trigger():
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -60,8 +60,8 @@ def test_record_video_step_trigger():
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             env.reset()
     env.close()
     assert os.path.isdir("videos")

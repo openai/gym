@@ -33,8 +33,12 @@ class NewStepEnv(gym.Env):
 
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-def test_step_compatibility_to_new_api(env):
-    env = StepAPICompatibility(env(), True)
+@pytest.mark.parametrize("new_step_api", [None, False])
+def test_step_compatibility_to_new_api(env, new_step_api):
+    if new_step_api is None:
+        env = StepAPICompatibility(env())
+    else:
+        env = StepAPICompatibility(env(), new_step_api)
     step_returns = env.step(0)
     _, _, terminated, truncated, _ = step_returns
     assert isinstance(terminated, bool)
@@ -42,12 +46,8 @@ def test_step_compatibility_to_new_api(env):
 
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-@pytest.mark.parametrize("new_step_api", [None, False])
-def test_step_compatibility_to_old_api(env, new_step_api):
-    if new_step_api is None:
-        env = StepAPICompatibility(env())  # default behavior is to retain old API
-    else:
-        env = StepAPICompatibility(env(), new_step_api)
+def test_step_compatibility_to_old_api(env):
+    env = StepAPICompatibility(env(), False)
     step_returns = env.step(0)
     assert len(step_returns) == 4
     _, _, done, _ = step_returns
@@ -56,11 +56,13 @@ def test_step_compatibility_to_old_api(env, new_step_api):
 
 @pytest.mark.parametrize("new_step_api", [None, True, False])
 def test_step_compatibility_in_make(new_step_api):
-    if new_step_api is None:
+    if new_step_api is False:
         with pytest.warns(
             DeprecationWarning, match="Initializing environment in old step API"
         ):
-            env = gym.make("CartPole-v1")
+            env = gym.make("CartPole-v1", new_step_api=False)
+    elif new_step_api is None:
+        env = gym.make("CartPole-v1")
     else:
         env = gym.make("CartPole-v1", new_step_api=new_step_api)
 

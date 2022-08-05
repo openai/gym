@@ -29,7 +29,7 @@ class DummyEnv(gym.Env):
 
 @pytest.mark.parametrize("time_limit", [10, 20, 30])
 def test_terminated_truncated(time_limit):
-    test_env = TimeLimit(DummyEnv(), time_limit, new_step_api=True)
+    test_env = TimeLimit(DummyEnv(), time_limit)
 
     terminated = False
     truncated = False
@@ -53,13 +53,11 @@ def test_terminated_truncated(time_limit):
 
 
 def test_terminated_truncated_vector():
-    env0 = TimeLimit(DummyEnv(), 10, new_step_api=True)
-    env1 = TimeLimit(DummyEnv(), 20, new_step_api=True)
-    env2 = TimeLimit(DummyEnv(), 30, new_step_api=True)
+    env0 = TimeLimit(DummyEnv(), 10)
+    env1 = TimeLimit(DummyEnv(), 20)
+    env2 = TimeLimit(DummyEnv(), 30)
 
-    async_env = AsyncVectorEnv(
-        [lambda: env0, lambda: env1, lambda: env2], new_step_api=True
-    )
+    async_env = AsyncVectorEnv([lambda: env0, lambda: env1, lambda: env2])
     async_env.reset()
     terminateds = [False, False, False]
     truncateds = [False, False, False]
@@ -74,9 +72,7 @@ def test_terminated_truncated_vector():
     assert all(terminateds == [False, True, True])
     assert all(truncateds == [True, True, False])
 
-    sync_env = SyncVectorEnv(
-        [lambda: env0, lambda: env1, lambda: env2], new_step_api=True
-    )
+    sync_env = SyncVectorEnv([lambda: env0, lambda: env1, lambda: env2])
     sync_env.reset()
     terminateds = [False, False, False]
     truncateds = [False, False, False]

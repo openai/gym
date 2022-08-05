@@ -80,8 +80,8 @@ def test_make_autoreset_true(spec):
     env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
 
     done = False
-    while not done:
-        obs, reward, done, info = env.step(env.action_space.sample())
+    while not (terminated or truncated):
+        obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
 
     assert env.unwrapped.reset.called
     env.close()
@@ -118,21 +118,21 @@ def test_autoreset_wrapper_autoreset():
     assert info == {"count": 0}
 
     action = 0
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done is False
+    assert (terminated or truncated) is False
     assert info == {"count": 1}
 
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([2])
-    assert done is False
+    assert (terminated or truncated) is False
     assert reward == 0
     assert info == {"count": 2}
 
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([0])
-    assert done is True
+    assert (terminated or truncated) is True
     assert reward == 1
     assert info == {
         "count": 0,
@@ -140,10 +140,10 @@ def test_autoreset_wrapper_autoreset():
         "final_info": {"count": 3},
     }
 
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done is False
+    assert (terminated or truncated) is False
     assert info == {"count": 1}
 
     env.close()

@@ -24,17 +24,22 @@ def verify_environments_match(
 
     for i in range(num_actions):
         action = old_env.action_space.sample()
-        old_obs, old_reward, old_done, old_info = old_env.step(action)
-        new_obs, new_reward, new_done, new_info = new_env.step(action)
+        old_obs, old_reward, old_terminated, old_truncated, old_info = old_env.step(
+            action
+        )
+        new_obs, new_reward, new_terminated, new_truncated, new_info = new_env.step(
+            action
+        )
 
         np.testing.assert_allclose(old_obs, new_obs, atol=EPS)
         np.testing.assert_allclose(old_reward, new_reward, atol=EPS)
-        np.testing.assert_equal(old_done, new_done)
+        np.testing.assert_equal(old_terminated, new_terminated)
+        np.testing.assert_equal(old_truncated, new_truncated)
 
         for key in old_info:
             np.testing.assert_allclose(old_info[key], new_info[key], atol=EPS)
 
-        if old_done:
+        if old_terminated or old_truncated:
             break
 
 
@@ -62,7 +67,7 @@ def test_obs_space_mujoco_environments(env_spec: EnvSpec):
     ), f"Obseravtion returned by reset() of {env_spec.id} is not contained in the default observation space {env.observation_space}."
 
     action = env.action_space.sample()
-    step_obs, _, _, _ = env.step(action)
+    step_obs, _, _, _, _ = env.step(action)
     assert env.observation_space.contains(
         step_obs
     ), f"Obseravtion returned by step(action) of {env_spec.id} is not contained in the default observation space {env.observation_space}."
@@ -78,7 +83,7 @@ def test_obs_space_mujoco_environments(env_spec: EnvSpec):
             reset_obs
         ), f"Obseravtion of {env_spec.id} is not contained in the default observation space {env.observation_space} when excluding current position from observation."
 
-        step_obs, _, _, _ = env.step(action)
+        step_obs, _, _, _, _ = env.step(action)
         assert env.observation_space.contains(
             step_obs
         ), f"Obseravtion returned by step(action) of {env_spec.id} is not contained in the default observation space {env.observation_space} when excluding current position from observation."
@@ -91,7 +96,7 @@ def test_obs_space_mujoco_environments(env_spec: EnvSpec):
             reset_obs
         ), f"Obseravtion of {env_spec.id} is not contained in the default observation space {env.observation_space} when using contact forces."
 
-        step_obs, _, _, _ = env.step(action)
+        step_obs, _, _, _, _ = env.step(action)
         assert env.observation_space.contains(
             step_obs
         ), f"Obseravtion returned by step(action) of {env_spec.id} is not contained in the default observation space {env.observation_space} when using contact forces."
