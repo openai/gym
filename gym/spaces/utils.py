@@ -100,7 +100,9 @@ def flatten(space: Space[T], x: T) -> np.ndarray:
         x: The value to flatten
 
     Returns:
-        - The flattened ``x``, always returns a 1D array for non-graph spaces.
+        - For ``Box`` and ``MultiBinary``, this is a flattened array
+        - For ``Discrete`` and ``MultiDiscrete``, this is a flattened one-hot array of the sample
+        - For ``Tuple`` and ``Dict``, this is a concatenated array the subspaces (does not support graph subspaces)
         - For graph spaces, returns `GraphInstance` where:
             - `nodes` are n x k arrays
             - `edges` are either:

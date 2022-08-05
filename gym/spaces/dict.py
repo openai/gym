@@ -204,7 +204,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             for key, space in self.spaces.items()
         }
 
-    def from_jsonable(self, sample_n: TypingDict[str, list]) -> List[OrderedDict]:
+    def from_jsonable(self, sample_n: TypingDict[str, list]) -> List[dict]:
         """Convert a JSONable data type to a batch of samples from this space."""
         dict_of_list: TypingDict[str, list] = {
             key: space.from_jsonable(sample_n[key])
