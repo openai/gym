@@ -3,7 +3,6 @@ import numpy as np
 
 import gym
 from gym.spaces import Box
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class TimeAwareObservation(gym.ObservationWrapper):
@@ -22,14 +21,13 @@ class TimeAwareObservation(gym.ObservationWrapper):
         array([ 0.03881167, -0.16021058,  0.0220928 ,  0.28875574,  1.        ])
     """
 
-    def __init__(self, env: gym.Env, new_step_api: bool = False):
+    def __init__(self, env: gym.Env):
         """Initialize :class:`TimeAwareObservation` that requires an environment with a flat :class:`Box` observation space.
 
         Args:
             env: The environment to apply the wrapper
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
         assert isinstance(env.observation_space, Box)
         assert env.observation_space.dtype == np.float32
         low = np.append(self.observation_space.low, 0.0)
@@ -58,9 +56,7 @@ class TimeAwareObservation(gym.ObservationWrapper):
             The environment's step using the action.
         """
         self.t += 1
-        return step_api_compatibility(
-            super().step(action), self.new_step_api, self.is_vector_env
-        )
+        return super().step(action)
 
     def reset(self, **kwargs):
         """Reset the environment setting the time to zero.

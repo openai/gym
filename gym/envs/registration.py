@@ -547,7 +547,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    new_step_api: bool = False,
+    new_step_api: bool = True,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -557,7 +557,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper)
         disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
             (which is by default False, running the environment checker),
             otherwise will run according to this parameter (`True` = not run, `False` = run)
@@ -684,7 +684,6 @@ def make(
     ):
         env = PassiveEnvChecker(env)
 
-    env = StepAPICompatibility(env, new_step_api)
 
     # Add the order enforcing wrapper
     if spec_.order_enforce:
@@ -692,17 +691,21 @@ def make(
 
     # Add the time limit wrapper
     if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps, new_step_api)
+        env = TimeLimit(env, max_episode_steps)
     elif spec_.max_episode_steps is not None:
-        env = TimeLimit(env, spec_.max_episode_steps, new_step_api)
+        env = TimeLimit(env, spec_.max_episode_steps)
 
     # Add the autoreset wrapper
     if autoreset:
-        env = AutoResetWrapper(env, new_step_api)
+        env = AutoResetWrapper(env)
 
     # Add human rendering wrapper
     if apply_human_rendering:
         env = HumanRendering(env)
+
+    # Add step API wrapper
+    if not new_step_api:
+        env = StepAPICompatibility(env, new_step_api)
 
     return env
 

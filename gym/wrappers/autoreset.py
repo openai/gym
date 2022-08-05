@@ -1,6 +1,5 @@
 """Wrapper that autoreset environments when `terminated=True` or `truncated=True`."""
 import gym
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class AutoResetWrapper(gym.Wrapper):
@@ -24,14 +23,13 @@ class AutoResetWrapper(gym.Wrapper):
         Make sure you know what you're doing if you use this wrapper!
     """
 
-    def __init__(self, env: gym.Env, new_step_api: bool = False):
+    def __init__(self, env: gym.Env):
         """A class for providing an automatic reset functionality for gym environments when calling :meth:`self.step`.
 
         Args:
             env (gym.Env): The environment to apply the wrapper
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
 
     def step(self, action):
         """Steps through the environment with action and resets the environment if a terminated or truncated signal is encountered.
@@ -42,10 +40,7 @@ class AutoResetWrapper(gym.Wrapper):
         Returns:
             The autoreset environment :meth:`step`
         """
-        obs, reward, terminated, truncated, info = step_api_compatibility(
-            self.env.step(action), True
-        )
-
+        obs, reward, terminated, truncated, info = self.env.step(action)
         if terminated or truncated:
 
             new_obs, new_info = self.env.reset(return_info=True)
@@ -62,6 +57,4 @@ class AutoResetWrapper(gym.Wrapper):
             obs = new_obs
             info = new_info
 
-        return step_api_compatibility(
-            (obs, reward, terminated, truncated, info), self.new_step_api
-        )
+        return obs, reward, terminated, truncated, info

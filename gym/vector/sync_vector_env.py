@@ -6,7 +6,6 @@ import numpy as np
 
 from gym import Env
 from gym.spaces import Space
-from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
@@ -34,7 +33,6 @@ class SyncVectorEnv(VectorEnv):
         observation_space: Space = None,
         action_space: Space = None,
         copy: bool = True,
-        new_step_api: bool = False,
     ):
         """Vectorized environment that serially runs multiple environments.
 
@@ -62,7 +60,6 @@ class SyncVectorEnv(VectorEnv):
             num_envs=len(self.envs),
             observation_space=observation_space,
             action_space=action_space,
-            new_step_api=new_step_api,
         )
 
         self._check_spaces()
@@ -156,13 +153,15 @@ class SyncVectorEnv(VectorEnv):
         """
         observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
+
             (
                 observation,
                 self._rewards[i],
                 self._terminateds[i],
                 self._truncateds[i],
                 info,
-            ) = step_api_compatibility(env.step(action), True)
+            ) = env.step(action)
+
             if self._terminateds[i] or self._truncateds[i]:
                 info["final_observation"] = observation
                 observation = env.reset()
@@ -172,16 +171,12 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, observations, self.observations
         )
 
-        return step_api_compatibility(
-            (
-                deepcopy(self.observations) if self.copy else self.observations,
-                np.copy(self._rewards),
-                np.copy(self._terminateds),
-                np.copy(self._truncateds),
-                infos,
-            ),
-            new_step_api=self.new_step_api,
-            is_vector_env=True,
+        return (
+            deepcopy(self.observations) if self.copy else self.observations,
+            np.copy(self._rewards),
+            np.copy(self._terminateds),
+            np.copy(self._truncateds),
+            infos,
         )
 
     def call(self, name, *args, **kwargs) -> tuple:

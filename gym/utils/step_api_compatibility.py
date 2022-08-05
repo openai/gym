@@ -1,4 +1,4 @@
-"""Contains methods for step compatibility, from old-to-new and new-to-old API, to be removed in 1.0."""
+"""Contains methods for step compatibility, from old-to-new and new-to-old API"""
 from typing import Tuple, Union
 
 import numpy as np
@@ -149,7 +149,7 @@ def step_to_old_api(
 
 def step_api_compatibility(
     step_returns: Union[NewStepType, OldStepType],
-    new_step_api: bool = False,
+    new_step_api: bool = True,
     is_vector_env: bool = False,
 ) -> Union[NewStepType, OldStepType]:
     """Function to transform step returns to the API specified by `new_step_api` bool.
@@ -160,7 +160,7 @@ def step_api_compatibility(
 
     Args:
         step_returns (tuple): Items returned by step(). Can be (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
-        new_step_api (bool): Whether the output should be in new step API or old (False by default)
+        new_step_api (bool): Whether the output should be in new step API or old (True by default)
         is_vector_env (bool): Whether the step_returns are from a vector environment
 
     Returns:
@@ -170,7 +170,7 @@ def step_api_compatibility(
         This function can be used to ensure compatibility in step interfaces with conflicting API. Eg. if env is written in old API,
          wrapper is written in new API, and the final step output is desired to be in old API.
 
-        >>> obs, rew, done, info = step_api_compatibility(env.step(action))
+        >>> obs, rew, done, info = step_api_compatibility(env.step(action), new_step_api=False)
         >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), new_step_api=True)
         >>> observations, rewards, dones, infos = step_api_compatibility(vec_env.step(action), is_vector_env=True)
     """

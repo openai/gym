@@ -2,7 +2,6 @@
 from typing import Optional
 
 import gym
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class TimeLimit(gym.Wrapper):
@@ -28,16 +27,14 @@ class TimeLimit(gym.Wrapper):
         self,
         env: gym.Env,
         max_episode_steps: Optional[int] = None,
-        new_step_api: bool = False,
     ):
         """Initializes the :class:`TimeLimit` wrapper with an environment and the number of steps after which truncation will occur.
 
         Args:
             env: The environment to apply the wrapper
             max_episode_steps: An optional max episode steps (if ``Ǹone``, ``env.spec.max_episode_steps`` is used)
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
         if max_episode_steps is None and self.env.spec is not None:
             max_episode_steps = env.spec.max_episode_steps
         if self.env.spec is not None:
@@ -56,19 +53,13 @@ class TimeLimit(gym.Wrapper):
             when truncated (the number of steps elapsed >= max episode steps) or
             "TimeLimit.truncated"=False if the environment terminated
         """
-        observation, reward, terminated, truncated, info = step_api_compatibility(
-            self.env.step(action),
-            True,
-        )
+        observation, reward, terminated, truncated, info = (self.env.step(action),)
         self._elapsed_steps += 1
 
         if self._elapsed_steps >= self._max_episode_steps:
             truncated = True
 
-        return step_api_compatibility(
-            (observation, reward, terminated, truncated, info),
-            self.new_step_api,
-        )
+        return observation, reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         """Resets the environment with :param:`**kwargs` and sets the number of steps elapsed to zero.

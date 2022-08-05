@@ -131,11 +131,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     def np_random(self, value: RandomNumberGenerator):
         self._np_random = value
 
-    def step(
-        self, action: ActType
-    ) -> Union[
-        Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
-    ]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
@@ -311,12 +307,11 @@ class Wrapper(Env[ObsType, ActType]):
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
     """
 
-    def __init__(self, env: Env, new_step_api: bool = False):
+    def __init__(self, env: Env):
         """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
 
         Args:
             env: The environment to wrap
-            new_step_api: Whether the wrapper's step method will output in new or old step API
         """
         self.env = env
 
@@ -324,12 +319,6 @@ class Wrapper(Env[ObsType, ActType]):
         self._observation_space: Optional[spaces.Space] = None
         self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
         self._metadata: Optional[dict] = None
-        self.new_step_api = new_step_api
-
-        if not self.new_step_api:
-            deprecation(
-                "Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
-            )
 
     def __getattr__(self, name):
         """Returns an attribute with ``name``, unless ``name`` starts with an underscore."""
@@ -411,17 +400,9 @@ class Wrapper(Env[ObsType, ActType]):
             "Can't access `_np_random` of a wrapper, use `.unwrapped._np_random` or `.np_random`."
         )
 
-    def step(
-        self, action: ActType
-    ) -> Union[
-        Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
-    ]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         """Steps through the environment with action."""
-        from gym.utils.step_api_compatibility import (  # avoid circular import
-            step_api_compatibility,
-        )
-
-        return step_api_compatibility(self.env.step(action), self.new_step_api)
+        return self.env.step(action)
 
     def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment with kwargs."""
@@ -493,13 +474,8 @@ class ObservationWrapper(Wrapper):
 
     def step(self, action):
         """Returns a modified observation using :meth:`self.observation` after calling :meth:`env.step`."""
-        step_returns = self.env.step(action)
-        if len(step_returns) == 5:
-            observation, reward, terminated, truncated, info = step_returns
-            return self.observation(observation), reward, terminated, truncated, info
-        else:
-            observation, reward, done, info = step_returns
-            return self.observation(observation), reward, done, info
+        observation, reward, terminated, truncated, info = self.env.step(action)
+        return self.observation(observation), reward, terminated, truncated, info
 
     def observation(self, observation):
         """Returns a modified observation."""
@@ -532,13 +508,8 @@ class RewardWrapper(Wrapper):
 
     def step(self, action):
         """Modifies the reward using :meth:`self.reward` after the environment :meth:`env.step`."""
-        step_returns = self.env.step(action)
-        if len(step_returns) == 5:
-            observation, reward, terminated, truncated, info = step_returns
-            return observation, self.reward(reward), terminated, truncated, info
-        else:
-            observation, reward, done, info = step_returns
-            return observation, self.reward(reward), done, info
+        observation, reward, terminated, truncated, info = self.env.step(action)
+        return observation, self.reward(reward), terminated, truncated, info
 
     def reward(self, reward):
         """Returns a modified ``reward``."""
