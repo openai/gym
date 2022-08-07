@@ -13,7 +13,7 @@ from gym.vector import AsyncVectorEnv, SyncVectorEnv
 class TimeAwareObservationV0(gym.ObservationWrapper):
     """Augment the observation with time information of the episode.
 
-    Time can be represented as a normalized value between [0, 1]
+    Time can be represented as a normalized value between [0,1]
     or by the number of timesteps remaining before truncation occurs.
 
     Example:
