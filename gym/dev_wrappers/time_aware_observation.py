@@ -116,8 +116,8 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
     def _get_time_observation(self):
         """Returns the `time` observation.
 
-        If normalization is applied a value in the
-        range [0, 1] is returned, otherwise, the
+        If normalization is applied, a value in the
+        range [0,1] is returned, otherwise, the
         remaining timesteps before truncation.
         """
         return (
@@ -128,7 +128,7 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
 
     @staticmethod
     def _get_max_timesteps(env: gym.Env):
-        """Get the max episode of the environment before truncation.
+        """Get the max episode steps before truncation occurs.
 
         Args:
             env: the provided environment
