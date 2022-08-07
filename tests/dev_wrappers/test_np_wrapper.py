@@ -7,6 +7,7 @@ import pytest
 import gym
 from gym.wrappers import JaxToNumpyV0
 
+
 class DummyJaxEnv(gym.Env):
     metadata = {}
 
@@ -36,6 +37,7 @@ class DummyJaxEnv(gym.Env):
             return jnp.array([self.t])
         else:
             return jnp.array([self.t]), {}
+
 
 def make_env(return_reward_idx):
     def thunk():
