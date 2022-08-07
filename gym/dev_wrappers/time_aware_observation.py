@@ -7,7 +7,6 @@ import gym
 import gym.spaces as spaces
 from gym.core import ActType, ObsType
 from gym.spaces import Box, Dict
-from gym.vector import AsyncVectorEnv, SyncVectorEnv
 
 
 class TimeAwareObservationV0(gym.ObservationWrapper):
@@ -135,6 +134,6 @@ class TimeAwareObservationV0(gym.ObservationWrapper):
         """
         return (
             env.get_attr("_max_episode_steps")[0]
-            if isinstance(env, (AsyncVectorEnv, SyncVectorEnv))
+            if hasattr(env, "is_vector_env")
             else getattr(env, "_max_episode_steps")
         )
