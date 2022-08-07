@@ -51,6 +51,7 @@ def test_time_aware_observation_creation(env):
     assert env.observation_space == wrapped_env.observation_space["obs"]
 
 
+@pytest.mark.parametrize("normalize_time", [True, False])
 @pytest.mark.parametrize("flatten", [False, True])
 @pytest.mark.parametrize(
     "env",
@@ -64,30 +65,38 @@ def test_time_aware_observation_creation(env):
         ),
     ],
 )
-def test_time_aware_observation_step(env, flatten):
+def test_time_aware_observation_step(env, flatten, normalize_time):
     """Test TimeAwareObservationV0 step.
 
     This test checks if wrapped env with TimeAwareObservationV0
     steps correctly.
     """
     env.action_space.seed(SEED)
+    max_timesteps = env._max_episode_steps
 
-    wrapped_env = TimeAwareObservationV0(env, flatten=flatten)
+    wrapped_env = TimeAwareObservationV0(
+        env, flatten=flatten, normalize_time=normalize_time
+    )
     wrapped_env.reset(seed=SEED)
 
     for timestep in range(1, NUM_STEPS):
         action = env.action_space.sample()
         observation, _, terminated, _, _ = wrapped_env.step(action)
 
+        expected_time_obs = (
+            timestep / max_timesteps if normalize_time else max_timesteps - timestep
+        )
+
         if flatten:
-            assert observation[-1] == timestep
+            assert np.allclose(observation[-1], expected_time_obs)
         else:
-            assert observation["time"] == timestep
+            assert np.allclose(observation["time"], expected_time_obs)
 
         if terminated:
             break
 
 
+@pytest.mark.parametrize("normalize_time", [True, False])
 @pytest.mark.parametrize("flatten", [False, True])
 @pytest.mark.parametrize(
     "env",
@@ -106,7 +115,7 @@ def test_time_aware_observation_step(env, flatten):
         ),
     ],
 )
-def test_time_aware_observation_step_within_vector(env, flatten):
+def test_time_aware_observation_step_within_vector(env, flatten, normalize_time):
     """Test TimeAwareObservationV0 step in vectorized environment.
 
     This tests checks if wrapped env with TimeAwareObservationV0
@@ -116,8 +125,11 @@ def test_time_aware_observation_step_within_vector(env, flatten):
     the i-th `time` observation should also reset.
     """
     env.action_space.seed(SEED)
+    max_timesteps = env.get_attr("_max_episode_steps")[0]
 
-    wrapped_env = TimeAwareObservationV0(env, flatten=flatten)
+    wrapped_env = TimeAwareObservationV0(
+        env, flatten=flatten, normalize_time=normalize_time
+    )
     wrapped_env.reset(seed=SEED)
 
     terminated = np.zeros(NUM_ENVS, dtype=bool)
@@ -125,10 +137,14 @@ def test_time_aware_observation_step_within_vector(env, flatten):
         action = env.action_space.sample()
         observation, _, terminated, _, _ = wrapped_env.step(action)
 
+        expected_time_obs = (
+            timestep / max_timesteps if normalize_time else max_timesteps - timestep
+        )
+
         if flatten:
-            assert np.all(observation[-wrapped_env.num_envs :] == timestep)
+            assert np.all(observation[-wrapped_env.num_envs :] == expected_time_obs)
         else:
-            assert np.all(observation["time"] == timestep)
+            assert np.all(observation["time"] == expected_time_obs)
 
         if any(terminated):
             break
@@ -136,12 +152,26 @@ def test_time_aware_observation_step_within_vector(env, flatten):
     action = env.action_space.sample()
     observation, _, _, _, _ = wrapped_env.step(action)
 
+    expected_initial_time_obs = (
+        1 / max_timesteps if normalize_time else max_timesteps - 1
+    )
+
     if flatten:
-        assert np.all(observation[-wrapped_env.num_envs :][np.where(terminated)] == 1)
-        assert np.all(observation[-wrapped_env.num_envs :][np.where(~terminated)] != 1)
+        assert np.all(
+            observation[-wrapped_env.num_envs :][np.where(terminated)]
+            == expected_initial_time_obs
+        )
+        assert np.all(
+            observation[-wrapped_env.num_envs :][np.where(~terminated)]
+            != expected_initial_time_obs
+        )
     else:
-        assert np.all(observation["time"][np.where(terminated)] == 1)
-        assert np.all(observation["time"][np.where(~terminated)] != 1)
+        assert np.all(
+            observation["time"][np.where(terminated)] == expected_initial_time_obs
+        )
+        assert np.all(
+            observation["time"][np.where(~terminated)] != expected_initial_time_obs
+        )
 
 
 @pytest.mark.parametrize(
