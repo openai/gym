@@ -101,8 +101,15 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
-        """Seed the PRNG of this space and all subspaces."""
+        """Seed the PRNG of this space and all subspaces.
+
+        This method will generate a (mostly) unique seed for each subspace. If a truly unique seed is required use .seed(list).
+
+        Args:
+            seed: An optional list of ints or int to seed the (sub-)spaces.
+        """
         seeds = []
+
         if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):
                 assert key == seed_key, print(
@@ -115,14 +122,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 seeds += self.spaces[key].seed(seed[seed_key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            subseeds = []
-            assert (
-                len(self.spaces) <= np.iinfo(np.int32).max
-            ), f"Expected spaces.length <= 2147483647, got {len(self.spaces)}"
-            while len(subseeds) < len(self.spaces):
-                subseed = self.np_random.integers(low=0, high=np.iinfo(np.int32).max)
-                if subseed not in subseeds:
-                    subseeds.append(subseed)
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
+            )
             for subspace, subseed in zip(self.spaces.values(), subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:

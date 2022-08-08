@@ -41,7 +41,13 @@ class Tuple(Space[tuple], Sequence):
         super().__init__(None, None, seed)  # type: ignore
 
     def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
-        """Seed the PRNG of this space and all subspaces."""
+        """Seed the PRNG of this space and all subspaces.
+
+        This method will generate a (mostly) unique seed for each subspace. If a truly unique seed is required use .seed(list).
+
+        Args:
+            seed: An optional list of ints or int to seed the (sub-)spaces.
+        """
         seeds = []
 
         if isinstance(seed, list):
@@ -49,14 +55,9 @@ class Tuple(Space[tuple], Sequence):
                 seeds += space.seed(seed[i])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            subseeds = []
-            assert (
-                len(self.spaces) <= np.iinfo(np.int32).max
-            ), f"Expected spaces.length <= 2147483647, got {len(self.spaces)}"
-            while len(subseeds) < len(self.spaces):
-                subseed = self.np_random.integers(low=0, high=np.iinfo(np.int32).max)
-                if subseed not in subseeds:
-                    subseeds.append(subseed)
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
+            )
             for subspace, subseed in zip(self.spaces, subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:
