@@ -116,7 +116,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(self, seed: Optional[Union[dict, int]] = None) -> List[int]:
+    def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
         if isinstance(seed, dict):
@@ -138,7 +138,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 seeds += space.seed(None)
         else:
             raise TypeError(
-                f"Passed seed not of an expected type: dict or int or None, actual type: {type(seed)}"
+                f"Expected seed type: dict, int or None, actual type: {type(seed)}"
             )
 
         return seeds

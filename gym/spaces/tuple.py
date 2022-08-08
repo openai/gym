@@ -1,5 +1,6 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from typing import Iterable, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Iterable, List, Optional
 from typing import Tuple as TypingTuple
 from typing import Union
 
@@ -42,35 +43,30 @@ class Tuple(Space[tuple], Sequence):
             ), "Elements of the tuple must be instances of gym.Space"
         super().__init__(None, None, seed)  # type: ignore
 
-    def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
+    def seed(self, seed: Optional[Union[Sequence, int]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
 
-        if isinstance(seed, list):
-            for i, space in enumerate(self.spaces):
-                seeds += space.seed(seed[i])
+        if isinstance(seed, Sequence):
+            assert len(seed) == len(
+                self.spaces
+            ), f"Expects that the subspaces of seeds equals the number of subspaces. Actual length of seeds: {len(seeds)}, length of subspaces: {len(self.spaces)}"
+            for subseed, space in zip(seed, self.spaces):
+                seeds += space.seed(subseed)
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            try:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=False,  # unique subseed for each subspace
-                )
-            except ValueError:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=True,  # we get more than INT_MAX subspaces
-                )
-
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
+            )
             for subspace, subseed in zip(self.spaces, subseeds):
-                seeds.append(subspace.seed(int(subseed))[0])
+                seeds += subspace.seed(int(subseed))
         elif seed is None:
             for space in self.spaces:
                 seeds += space.seed(seed)
         else:
-            raise TypeError("Passed seed not of an expected type: list or int or None")
+            raise TypeError(
+                f"Expected seed type: list, tuple, int or None, actual type: {type(seed)}"
+            )
 
         return seeds
 
