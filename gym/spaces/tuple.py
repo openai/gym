@@ -45,8 +45,8 @@ class Tuple(Space[tuple], Sequence):
 
         Depending on the type of seed, the subspaces will be seeded differently
         * None - All the subspaces will use a random initial seed
-        * Int - The integer is used to seed the `Dict` space that is used to generate seed values for each of the subspaces. Warning, this does not guarantee unique seeds for all of the subspaces.
-        * Dict - Using all the keys in the seed dictionary, the values are used to seed the subspaces. This allows the seeding of multiple composite subspaces (`Dict["space": Dict[...], ...]` with `{"space": {...}, ...}`).
+        * Int - The integer is used to seed the `Tuple` space that is used to generate seed values for each of the subspaces. Warning, this does not guarantee unique seeds for all of the subspaces.
+        * List - Values used to seed the subspaces. This allows the seeding of multiple composite subspaces (`List(42, 54, ...)`).
 
         Args:
             seed: An optional list of ints or int to seed the (sub-)spaces.
