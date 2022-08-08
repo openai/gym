@@ -103,7 +103,10 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
         """Seed the PRNG of this space and all subspaces.
 
-        This method will generate a (mostly) unique seed for each subspace. If a truly unique seed is required use .seed(list).
+        Depending on the type of seed, the subspaces will be seeded differently
+        * None - All the subspaces will use a random initial seed
+        * Int - The integer is used to seed the `Dict` space that is used to generate seed values for each of the subspaces. Warning, this does not guarantee unique seeds for all of the subspaces.
+        * Dict - Using all the keys in the seed dictionary, the values are used to seed the subspaces. This allows the seeding of multiple composite subspaces (`Dict["space": Dict[...], ...]` with `{"space": {...}, ...}`).
 
         Args:
             seed: An optional list of ints or int to seed the (sub-)spaces.
