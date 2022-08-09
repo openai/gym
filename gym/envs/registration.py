@@ -126,7 +126,7 @@ class EnvSpec:
     * max_episode_steps: The max number of steps that the environment can take before truncation
     * order_enforce: If to enforce the order of `reset` before `step` and `render` functions
     * autoreset: If to automatically reset the environment on episode end
-    * disable_env_checker: If to disable the environment checker wrapper by default in `gym.make`
+    * disable_env_checker: If to disable the environment checker wrapper in `gym.make`, by default False (runs the environment checker)
     * kwargs: Additional keyword arguments passed to the environments through `gym.make`
     """
 
@@ -558,8 +558,9 @@ def make(
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
-        disable_env_checker: If to run the env checker, None will default to the environment `spec.disable_env_checker`
-            (that is by default True), otherwise will run according to the parameter (True = not run, False = run)
+        disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
+            (which is by default False, running the environment checker),
+            otherwise will run according to this parameter (`True` = not run, `False` = run)
         kwargs: Additional arguments to pass to the environment constructor.
 
     Returns:
@@ -620,29 +621,41 @@ def make(
     mode = _kwargs.get("render_mode")
     apply_human_rendering = False
 
-    # If we have access to metadata we check that "render_mode" is valid
-    if hasattr(env_creator, "metadata"):
-        render_modes = env_creator.metadata["render_modes"]
+    # If we have access to metadata we check that "render_mode" is valid and see if the HumanRendering wrapper needs to be applied
+    if mode is not None and hasattr(env_creator, "metadata"):
+        assert isinstance(
+            env_creator.metadata, dict
+        ), f"Expect the environment creator ({env_creator}) metadata to be dict, actual type: {type(env_creator.metadata)}"
 
-        # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
-        if (
-            mode == "human"
-            and "human" not in render_modes
-            and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
-        ):
+        if "render_modes" in env_creator.metadata:
+            render_modes = env_creator.metadata["render_modes"]
+            if not isinstance(render_modes, Sequence):
+                logger.warn(
+                    f"Expects the environment metadata render_modes to be a Sequence (tuple or list), actual type: {type(render_modes)}"
+                )
+
+            # Apply the `HumanRendering` wrapper, if the mode=="human" but "human" not in render_modes
+            if (
+                mode == "human"
+                and "human" not in render_modes
+                and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+            ):
+                logger.warn(
+                    "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                    "The HumanRendering wrapper is being applied to your environment."
+                )
+                apply_human_rendering = True
+                if "single_rgb_array" in render_modes:
+                    _kwargs["render_mode"] = "single_rgb_array"
+                else:
+                    _kwargs["render_mode"] = "rgb_array"
+            elif mode not in render_modes:
+                logger.warn(
+                    f"The environment is being initialised with mode ({mode}) that is not in the possible render_modes ({render_modes})."
+                )
+        else:
             logger.warn(
-                "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
-                "The HumanRendering wrapper is being applied to your environment."
-            )
-            _kwargs["render_mode"] = (
-                "single_rgb_array"
-                if "single_rgb_array" in env_creator.metadata["render_modes"]
-                else "rgb_array"
-            )
-            apply_human_rendering = True
-        elif mode is not None and mode not in render_modes:
-            raise error.Error(
-                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+                f"The environment creator metadata doesn't include `render_modes`, contains: {list(env_creator.metadata.keys())}"
             )
 
     try:

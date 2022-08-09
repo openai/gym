@@ -748,7 +748,7 @@ class BipedalWalker(gym.Env, EzPickle):
         elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
-            )
+            )[:, -VIEWPORT_W:]
 
     def close(self):
         if self.screen is not None:

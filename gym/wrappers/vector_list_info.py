@@ -7,7 +7,7 @@ from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class VectorListInfo(gym.Wrapper):
-    """Converts infos of vectorized envinroments from dict to List[dict].
+    """Converts infos of vectorized environments from dict to List[dict].
 
     This wrapper converts the info format of a
     vector environment from a dictionary to a list of dictionaries.

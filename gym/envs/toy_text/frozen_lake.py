@@ -230,6 +230,10 @@ class FrozenLakeEnv(Env):
 
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
+        self.cell_size = (
+            self.window_size[0] // self.ncol,
+            self.window_size[1] // self.nrow,
+        )
         self.window_surface = None
         self.clock = None
         self.hole_img = None
@@ -301,19 +305,29 @@ class FrozenLakeEnv(Env):
             self.clock = pygame.time.Clock()
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
-            self.hole_img = pygame.image.load(file_name)
+            self.hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.cracked_hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
-            self.cracked_hole_img = pygame.image.load(file_name)
+            self.cracked_hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.ice_img is None:
             file_name = path.join(path.dirname(__file__), "img/ice.png")
-            self.ice_img = pygame.image.load(file_name)
+            self.ice_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.goal_img is None:
             file_name = path.join(path.dirname(__file__), "img/goal.png")
-            self.goal_img = pygame.image.load(file_name)
+            self.goal_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.start_img is None:
             file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.start_img = pygame.image.load(file_name)
+            self.start_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.elf_images is None:
             elfs = [
                 path.join(path.dirname(__file__), "img/elf_left.png"),
@@ -321,67 +335,38 @@ class FrozenLakeEnv(Env):
                 path.join(path.dirname(__file__), "img/elf_right.png"),
                 path.join(path.dirname(__file__), "img/elf_up.png"),
             ]
-            self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
-
-        cell_width = self.window_size[0] // self.ncol
-        cell_height = self.window_size[1] // self.nrow
-        smaller_cell_scale = 0.6
-        small_cell_w = int(smaller_cell_scale * cell_width)
-        small_cell_h = int(smaller_cell_scale * cell_height)
-
-        # prepare images
-        last_action = self.lastaction if self.lastaction is not None else 1
-        elf_img = self.elf_images[last_action]
-        elf_scale = min(
-            small_cell_w / elf_img.get_width(),
-            small_cell_h / elf_img.get_height(),
-        )
-        elf_dims = (
-            elf_img.get_width() * elf_scale,
-            elf_img.get_height() * elf_scale,
-        )
-        elf_img = pygame.transform.scale(elf_img, elf_dims)
-        hole_img = pygame.transform.scale(self.hole_img, (cell_width, cell_height))
-        cracked_hole_img = pygame.transform.scale(
-            self.cracked_hole_img, (cell_width, cell_height)
-        )
-        ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
-        goal_img = pygame.transform.scale(self.goal_img, (cell_width, cell_height))
-        start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
+            self.elf_images = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in elfs
+            ]
 
         desc = self.desc.tolist()
         assert isinstance(desc, list), f"desc should be a list or an array, got {desc}"
         for y in range(self.nrow):
             for x in range(self.ncol):
-                rect = (x * cell_width, y * cell_height, cell_width, cell_height)
+                pos = (x * self.cell_size[0], y * self.cell_size[1])
+                rect = (*pos, *self.cell_size)
+
+                self.window_surface.blit(self.ice_img, pos)
                 if desc[y][x] == b"H":
-                    self.window_surface.blit(hole_img, (rect[0], rect[1]))
+                    self.window_surface.blit(self.hole_img, pos)
                 elif desc[y][x] == b"G":
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
-                    goal_rect = self._center_small_rect(rect, goal_img.get_size())
-                    self.window_surface.blit(goal_img, goal_rect)
+                    self.window_surface.blit(self.goal_img, pos)
                 elif desc[y][x] == b"S":
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
-                    stool_rect = self._center_small_rect(rect, start_img.get_size())
-                    self.window_surface.blit(start_img, stool_rect)
-                else:
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
+                    self.window_surface.blit(self.start_img, pos)
 
                 pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
-        cell_rect = (
-            bot_col * cell_width,
-            bot_row * cell_height,
-            cell_width,
-            cell_height,
-        )
+        cell_rect = (bot_col * self.cell_size[0], bot_row * self.cell_size[1])
+        last_action = self.lastaction if self.lastaction is not None else 1
+        elf_img = self.elf_images[last_action]
+
         if desc[bot_row][bot_col] == b"H":
-            self.window_surface.blit(cracked_hole_img, (cell_rect[0], cell_rect[1]))
+            self.window_surface.blit(self.cracked_hole_img, cell_rect)
         else:
-            elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
-            self.window_surface.blit(elf_img, elf_rect)
+            self.window_surface.blit(elf_img, cell_rect)
 
         if mode == "human":
             pygame.event.pump()

@@ -106,8 +106,9 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     """
 
     # Set this in SOME subclasses
-    metadata = {"render_modes": []}
-    render_mode = None  # define render_mode if your environment supports rendering
+    metadata: Dict[str, Any] = {"render_modes": []}
+    # define render_mode if your environment supports rendering
+    render_mode: Optional[str] = None
     reward_range = (-float("inf"), float("inf"))
     spec: "EnvSpec" = None
 
@@ -394,7 +395,9 @@ class Wrapper(Env[ObsType, ActType]):
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
-    def render(self, *args, **kwargs):
+    def render(
+        self, *args, **kwargs
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Renders the environment."""
         return self.env.render(*args, **kwargs)
 

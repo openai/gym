@@ -20,12 +20,18 @@ def basic_reset_fn(
     return self.observation_space.sample(), {"options": options}
 
 
-def basic_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
-    """A basic step function that will pass the environment check using random actions from the observation space."""
+def new_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
+    """A step function that follows the new step api that will pass the environment check using random actions from the observation space."""
     return self.observation_space.sample(), 0, False, False, {}
 
 
+def old_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    """A step function that follows the old step api that will pass the environment check using random actions from the observation space."""
+    return self.observation_space.sample(), 0, False, {}
+
+
 def basic_render_fn(self):
+    """Basic render fn that does nothing."""
     pass
 
 
@@ -38,7 +44,7 @@ class GenericTestEnv(gym.Env):
         action_space: spaces.Space = spaces.Box(0, 1, (1,)),
         observation_space: spaces.Space = spaces.Box(0, 1, (1,)),
         reset_fn: callable = basic_reset_fn,
-        step_fn: callable = basic_step_fn,
+        step_fn: callable = new_step_fn,
         render_fn: callable = basic_render_fn,
         render_modes: Optional[List[str]] = None,
         render_fps: Optional[int] = None,

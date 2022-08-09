@@ -178,7 +178,8 @@ class FrameStack(gym.ObservationWrapper):
         )
         self.frames.append(observation)
         return step_api_compatibility(
-            (self.observation(), reward, terminated, truncated, info), self.new_step_api
+            (self.observation(None), reward, terminated, truncated, info),
+            self.new_step_api,
         )
 
     def reset(self, **kwargs):

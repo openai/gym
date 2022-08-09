@@ -55,7 +55,7 @@ minimum_testing_env_specs = [
         "MountainCarContinuous-v0",
         "LunarLander-v2",
         "LunarLanderContinuous-v2",
-        "CarRacing-v1",
+        "CarRacing-v2",
         "Blackjack-v1",
         "Reacher-v4",
     ]

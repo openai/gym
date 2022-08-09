@@ -63,13 +63,13 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
     | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
     | --- | ------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
     | 0   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
-    | 1   | angle of the second rotor            | -Inf | Inf | rot2                             | hinge | angle (rad)              |
+    | 1   | angle of the first rotor             | -Inf | Inf | rot2                             | hinge | angle (rad)              |
     | 2   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
     | 3   | velocity of the tip along the x-axis | -Inf | Inf | slider1                          | slide | velocity (m/s)           |
     | 4   | velocity of the tip along the y-axis | -Inf | Inf | slider2                          | slide | velocity (m/s)           |
     | 5   | angular velocity of front tip        | -Inf | Inf | rot                              | hinge | angular velocity (rad/s) |
-    | 6   | angular velocity of second rotor     | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
-    | 7   | angular velocity of third rotor      | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
+    | 6   | angular velocity of first rotor      | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
+    | 7   | angular velocity of second rotor     | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of two parts:
