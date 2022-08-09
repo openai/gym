@@ -113,6 +113,13 @@ def test_check_reset_seed(test, func: callable, message: str):
             check_reset_seed(GenericTestEnv(reset_fn=func))
 
 
+def _deprecated_return_info(self, return_info=False):
+    if return_info:
+        return self.observation_space.sample(), {}
+    else:
+        return self.observation_space.sample()
+
+
 def _reset_var_keyword_kwargs(self, kwargs):
     return self.observation_space.sample(), {}
 
@@ -136,6 +143,13 @@ def _return_info_not_dict(self, seed=None, options=None):
 @pytest.mark.parametrize(
     "test,func,message",
     [
+        [
+            AssertionError,
+            _deprecated_return_info,
+            "`return_info` is deprecated as an optional argument to `reset`. `reset`"
+            "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
+            "containing additional information.",
+        ],
         [
             AssertionError,
             _reset_return_info_type,

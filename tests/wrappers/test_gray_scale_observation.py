@@ -22,5 +22,5 @@ def test_gray_scale_observation(env_id, keep_dim):
     else:
         assert len(wrapped_env.observation_space.shape) == 2
 
-    wrapped_obs = wrapped_env.reset()
+    wrapped_obs, info = wrapped_env.reset()
     assert wrapped_obs in wrapped_env.observation_space
