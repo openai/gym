@@ -6,7 +6,12 @@ import pytest
 
 import gym
 from gym import spaces
-from gym.utils.env_checker import check_env, check_reset_options, check_reset_seed
+from gym.utils.env_checker import (
+    check_env,
+    check_reset_info,
+    check_reset_options,
+    check_reset_seed,
+)
 from tests.testing_env import GenericTestEnv
 
 
@@ -113,7 +118,7 @@ def _reset_var_keyword_kwargs(self, kwargs):
 
 
 def _reset_return_info_type(self, seed=None, options=None):
-    return [1, 2], {}
+    return [1, 2]
 
 
 def _reset_return_info_length(self, seed=None, options=None):
@@ -134,7 +139,7 @@ def _return_info_not_dict(self, seed=None, options=None):
         [
             AssertionError,
             _reset_return_info_type,
-            "Calling the reset method did not return a tuple, actual type: <class 'list'>",
+            "The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `<class 'list'>`",
         ],
         [
             AssertionError,
@@ -153,7 +158,19 @@ def _return_info_not_dict(self, seed=None, options=None):
         ],
     ],
 )
-def test_check_reset_options(test, func: callable, message: str):
+def test_check_reset_info(test, func: callable, message: str):
+    """Tests the check reset info function works as expected."""
+    if test is UserWarning:
+        with pytest.warns(
+            UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
+        ):
+            check_reset_info(GenericTestEnv(reset_fn=func))
+    else:
+        with pytest.raises(test, match=f"^{re.escape(message)}$"):
+            check_reset_info(GenericTestEnv(reset_fn=func))
+
+
+def test_check_reset_options():
     """Tests the check_reset_options function."""
     with pytest.raises(
         gym.error.Error,

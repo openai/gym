@@ -154,6 +154,39 @@ def check_reset_options(env: gym.Env):
         )
 
 
+def check_reset_info(env: gym.Env):
+    """Checks that :meth:`reset` correctly returns a tuple of the form `(obs , info)` and makes sure support for deprecated `return_info` argument is dropped.
+
+    Args:
+        env: The environment to check
+    Raises:
+        AssertionError depending on spec violation
+    """
+    signature = inspect.signature(env.reset)
+    if "return_info" in signature.parameters:
+        raise AssertionError(
+            "`return_info` is deprecated as an optional argument to `reset`. `reset`"
+            "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
+            "containing additional information."
+        )
+
+    result = env.reset()
+    assert isinstance(
+        result, tuple
+    ), f"The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `{type(result)}`"
+    assert (
+        len(result) == 2
+    ), f"Calling the reset method did not return a 2-tuple, actual length: {len(result)}"
+
+    obs, info = result
+    assert (
+        obs in env.observation_space
+    ), "The first element returned by `env.reset()` is not within the observation space."
+    assert isinstance(
+        info, dict
+    ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
+
+
 def check_space_limit(space, space_type: str):
     """Check the space limit for only the Box space as a test that only runs as part of `check_env`."""
     if isinstance(space, spaces.Box):
@@ -234,6 +267,7 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     # ==== Check the reset method ====
     check_reset_seed(env)
     check_reset_options(env)
+    check_reset_info(env)
 
     # ============ Check the returned values ===============
     env_reset_passive_checker(env)

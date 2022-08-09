@@ -285,7 +285,7 @@ def _make_reset_results(results):
         [
             UserWarning,
             _make_reset_results([0, {}]),
-            "The result returned by `env.reset()` was not a tuple, actual type: <class 'list'>",
+            "The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `<class 'list'>`",
             {},
         ],
         [
