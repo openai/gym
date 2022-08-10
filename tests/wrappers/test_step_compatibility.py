@@ -33,12 +33,12 @@ class NewStepEnv(gym.Env):
 
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-@pytest.mark.parametrize("new_step_api", [None, False])
-def test_step_compatibility_to_new_api(env, new_step_api):
-    if new_step_api is None:
+@pytest.mark.parametrize("output_truncation_bool", [None, True])
+def test_step_compatibility_to_new_api(env, output_truncation_bool):
+    if output_truncation_bool is None:
         env = StepAPICompatibility(env())
     else:
-        env = StepAPICompatibility(env(), new_step_api)
+        env = StepAPICompatibility(env(), output_truncation_bool)
     step_returns = env.step(0)
     _, _, terminated, truncated, _ = step_returns
     assert isinstance(terminated, bool)
@@ -54,21 +54,21 @@ def test_step_compatibility_to_old_api(env):
     assert isinstance(done, bool)
 
 
-@pytest.mark.parametrize("new_step_api", [None, True, False])
-def test_step_compatibility_in_make(new_step_api):
-    if new_step_api is False:
+@pytest.mark.parametrize("output_truncation_bool", [None, True, False])
+def test_step_compatibility_in_make(output_truncation_bool):
+    if output_truncation_bool is False:
         with pytest.warns(
             DeprecationWarning, match="Initializing environment in old step API"
         ):
-            env = gym.make("CartPole-v1", new_step_api=False)
-    elif new_step_api is None:
+            env = gym.make("CartPole-v1", output_truncation_bool=False)
+    elif output_truncation_bool is None:
         env = gym.make("CartPole-v1")
     else:
-        env = gym.make("CartPole-v1", new_step_api=new_step_api)
+        env = gym.make("CartPole-v1", output_truncation_bool=output_truncation_bool)
 
     env.reset()
     step_returns = env.step(0)
-    if new_step_api:
+    if output_truncation_bool:
         assert len(step_returns) == 5
         _, _, terminated, truncated, _ = step_returns
         assert isinstance(terminated, bool)

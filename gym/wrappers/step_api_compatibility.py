@@ -13,34 +13,34 @@ class StepAPICompatibility(gym.Wrapper):
 
     Args:
         env (gym.Env): the env to wrap. Can be in old or new API
-        new_step_api (bool): True to use env with new step API, False to use env with old step API. (True by default)
+        apply_step_compatibility (bool): Apply to convert environment to use new step API that returns two bools. (False by default)
 
     Examples:
         >>> env = gym.make("CartPole-v1")
         >>> env # wrapper not applied by default, set to new API
         <TimeLimit<OrderEnforcing<PassiveEnvChecker<CartPoleEnv<CartPole-v1>>>>>
-        >>> env = gym.make("CartPole-v1", new_step_api=False) # set to old API
+        >>> env = gym.make("CartPole-v1", apply_step_compatibility=True) # set to old API
         <StepAPICompatibility<TimeLimit<OrderEnforcing<PassiveEnvChecker<CartPoleEnv<CartPole-v1>>>>>>
-        >>> env = StepAPICompatibility(CustomEnv(), new_step_api=True) # manually using wrapper on unregistered envs
+        >>> env = StepAPICompatibility(CustomEnv(), apply_step_compatibility=False) # manually using wrapper on unregistered envs
 
     """
 
-    def __init__(self, env: gym.Env, new_step_api=True):
+    def __init__(self, env: gym.Env, output_truncation_bool: bool = True):
         """A wrapper which can transform an environment from new step API to old and vice-versa.
 
         Args:
             env (gym.Env): the env to wrap. Can be in old or new API
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
+            output_truncation_bool (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
         super().__init__(env)
-        self.new_step_api = new_step_api
-        if not self.new_step_api:
+        self.output_truncation_bool = output_truncation_bool
+        if not self.output_truncation_bool:
             deprecation(
                 "Initializing environment in old step API which returns one bool instead of two."
             )
 
     def step(self, action):
-        """Steps through the environment, returning 5 or 4 items depending on `new_step_api`.
+        """Steps through the environment, returning 5 or 4 items depending on `apply_step_compatibility`.
 
         Args:
             action: action to step through the environment with
@@ -49,7 +49,7 @@ class StepAPICompatibility(gym.Wrapper):
             (observation, reward, terminated, truncated, info) or (observation, reward, done, info)
         """
         step_returns = self.env.step(action)
-        if self.new_step_api:
+        if self.output_truncation_bool:
             return step_to_new_api(step_returns)
         else:
             return step_to_old_api(step_returns)

@@ -211,10 +211,6 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
-    deprecation(
-        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
-    )
-
     env.reset(seed=seed)
 
     if keys_to_action is None:
@@ -251,9 +247,9 @@ def play(
         else:
             action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
-            obs, rew, done, info = env.step(action)
+            obs, rew, terminated, truncated, info = env.step(action)
             if callback is not None:
-                callback(prev_obs, obs, action, rew, done, info)
+                callback(prev_obs, obs, action, rew, terminated, truncated, info)
         if obs is not None:
             # TODO: this needs to be updated when the render API change goes through
             rendered = env.render(mode="rgb_array")
@@ -341,7 +337,8 @@ class PlayPlot:
         obs_tp1: ObsType,
         action: ActType,
         rew: float,
-        done: bool,
+        terminated: bool,
+        truncated: bool,
         info: dict,
     ):
         """The callback that calls the provided data callback and adds the data to the plots.
@@ -351,10 +348,13 @@ class PlayPlot:
             obs_tp1: The observation at time step t+1
             action: The action
             rew: The reward
-            done: If the environment is done
+            terminated: If the environment is terminated
+            truncated: If the environment is truncated
             info: The information from the environment
         """
-        points = self.data_callback(obs_t, obs_tp1, action, rew, done, info)
+        points = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
+        )
         for point, data_series in zip(points, self.data):
             data_series.append(point)
         self.t += 1

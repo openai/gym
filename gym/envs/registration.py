@@ -140,7 +140,7 @@ class EnvSpec:
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
     disable_env_checker: bool = field(default=False)
-    new_step_api: bool = field(default=False)
+    apply_step_compatibility: bool = field(default=False)
 
     # Environment arguments
     kwargs: dict = field(default_factory=dict)
@@ -547,7 +547,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    new_step_api: bool = True,
+    apply_step_compatibility: bool = False,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -557,7 +557,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper)
+        apply_step_compatibility: Whether to use apply compatibility wrapper that converts step method to return two bools (StepAPICompatibility wrapper)
         disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
             (which is by default False, running the environment checker),
             otherwise will run according to this parameter (`True` = not run, `False` = run)
@@ -684,7 +684,6 @@ def make(
     ):
         env = PassiveEnvChecker(env)
 
-
     # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
@@ -704,8 +703,8 @@ def make(
         env = HumanRendering(env)
 
     # Add step API wrapper
-    if not new_step_api:
-        env = StepAPICompatibility(env, new_step_api)
+    if apply_step_compatibility:
+        env = StepAPICompatibility(env, True)
 
     return env
 

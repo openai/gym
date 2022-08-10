@@ -140,7 +140,7 @@ class RecordVideo(gym.Wrapper):
             terminateds,
             truncateds,
             infos,
-        ) =self.env.step(action)
+        ) = self.env.step(action)
 
         if not (self.terminated or self.truncated):
             # increment steps and episodes

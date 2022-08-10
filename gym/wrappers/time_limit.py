@@ -10,12 +10,6 @@ class TimeLimit(gym.Wrapper):
     If a truncation is not defined inside the environment itself, this is the only place that the truncation signal is issued.
     Critically, this is different from the `terminated` signal that originates from the underlying environment as part of the MDP.
 
-    (deprecated)
-    This information is passed through ``info`` that is returned when `done`-signal was issued.
-    The done-signal originates from the time limit (i.e. it signifies a *truncation*) if and only if
-    the key `"TimeLimit.truncated"` exists in ``info`` and the corresponding value is ``True``. This will be removed in favour
-    of only issuing a `truncated` signal in future versions.
-
     Example:
        >>> from gym.envs.classic_control import CartPoleEnv
        >>> from gym.wrappers import TimeLimit
@@ -49,11 +43,11 @@ class TimeLimit(gym.Wrapper):
             action: The environment step action
 
         Returns:
-            The environment step ``(observation, reward, done, info)`` with "TimeLimit.truncated"=True
-            when truncated (the number of steps elapsed >= max episode steps) or
-            "TimeLimit.truncated"=False if the environment terminated
+            The environment step ``(observation, reward, terminated, truncated, info)`` with `truncated=True`
+            if the number of steps elapsed >= max episode steps
+
         """
-        observation, reward, terminated, truncated, info = (self.env.step(action),)
+        observation, reward, terminated, truncated, info = self.env.step(action)
         self._elapsed_steps += 1
 
         if self._elapsed_steps >= self._max_episode_steps:

@@ -25,7 +25,7 @@ def test_time_aware_observation(env_id):
     assert wrapped_obs[-1] == 1.0
     assert wrapped_obs.shape[0] == obs.shape[0] + 1
 
-    wrapped_obs, _,_, _, _ = wrapped_env.step(env.action_space.sample())
+    wrapped_obs, _, _, _, _ = wrapped_env.step(env.action_space.sample())
     assert wrapped_env.t == 2.0
     assert wrapped_obs[-1] == 2.0
     assert wrapped_obs.shape[0] == obs.shape[0] + 1

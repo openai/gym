@@ -14,7 +14,7 @@ from tests.envs.utils import all_testing_env_specs
 class DummyResetEnv(gym.Env):
     """A dummy environment which returns ascending numbers starting at `0` when :meth:`self.step()` is called.
 
-    After the second call to :meth:`self.step()` done is true.
+    After the second call to :meth:`self.step()` terminated is true.
     Info dicts are also returned containing the same number returned as an observation, accessible via the key "count".
     This environment is provided for the purpose of testing the autoreset wrapper.
     """
@@ -30,12 +30,13 @@ class DummyResetEnv(gym.Env):
         self.count = 0
 
     def step(self, action: int):
-        """Steps the DummyEnv with the incremented step, reward and done `if self.count > 1` and updated info."""
+        """Steps the DummyEnv with the incremented step, reward and terminated `if self.count > 1` and updated info."""
         self.count += 1
         return (
             np.array([self.count]),  # Obs
             self.count > 2,  # Reward
-            self.count > 2,  # Done
+            self.count > 2,  # Terminated
+            False,  # Truncated
             {"count": self.count},  # Info
         )
 
@@ -79,7 +80,7 @@ def test_make_autoreset_true(spec):
     env.reset(seed=0)
     env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
 
-    done = False
+    terminated, truncated = False, False
     while not (terminated or truncated):
         obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
 

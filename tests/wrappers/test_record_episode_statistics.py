@@ -58,11 +58,11 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
     )
     envs.reset()
     for _ in range(max_episode_step + 1):
-        _, _, dones, infos = envs.step(envs.action_space.sample())
-        if any(dones):
+        _, _, terminateds, truncateds, infos = envs.step(envs.action_space.sample())
+        if any(terminateds) or any(truncateds):
             assert "episode" in infos
             assert "_episode" in infos
-            assert all(infos["_episode"] == dones)
+            assert all(infos["_episode"] == np.bitwise_or(terminateds, truncateds))
             assert all([item in infos["episode"] for item in ["r", "l", "t"]])
             break
         else:
