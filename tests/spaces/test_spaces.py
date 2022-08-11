@@ -8,7 +8,16 @@ import numpy as np
 import pytest
 
 from gym import Space
-from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    MultiBinary,
+    MultiDiscrete,
+    Sequence,
+    Tuple,
+)
 
 
 @pytest.mark.parametrize(
@@ -45,6 +54,8 @@ from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, T
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"feature": Box(0, 1, (3,))})),
     ],
 )
 def test_roundtripping(space):
@@ -102,6 +113,8 @@ def test_roundtripping(space):
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"feature": Box(0, 1, (3,))})),
     ],
 )
 def test_equality(space):
@@ -144,6 +157,11 @@ def test_equality(space):
             ),
             Graph(node_space=Discrete(5), edge_space=None),
         ),
+        (
+            Sequence(Discrete(4)),
+            Sequence(Dict({"feature": Box(0, 1, (3,))})),
+        ),
+        (Sequence(Discrete(4)), Sequence(Discrete(4, start=-1))),
     ],
 )
 def test_inequality(spaces):
@@ -430,6 +448,14 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
             ),
             None,
         ),
+        (Sequence(Discrete(2)), (None, np.array([0, 1], dtype=np.int8))),
+        (
+            Sequence(Discrete(2)),
+            (np.array([2, 3, 4], dtype=np.int8), np.array([0, 1], dtype=np.int8)),
+        ),
+        (Sequence(Discrete(2)), (np.array([2, 3, 4], dtype=np.int8), None)),
+        (Sequence(Discrete(2)), (None, None)),
+        (Sequence(Discrete(2)), None),
     ],
 )
 def test_composite_space_sample_mask(space, mask):
@@ -584,6 +610,8 @@ def test_box_dtype_check():
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
     ],
 )
 def test_seed_returns_list(space):
@@ -647,6 +675,8 @@ def sample_equal(sample1, sample2):
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
     ],
 )
 def test_seed_reproducibility(space):
@@ -958,6 +988,8 @@ def test_box_legacy_state_pickling():
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
     ],
 )
 def test_pickle(space):

@@ -38,6 +38,11 @@ class Sequence(Space[Tuple]):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
+    def seed(self, seed: Optional[int] = None) -> list:
+        """Seed the PRNG of this space and the feature space."""
+        super().seed(seed)
+        return self.feature_space.seed(seed)
+
     @property
     def is_np_flattenable(self):
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
@@ -86,11 +91,12 @@ class Sequence(Space[Tuple]):
     def to_jsonable(self, sample_n: list) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as dict-repr of vectors
-        return [
-            [self.feature_space.to_jsonable(item) for item in sample]
-            for sample in sample_n
-        ]
+        return [self.feature_space.to_jsonable(list(sample)) for sample in sample_n]
 
     def from_jsonable(self, sample_n: List[List[Any]]) -> list:
         """Convert a JSONable data type to a batch of samples from this space."""
-        return [tuple(sample) for sample in sample_n]
+        return [tuple(self.feature_space.from_jsonable(sample)) for sample in sample_n]
+
+    def __eq__(self, other) -> bool:
+        """Check whether ``other`` is equivalent to this instance."""
+        return isinstance(other, Sequence) and self.feature_space == other.feature_space
