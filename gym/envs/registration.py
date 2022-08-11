@@ -117,14 +117,32 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
 
 @dataclass
 class EnvSpec:
+    """A specification for creating environments with `gym.make`.
+
+    * id: The string used to create the environment with `gym.make`
+    * entry_point: The location of the environment to create from
+    * reward_threshold: The reward threshold for completing the environment.
+    * nondeterministic: If the observation of an environment cannot be repeated with the same initial state, random number generator state and actions.
+    * max_episode_steps: The max number of steps that the environment can take before truncation
+    * order_enforce: If to enforce the order of `reset` before `step` and `render` functions
+    * autoreset: If to automatically reset the environment on episode end
+    * disable_env_checker: If to disable the environment checker wrapper in `gym.make`, by default False (runs the environment checker)
+    * kwargs: Additional keyword arguments passed to the environments through `gym.make`
+    """
+
     id: str
     entry_point: Optional[Union[Callable, str]] = field(default=None)
     reward_threshold: Optional[float] = field(default=None)
     nondeterministic: bool = field(default=False)
+
+    # Wrappers
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
+    disable_env_checker: bool = field(default=False)
     new_step_api: bool = field(default=False)
+
+    # Environment arguments
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -530,7 +548,7 @@ def make(
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
     new_step_api: bool = False,
-    disable_env_checker: bool = False,
+    disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
     """Create an environment according to the given ID.
@@ -540,7 +558,9 @@ def make(
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
-        disable_env_checker: If to disable the environment checker
+        disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
+            (which is by default False, running the environment checker),
+            otherwise will run according to this parameter (`True` = not run, `False` = run)
         kwargs: Additional arguments to pass to the environment constructor.
 
     Returns:
@@ -601,29 +621,41 @@ def make(
     mode = _kwargs.get("render_mode")
     apply_human_rendering = False
 
-    # If we have access to metadata we check that "render_mode" is valid
-    if hasattr(env_creator, "metadata"):
-        render_modes = env_creator.metadata["render_modes"]
+    # If we have access to metadata we check that "render_mode" is valid and see if the HumanRendering wrapper needs to be applied
+    if mode is not None and hasattr(env_creator, "metadata"):
+        assert isinstance(
+            env_creator.metadata, dict
+        ), f"Expect the environment creator ({env_creator}) metadata to be dict, actual type: {type(env_creator.metadata)}"
 
-        # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
-        if (
-            mode == "human"
-            and "human" not in render_modes
-            and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
-        ):
+        if "render_modes" in env_creator.metadata:
+            render_modes = env_creator.metadata["render_modes"]
+            if not isinstance(render_modes, Sequence):
+                logger.warn(
+                    f"Expects the environment metadata render_modes to be a Sequence (tuple or list), actual type: {type(render_modes)}"
+                )
+
+            # Apply the `HumanRendering` wrapper, if the mode=="human" but "human" not in render_modes
+            if (
+                mode == "human"
+                and "human" not in render_modes
+                and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+            ):
+                logger.warn(
+                    "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                    "The HumanRendering wrapper is being applied to your environment."
+                )
+                apply_human_rendering = True
+                if "single_rgb_array" in render_modes:
+                    _kwargs["render_mode"] = "single_rgb_array"
+                else:
+                    _kwargs["render_mode"] = "rgb_array"
+            elif mode not in render_modes:
+                logger.warn(
+                    f"The environment is being initialised with mode ({mode}) that is not in the possible render_modes ({render_modes})."
+                )
+        else:
             logger.warn(
-                "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
-                "The HumanRendering wrapper is being applied to your environment."
-            )
-            _kwargs["render_mode"] = (
-                "single_rgb_array"
-                if "single_rgb_array" in env_creator.metadata["render_modes"]
-                else "rgb_array"
-            )
-            apply_human_rendering = True
-        elif mode is not None and mode not in render_modes:
-            raise error.Error(
-                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+                f"The environment creator metadata doesn't include `render_modes`, contains: {list(env_creator.metadata.keys())}"
             )
 
     try:
@@ -641,16 +673,15 @@ def make(
         else:
             raise e
 
-    if apply_human_rendering:
-        env = HumanRendering(env)
-
     # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)
     spec_.kwargs = _kwargs
     env.unwrapped.spec = spec_
 
     # Run the environment checker as the lowest level wrapper
-    if disable_env_checker is False:
+    if disable_env_checker is False or (
+        disable_env_checker is None and spec_.disable_env_checker is False
+    ):
         env = PassiveEnvChecker(env)
 
     env = StepAPICompatibility(env, new_step_api)
@@ -668,6 +699,10 @@ def make(
     # Add the autoreset wrapper
     if autoreset:
         env = AutoResetWrapper(env, new_step_api)
+
+    # Add human rendering wrapper
+    if apply_human_rendering:
+        env = HumanRendering(env)
 
     return env
 

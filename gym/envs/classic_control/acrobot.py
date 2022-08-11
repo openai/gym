@@ -375,14 +375,13 @@ class AcrobotEnv(core.Env):
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
 
+    def close(self):
+        if self.screen is not None:
+            import pygame
 
-def close(self):
-    if self.screen is not None:
-        import pygame
-
-        pygame.display.quit()
-        pygame.quit()
-        self.isopen = False
+            pygame.display.quit()
+            pygame.quit()
+            self.isopen = False
 
 
 def wrap(x, m, M):

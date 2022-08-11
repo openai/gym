@@ -221,6 +221,10 @@ class VideoRecorder:  # TODO: remove with gym 1.0
         if not self.enabled or self._closed:
             return
 
+        # First close the environment
+        self.env.close()
+
+        # Close the encoder
         if self.encoder:
             logger.debug("Closing video encoder: path=%s", self.path)
             self.encoder.close()

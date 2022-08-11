@@ -37,8 +37,7 @@ class StepAPICompatibility(gym.Wrapper):
         self.new_step_api = new_step_api
         if not self.new_step_api:
             deprecation(
-                "Initializing environment in old step API which returns one bool instead of two. "
-                "It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future. "
+                "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
             )
 
     def step(self, action):

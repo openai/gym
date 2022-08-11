@@ -9,12 +9,17 @@ from gym.envs.registration import EnvSpec
 
 
 def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
-    """Tries to make the environment showing if it is possible. Warning the environments have no wrappers, including time limit and order enforcing."""
-    try:
-        return env_spec.make(disable_env_checker=True).unwrapped
-    except ImportError as e:
-        logger.warn(f"Not testing {env_spec.id} due to error: {e}")
-        return None
+    """Tries to make the environment showing if it is possible.
+
+    Warning the environments have no wrappers, including time limit and order enforcing.
+    """
+    # To avoid issues with registered environments during testing, we check that the spec entry points are from gym.envs.
+    if "gym.envs." in env_spec.entry_point:
+        try:
+            return env_spec.make(disable_env_checker=True).unwrapped
+        except ImportError as e:
+            logger.warn(f"Not testing {env_spec.id} due to error: {e}")
+    return None
 
 
 # Tries to make all environment to test with
@@ -50,7 +55,7 @@ minimum_testing_env_specs = [
         "MountainCarContinuous-v0",
         "LunarLander-v2",
         "LunarLanderContinuous-v2",
-        "CarRacing-v1",
+        "CarRacing-v2",
         "Blackjack-v1",
         "Reacher-v4",
     ]

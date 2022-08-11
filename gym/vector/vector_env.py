@@ -36,7 +36,7 @@ class VectorEnv(gym.Env):
             num_envs: Number of environments in the vectorized environment.
             observation_space: Observation space of a single environment.
             action_space: Action space of a single environment.
-            new_step_api (bool): Whether the vector env's step method outputs two boolean arrays (new API) or one boolean array (old API)
+            new_step_api (bool): Whether the vector environment's step method outputs two boolean arrays (new API) or one boolean array (old API)
         """
         self.num_envs = num_envs
         self.is_vector_env = True
@@ -54,8 +54,7 @@ class VectorEnv(gym.Env):
         self.new_step_api = new_step_api
         if not self.new_step_api:
             deprecation(
-                "Initializing vector env in old step API which returns one bool array instead of two. "
-                "It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future. "
+                "Initializing vector env in old step API which returns one bool array instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
             )
 
     def reset_async(
@@ -147,7 +146,7 @@ class VectorEnv(gym.Env):
             actions: element of :attr:`action_space` Batch of actions.
 
         Returns:
-            Batch of (observations, rewards, terminateds, truncateds, infos) or (observations, rewards, dones, infos)
+            Batch of (observations, rewards, terminated, truncated, infos) or (observations, rewards, dones, infos)
         """
         self.step_async(actions)
         return self.step_wait()
