@@ -40,8 +40,9 @@ class Sequence(Space[Tuple]):
 
     def seed(self, seed: Optional[int] = None) -> list:
         """Seed the PRNG of this space and the feature space."""
-        super().seed(seed)
-        return self.feature_space.seed(seed)
+        seeds = super().seed(seed)
+        seeds += self.feature_space.seed(seed)
+        return seeds
 
     @property
     def is_np_flattenable(self):
