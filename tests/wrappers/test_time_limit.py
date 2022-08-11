@@ -33,7 +33,7 @@ def test_time_limit_wrapper(double_wrap):
     terminated, truncated = False, False
     n_steps = 0
     info = {}
-    while not terminated or truncated:
+    while not (terminated or truncated):
         n_steps += 1
         _, _, terminated, truncated, info = env.step(env.action_space.sample())
 
@@ -49,7 +49,7 @@ def test_termination_on_last_step(double_wrap):
     env = PendulumEnv()
 
     def patched_step(_action):
-        return env.observation_space.sample(), 0.0, True, {}
+        return env.observation_space.sample(), 0.0, True, False, {}
 
     env.step = patched_step
 
