@@ -492,6 +492,7 @@ def test_composite_space_sample_mask(space, mask):
             ),
             Graph(node_space=Discrete(5), edge_space=None),
         ),
+        (Sequence(Discrete(4)), Sequence(Discrete(3))),
     ],
 )
 def test_class_inequality(spaces):

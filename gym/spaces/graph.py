@@ -18,7 +18,7 @@ class GraphInstance(namedtuple("GraphInstance", ["nodes", "edges", "edge_links"]
         nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
         (...) must adhere to the shape of the node space.
 
-        edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
+        edges (np.ndarray): an (m x ...) sized array representing the features for m edges.
         (...) must adhere to the shape of the edge space.
 
         edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.

@@ -46,6 +46,11 @@ def flatdim(space: Space) -> int:
          NotImplementedError: if the space is not defined in ``gym.spaces``.
          ValueError: if the space cannot be flattened into a :class:`Box`
     """
+    if not space.is_np_flattenable:
+        raise ValueError(
+            f"{space} cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+        )
+
     raise NotImplementedError(f"Unknown space: `{space}`")
 
 
@@ -139,8 +144,12 @@ def _flatten_multidiscrete(space, x) -> np.ndarray:
 
 
 @flatten.register(Tuple)
-def _flatten_tuple(space, x) -> np.ndarray:
-    return np.concatenate([flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
+def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
+    if space.is_np_flattenable:
+        return np.concatenate(
+            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
+        )
+    return tuple((flatten(s, x_part) for x_part, s in zip(x, space.spaces)))
 
 
 @flatten.register(Dict)
