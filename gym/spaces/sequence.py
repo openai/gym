@@ -49,7 +49,7 @@ class Sequence(Space[Tuple]):
         return False
 
     def sample(
-        self, mask: Optional[Tuple[Optional[np.ndarray], Optional[Any]]] = None
+        self, mask: Optional[Tuple[Optional[np.ndarray], Any]] = None
     ) -> Tuple[Any]:
         """Generates a single random sample from this space.
 
