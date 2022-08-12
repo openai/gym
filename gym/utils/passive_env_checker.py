@@ -183,7 +183,7 @@ def env_reset_passive_checker(env, **kwargs):
                 f"Actual default: {seed_param}"
             )
 
-    if "options" not in signature.parameters or "kwargs" in signature.parameters:
+    if "options" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information."
         )

@@ -154,8 +154,8 @@ def check_reset_options(env: gym.Env):
         )
 
 
-def check_reset_info(env: gym.Env):
-    """Checks that :meth:`reset` correctly returns a tuple of the form `(obs , info)` and makes sure support for deprecated `return_info` argument is dropped.
+def check_reset_return_info_deprecation(env: gym.Env):
+    """Makes sure support for deprecated `return_info` argument is dropped.
 
     Args:
         env: The environment to check
@@ -170,6 +170,15 @@ def check_reset_info(env: gym.Env):
             "containing additional information."
         )
 
+
+def check_reset_return_type(env: gym.Env):
+    """Checks that :meth:`reset` correctly returns a tuple of the form `(obs , info)`.
+
+    Args:
+        env: The environment to check
+    Raises:
+        AssertionError depending on spec violation
+    """
     result = env.reset()
     assert isinstance(
         result, tuple
@@ -265,9 +274,10 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     check_space_limit(env.observation_space, "observation")
 
     # ==== Check the reset method ====
+    check_reset_return_info_deprecation(env)
+    check_reset_return_type(env)
     check_reset_seed(env)
     check_reset_options(env)
-    check_reset_info(env)
 
     # ============ Check the returned values ===============
     env_reset_passive_checker(env)

@@ -8,8 +8,9 @@ import gym
 from gym import spaces
 from gym.utils.env_checker import (
     check_env,
-    check_reset_info,
     check_reset_options,
+    check_reset_return_info_deprecation,
+    check_reset_return_type,
     check_reset_seed,
 )
 from tests.testing_env import GenericTestEnv
@@ -145,13 +146,6 @@ def _return_info_not_dict(self, seed=None, options=None):
     [
         [
             AssertionError,
-            _deprecated_return_info,
-            "`return_info` is deprecated as an optional argument to `reset`. `reset`"
-            "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
-            "containing additional information.",
-        ],
-        [
-            AssertionError,
             _reset_return_info_type,
             "The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `<class 'list'>`",
         ],
@@ -172,16 +166,30 @@ def _return_info_not_dict(self, seed=None, options=None):
         ],
     ],
 )
-def test_check_reset_info(test, func: callable, message: str):
-    """Tests the check reset info function works as expected."""
-    if test is UserWarning:
-        with pytest.warns(
-            UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
-        ):
-            check_reset_info(GenericTestEnv(reset_fn=func))
-    else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_reset_info(GenericTestEnv(reset_fn=func))
+def test_check_reset_return_type(test, func: callable, message: str):
+    """Tests the check `env.reset()` function has a correct return type."""
+
+    with pytest.raises(test, match=f"^{re.escape(message)}$"):
+        check_reset_return_type(GenericTestEnv(reset_fn=func))
+
+
+@pytest.mark.parametrize(
+    "test,func,message",
+    [
+        [
+            AssertionError,
+            _deprecated_return_info,
+            "`return_info` is deprecated as an optional argument to `reset`. `reset`"
+            "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
+            "containing additional information.",
+        ],
+    ],
+)
+def test_check_reset_return_info_deprecation(test, func: callable, message: str):
+    """Tests that return_info has been correct deprecated as an argument to `env.reset()`."""
+
+    with pytest.raises(test, match=f"^{re.escape(message)}$"):
+        check_reset_return_info_deprecation(GenericTestEnv(reset_fn=func))
 
 
 def test_check_reset_options():
