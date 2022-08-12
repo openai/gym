@@ -90,7 +90,7 @@ class Text(Space[str]):
             length, charlist_mask = None, None
 
         if length is None:
-            length = self.np_random.randint(self.min_length, self.max_length + 1)
+            length = self.np_random.integers(self.min_length, self.max_length + 1)
 
         if charlist_mask is None:
             string = self.np_random.choice(self._charlist, size=length)
