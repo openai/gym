@@ -200,7 +200,14 @@ class CarRacing(gym.Env, EzPickle):
         domain_randomize: bool = False,
         continuous: bool = True,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(
+            self,
+            render_mode,
+            verbose,
+            lap_complete_percent,
+            domain_randomize,
+            continuous,
+        )
         self.continuous = continuous
         self.domain_randomize = domain_randomize
         self.lap_complete_percent = lap_complete_percent
