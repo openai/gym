@@ -50,6 +50,12 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     implemented to deal with :class:`Dict` actions.
     """
 
+    # Python builtin types (hashable) that can be used as keys in a Dict space.
+    # Note: bool is a subclass of int, so it is included here. Other hashable
+    # builtin types, such as range, enumerate, frozenset, and tuple are removed
+    # here because they are rarely used as keys and may cause errors.
+    ALLOWED_KEY_TYPES = (type(None), int, float, complex, str, bytes)
+
     def __init__(
         self,
         spaces: Optional[TypingDict[str, Space]] = None,
@@ -82,10 +88,16 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         if spaces is None:
             spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
-            try:
-                spaces = OrderedDict(sorted(spaces.items()))
-            except TypeError:  # raise when sort by different types of keys
-                spaces = OrderedDict(spaces.items())
+            assert all(
+                isinstance(key, self.ALLOWED_KEY_TYPES) for key in spaces
+            ), f"Dict keys must be one of the following types: {tuple(typ.__name__ for typ in self.ALLOWED_KEY_TYPES)}"
+            spaces = OrderedDict(
+                # Add `key.__class__.__qualname__` to support sorting between
+                # different types (e.g. `int` vs. `str`)
+                sorted(
+                    spaces.items(), key=lambda kv: (kv[0].__class__.__qualname__, kv[0])
+                )
+            )
         if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
 
