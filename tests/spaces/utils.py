@@ -59,6 +59,14 @@ TESTING_COMPOSITE_SPACES = [
         }
     ),
     Dict(
+        position=Discrete(6),
+        velocity=Box(
+            low=np.array([0.0, 0.0]),
+            high=np.array([1.0, 5.0]),
+            dtype=np.float64,
+        ),
+    ),
+    Dict(
         {
             "a": Box(low=0, high=1, shape=(3, 3)),
             "b": Dict(

@@ -75,7 +75,7 @@ def _flatdim_dict(space: Dict) -> int:
 
 @flatdim.register(Graph)
 def _flatdim_graph(space: Graph):
-    return NotImplementedError(
+    raise NotImplementedError(
         "As gym space Graph have a dynamic size, therefore you cannot know the flattened size."
     )
 

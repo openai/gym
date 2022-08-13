@@ -188,9 +188,11 @@ def test_dtype_check():
     ],
 )
 def test_infinite_space(space):
-    # for this test, make sure that spaces that are passed in have only 0 or infinite bounds
-    # because space.high and space.low are both modified within the init
-    # so we check for infinite when we know it's not 0
+    """
+    To test spaces that are passed in have only 0 or infinite bounds because `space.high` and `space.low`
+     are both modified within the init, we check for infinite when we know it's not 0
+    """
+
     assert np.all(
         space.low < space.high
     ), f"Box low bound ({space.low}) is not lower than the high bound ({space.high})"
@@ -231,6 +233,11 @@ def test_infinite_space(space):
             space.is_bounded("below") is True
         ), "non-inf lower bound supposed to be bounded"
 
+    if np.any(space.low != 0) or np.any(space.high != 0):
+        assert space.is_bounded("both") is False
+    else:
+        assert space.is_bounded("both") is True
+
     # check for dtype
     assert (
         space.high.dtype == space.dtype
@@ -238,6 +245,9 @@ def test_infinite_space(space):
     assert (
         space.low.dtype == space.dtype
     ), f"Low's dtype {space.high.dtype} doesn't match `space.dtype`'"
+
+    with pytest.raises(ValueError, match="manner is not in {'below', 'above', 'both'}, actual value:"):
+        space.is_bounded("test")
 
 
 def test_legacy_state_pickling():

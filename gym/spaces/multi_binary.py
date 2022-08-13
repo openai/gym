@@ -88,9 +88,8 @@ class MultiBinary(Space[np.ndarray]):
         """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, Sequence):
             x = np.array(x)  # Promote list to array for contains check
-        if self.shape != x.shape:
-            return False
-        return ((x == 0) | (x == 1)).all()
+
+        return bool(isinstance(x, np.ndarray) and self.shape == x.shape and np.all((x == 0) | (x == 1)))
 
     def to_jsonable(self, sample_n) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""

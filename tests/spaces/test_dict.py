@@ -32,7 +32,10 @@ def test_dict_init():
         d = Dict(a=Discrete(2), b=Box(low=0.0, high=1.0))
 
         assert a == b == c == d
+    assert len(warnings) == 0
 
+    with pytest.warns(None) as warnings:
+        Dict({1: Discrete(2), "a": Discrete(3)})
     assert len(warnings) == 0
 
 
@@ -51,7 +54,7 @@ DICT_SPACE = Dict(
 
 
 def test_dict_seeding():
-    DICT_SPACE.seed(
+    seeds = DICT_SPACE.seed(
         {
             "a": 0,
             "b": {
@@ -61,6 +64,7 @@ def test_dict_seeding():
             "c": 3,
         }
     )
+    assert all(isinstance(seed, int) for seed in seeds)
 
     # "Unpack" the dict sub-spaces into individual spaces
     a = Box(low=0, high=1, shape=(3, 3), seed=0)
@@ -78,6 +82,7 @@ def test_dict_seeding():
 
 def test_int_seeding():
     seeds = DICT_SPACE.seed(1)
+    assert all(isinstance(seed, int) for seed in seeds)
 
     # rng, seeds = seeding.np_random(1)
     # subseeds = rng.choice(np.iinfo(int).max, size=3, replace=False)
@@ -96,3 +101,27 @@ def test_int_seeding():
         assert np.all(dict_sample["b"]["b_1"] == b_1.sample())
         assert np.all(dict_sample["b"]["b_2"] == b_2.sample())
         assert dict_sample["c"] == c.sample()
+
+
+def test_none_seeding():
+    seeds = DICT_SPACE.seed(None)
+    assert len(seeds) == 4 and all(isinstance(seed, int) for seed in seeds)
+
+    with pytest.raises(TypeError):
+        DICT_SPACE.seed("a")
+
+
+def test_mapping():
+    """The Gym Dict space inherits from Mapping that allows it to appear like a standard python Dictionary."""
+    assert len(DICT_SPACE) == 3
+
+    a = DICT_SPACE["a"]
+    b = Discrete(5)
+    assert a != b
+    DICT_SPACE["a"] = b
+    assert DICT_SPACE["a"] == b
+
+    with pytest.raises(AssertionError, match="Trying to set a to Dict space with value that is not a gym space, actual type: <class 'int'>"):
+        DICT_SPACE["a"] = 5
+
+    DICT_SPACE["a"] = a

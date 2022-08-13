@@ -80,7 +80,7 @@ class Graph(Space):
         elif isinstance(base_space, Discrete):
             return MultiDiscrete(nvec=[base_space.n] * num, seed=self.np_random)
         else:
-            raise AssertionError(
+            raise TypeError(
                 f"Expects base space to be Box and Discrete, actual space: {type(base_space)}."
             )
 

@@ -8,6 +8,7 @@ from typing import List, Union
 import numpy as np
 import pytest
 
+import gym
 from gym import Space
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Text
 from gym.utils import seeding
@@ -91,7 +92,24 @@ def test_seed_np_random(space_cls, kwarg):
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
 def test_sampling(space):
-    assert space.sample() in space
+    for _ in range(10):
+        assert space.sample() in space
+
+    for other_space in TESTING_SPACES:
+        print(other_space)
+        assert isinstance(space.contains(other_space.sample()), bool)
+
+
+@pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
+def test_repr(space):
+    assert isinstance(str(space), str)
+
+
+@pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
+def test_error_seed(space):
+    with pytest.raises((TypeError, gym.error.Error)):
+        # We can't use string because it is a Sequence, therefore, custom class is easiest
+        space.seed(Space())
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
@@ -150,11 +168,6 @@ def test_space_pickling(space):
     file_unpickled_sample = file_unpickled_space.sample()
     assert data_equivalence(space_sample, unpickled_sample)
     assert data_equivalence(space_sample, file_unpickled_sample)
-
-
-@pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
-def test_space_sample(space):
-    assert space.sample() is not None
 
 
 # The expected sum of variance for an alpha of 0.05
@@ -486,6 +499,7 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
             ),
             # Dict spaces
             {"position": np.array([0, 1, 1, 0, 1], dtype=np.int8), "velocity": None},
+            {"position": np.array([1, 1, 0, 1, 0, 0], dtype=np.int8), "velocity": None},
             {
                 "a": None,
                 "b": {"b_1": None, "b_2": None},

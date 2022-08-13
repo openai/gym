@@ -160,7 +160,7 @@ class Box(Space[np.ndarray]):
         elif manner == "above":
             return above
         else:
-            raise ValueError("manner is not in {'below', 'above', 'both'}")
+            raise ValueError(f"manner is not in {{'below', 'above', 'both'}}, actual value: {manner}")
 
     def sample(self, mask: None = None) -> np.ndarray:
         r"""Generates a single random sample inside the Box.
@@ -219,7 +219,10 @@ class Box(Space[np.ndarray]):
         """Return boolean specifying if x is a valid member of this space."""
         if not isinstance(x, np.ndarray):
             logger.warn("Casting input x to numpy array.")
-            x = np.asarray(x, dtype=self.dtype)
+            try:
+                x = np.asarray(x, dtype=self.dtype)
+            except (ValueError, TypeError):
+                return False
 
         return bool(
             np.can_cast(x.dtype, self.dtype)

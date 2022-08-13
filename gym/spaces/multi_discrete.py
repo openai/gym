@@ -123,9 +123,10 @@ class MultiDiscrete(Space[np.ndarray]):
         """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, Sequence):
             x = np.array(x)  # Promote list to array for contains check
+
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        return bool(x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all())
+        return bool(isinstance(x, np.ndarray) and x.shape == self.shape and x.dtype != object and np.all(0 <= x) and np.all(x < self.nvec))
 
     def to_jsonable(self, sample_n: Iterable[np.ndarray]):
         """Convert a batch of samples from this space to a JSONable data type."""

@@ -34,6 +34,7 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
     6,
     # Dict
     7,
+    8,
     17,
     # Graph
     None,
@@ -48,8 +49,11 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
     ids=TESTING_SPACES_IDS,
 )
 def test_flatdim(space, flatdim):
-    """Checks that the flatten dims of the space is equal to an expected value."""
-    if not isinstance(space, Graph):
+    """Checks that the flattened dims of the space is equal to an expected value."""
+    if isinstance(space, Graph):
+        with pytest.raises(NotImplementedError):
+            utils.flatdim(space)
+    else:
         dim = utils.flatdim(space)
         assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
 
