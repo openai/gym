@@ -1,0 +1,39 @@
+*.swp
+*.pyc
+*.py~
+.DS_Store
+.cache
+.pytest_cache/
+
+# Setuptools distribution and build folders.
+/dist/
+/build
+
+# Virtualenv
+/env
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+
+*.sublime-project
+*.sublime-workspace
+
+logs/
+
+.ipynb_checkpoints
+ghostdriver.log
+
+junk
+MUJOCO_LOG.txt
+
+rllab_mujoco
+
+tutorial/*.html
+
+# IDE files
+.eggs
+.tox
+
+# PyCharm project files
+.idea
+vizdoom.ini
