@@ -31,55 +31,7 @@ ActType = TypeVar("ActType")
 RenderFrame = TypeVar("RenderFrame")
 
 
-class _EnvDecorator(type):  # TODO: remove with gym 1.0
-    """Metaclass used for adding deprecation warning to the mode kwarg in the render method."""
-
-    def __new__(cls, name, bases, attr):
-        if "render" in attr.keys():
-            attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
-
-        return super().__new__(cls, name, bases, attr)
-
-    @staticmethod
-    def _deprecate_mode(render_func):  # type: ignore
-        render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
-
-        def render(
-            self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
-        ) -> render_return:
-            if "mode" in kwargs.keys() or len(args) > 0:
-                deprecation(
-                    "The argument mode in render method is deprecated; "
-                    "use render_mode during environment initialization instead.\n"
-                    "See here for more information: https://www.gymlibrary.ml/content/api/"
-                )
-            elif self.spec is not None and "render_mode" not in self.spec.kwargs.keys():  # type: ignore
-                deprecation(
-                    "You are calling render method, "
-                    "but you didn't specified the argument render_mode at environment initialization. "
-                    "To maintain backward compatibility, the environment will render in human mode.\n"
-                    "If you want to render in human mode, initialize the environment in this way: "
-                    "gym.make('EnvName', render_mode='human') and don't call the render method.\n"
-                    "See here for more information: https://www.gymlibrary.ml/content/api/"
-                )
-
-            return render_func(self, *args, **kwargs)
-
-        return render
-
-
-decorator = _EnvDecorator
-if sys.version_info[0:2] == (3, 6):
-    # needed for https://github.com/python/typing/issues/449
-    from typing import GenericMeta
-
-    class _GenericEnvDecorator(GenericMeta, _EnvDecorator):
-        pass
-
-    decorator = _GenericEnvDecorator
-
-
-class Env(Generic[ObsType, ActType], metaclass=decorator):
+class Env(Generic[ObsType, ActType]):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -207,8 +159,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
-    # TODO: remove kwarg mode with gym 1.0
-    def render(self, mode="human") -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+    def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Compute the render frames as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some
@@ -225,11 +176,6 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         - ansi: Return a list of strings (str) or StringIO.StringIO containing a
           terminal-style text representation for each time step.
           The text can include newlines and ANSI escape sequences (e.g. for colors).
-
-        Note:
-            Rendering computations is performed internally even if you don't call render().
-            To avoid this, you can set render_mode = None and, if the environment supports it,
-            call render() specifying the argument 'mode'.
 
         Note:
             Make sure that your class's metadata 'render_modes' key includes

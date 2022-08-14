@@ -176,32 +176,8 @@ class BaseMujocoEnv(gym.Env):
             raise ValueError("Action dimension mismatch")
         self._step_mujoco_simulation(ctrl, n_frames)
 
-    def render(
-        self,
-        mode: str = "human",
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        camera_id: Optional[int] = None,
-        camera_name: Optional[str] = None,
-    ):
-        if self.render_mode is not None:
-            assert (
-                width is None
-                and height is None
-                and camera_id is None
-                and camera_name is None
-            ), "Unexpected argument for render. Specify render arguments at environment initialization."
-            return self.renderer.get_renders()
-        else:
-            width = width if width is not None else DEFAULT_SIZE
-            height = height if height is not None else DEFAULT_SIZE
-            return self._render(
-                mode=mode,
-                width=width,
-                height=height,
-                camera_id=camera_id,
-                camera_name=camera_name,
-            )
+    def render(self):
+        return self.renderer.get_renders()
 
     def close(self):
         if self.viewer is not None:

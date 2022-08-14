@@ -271,11 +271,8 @@ class FrozenLakeEnv(Env):
         else:
             return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode="human"):
         assert mode in self.metadata["render_modes"]
