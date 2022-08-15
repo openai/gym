@@ -23,6 +23,7 @@ from tests.spaces.utils import (
 )
 
 # Due to this test taking a 1ms each then we don't mind generating so many tests
+# This generates all pairs of spaces of the same type in TESTING_SPACES
 TESTING_SPACES_PERMUTATIONS = list(
     itertools.chain(
         *[
