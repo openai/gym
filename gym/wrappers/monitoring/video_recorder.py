@@ -36,7 +36,6 @@ class VideoRecorder:
         metadata: Optional[dict] = None,
         enabled: bool = True,
         base_path: Optional[str] = None,
-        internal_backend_use: bool = False,
     ):
         """Video recorder renders a nice movie of a rollout, frame by frame.
 
@@ -71,11 +70,6 @@ class VideoRecorder:
         # Don't bother setting anything else if not enabled
         if not self.enabled:
             return
-
-        if not internal_backend_use:
-            logger.deprecation(
-                f"{self.__class__} is marked as deprecated and will be removed in the future."
-            )
 
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
