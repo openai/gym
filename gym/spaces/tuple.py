@@ -40,6 +40,11 @@ class Tuple(Space[tuple], Sequence):
             ), "Elements of the tuple must be instances of gym.Space"
         super().__init__(None, None, seed)  # type: ignore
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return all(space.is_np_flattenable for space in self.spaces)
+
     def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []

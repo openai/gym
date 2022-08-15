@@ -14,6 +14,7 @@ from gym.spaces.discrete import Discrete
 from gym.spaces.graph import Graph, GraphInstance
 from gym.spaces.multi_binary import MultiBinary
 from gym.spaces.multi_discrete import MultiDiscrete
+from gym.spaces.sequence import Sequence
 from gym.spaces.space import Space
 from gym.spaces.text import Text
 from gym.spaces.tuple import Tuple
@@ -29,6 +30,7 @@ __all__ = [
     "MultiDiscrete",
     "MultiBinary",
     "Tuple",
+    "Sequence",
     "Dict",
     "flatdim",
     "flatten_space",
