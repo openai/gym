@@ -32,7 +32,15 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
-        utils.EzPickle.__init__(**locals())
+        utils.EzPickle.__init__(
+            self,
+            xml_file,
+            forward_reward_weight,
+            ctrl_cost_weight,
+            reset_noise_scale,
+            exclude_current_positions_from_observation,
+            **kwargs
+        )
 
         self._forward_reward_weight = forward_reward_weight
 

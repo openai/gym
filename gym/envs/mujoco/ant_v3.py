@@ -34,7 +34,19 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
-        utils.EzPickle.__init__(**locals())
+        utils.EzPickle.__init__(
+            self,
+            xml_file,
+            ctrl_cost_weight,
+            contact_cost_weight,
+            healthy_reward,
+            terminate_when_unhealthy,
+            healthy_z_range,
+            contact_force_range,
+            reset_noise_scale,
+            exclude_current_positions_from_observation,
+            **kwargs
+        )
 
         self._ctrl_cost_weight = ctrl_cost_weight
         self._contact_cost_weight = contact_cost_weight
