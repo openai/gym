@@ -81,19 +81,12 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         if spaces is None:
             spaces = spaces_kwargs
-        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
+        if isinstance(spaces, Mapping) and not isinstance(spaces, OrderedDict):
             try:
-                spaces = OrderedDict(
-                    # Add `key.__class__.__qualname__` to support sorting between
-                    # different types (e.g. `int` vs. `str`)
-                    sorted(
-                        spaces.items(),
-                        key=lambda kv: (kv[0].__class__.__qualname__, kv[0]),
-                    )
-                )
+                spaces = OrderedDict(sorted(spaces.items()))
             except TypeError:
-                # Non-sortable user-defined key types found. The keys are
-                # remaining in the insertion order.
+                # Incomparable types (e.g. `int` vs. `str`) or user-defined types found.
+                # The keys are remaining in the insertion order.
                 spaces = OrderedDict(spaces.items())
         if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
