@@ -58,7 +58,7 @@ class TimeLimit(gym.Wrapper):
         """
         observation, reward, terminated, truncated, info = step_api_compatibility(
             self.env.step(action),
-            to_termination_truncation=True,
+            True,
         )
         self._elapsed_steps += 1
 
@@ -70,7 +70,7 @@ class TimeLimit(gym.Wrapper):
 
         return step_api_compatibility(
             (observation, reward, terminated, truncated, info),
-            to_termination_truncation=self.new_step_api,
+            self.new_step_api,
         )
 
     def reset(self, **kwargs):

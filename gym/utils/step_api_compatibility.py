@@ -5,14 +5,14 @@ import numpy as np
 
 from gym.core import ObsType
 
-DoneStepType = Tuple[
+OldStepType = Tuple[
     Union[ObsType, np.ndarray],
     Union[float, np.ndarray],
     Union[bool, np.ndarray],
     Union[dict, list],
 ]
 
-TerminationTruncationStepType = Tuple[
+NewStepType = Tuple[
     Union[ObsType, np.ndarray],
     Union[float, np.ndarray],
     Union[bool, np.ndarray],
@@ -21,10 +21,9 @@ TerminationTruncationStepType = Tuple[
 ]
 
 
-def to_terminated_truncated_step_api(
-    step_returns: Union[DoneStepType, TerminationTruncationStepType],
-    is_vector_env=False,
-) -> TerminationTruncationStepType:
+def step_to_new_api(
+    step_returns: Union[OldStepType, NewStepType], is_vector_env=False
+) -> NewStepType:
     """Function to transform step returns to new step API irrespective of input API.
 
     Args:
@@ -74,10 +73,9 @@ def to_terminated_truncated_step_api(
             )
 
 
-def to_done_step_api(
-    step_returns: Union[TerminationTruncationStepType, DoneStepType],
-    is_vector_env: bool = False,
-) -> DoneStepType:
+def step_to_old_api(
+    step_returns: Union[NewStepType, OldStepType], is_vector_env: bool = False
+) -> OldStepType:
     """Function to transform step returns to old step API irrespective of input API.
 
     Args:
@@ -130,19 +128,19 @@ def to_done_step_api(
 
 
 def step_api_compatibility(
-    step_returns: Union[TerminationTruncationStepType, DoneStepType],
-    to_termination_truncation: bool = False,
+    step_returns: Union[NewStepType, OldStepType],
+    new_step_api: bool = False,
     is_vector_env: bool = False,
-) -> Union[TerminationTruncationStepType, DoneStepType]:
+) -> Union[NewStepType, OldStepType]:
     """Function to transform step returns to the API specified by `new_step_api` bool.
 
-    Done step API refers to step() method returning (observation, reward, done, info)
-    Termination Truncation step API refers to step() method returning (observation, reward, terminated, truncated, info)
+    Old step API refers to step() method returning (observation, reward, done, info)
+    New step API refers to step() method returning (observation, reward, terminated, truncated, info)
     (Refer to docs for details on the API change)
 
     Args:
         step_returns (tuple): Items returned by step(). Can be (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
-        to_termination_truncation (bool): Whether the output should be in new step API or old (False by default)
+        new_step_api (bool): Whether the output should be in new step API or old (False by default)
         is_vector_env (bool): Whether the step_returns are from a vector environment
 
     Returns:
@@ -153,10 +151,10 @@ def step_api_compatibility(
          wrapper is written in new API, and the final step output is desired to be in old API.
 
         >>> obs, rew, done, info = step_api_compatibility(env.step(action))
-        >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), to_termination_truncation=True)
+        >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), new_step_api=True)
         >>> observations, rewards, dones, infos = step_api_compatibility(vec_env.step(action), is_vector_env=True)
     """
-    if to_termination_truncation:
-        return to_terminated_truncated_step_api(step_returns, is_vector_env)
+    if new_step_api:
+        return step_to_new_api(step_returns, is_vector_env)
     else:
-        return to_done_step_api(step_returns, is_vector_env)
+        return step_to_old_api(step_returns, is_vector_env)
