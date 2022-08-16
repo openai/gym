@@ -85,8 +85,8 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             try:
                 spaces = OrderedDict(sorted(spaces.items()))
             except TypeError:
-                # Incomparable types (e.g. `int` vs. `str`) or user-defined types found.
-                # The keys are remaining in the insertion order.
+                # Incomparable types (e.g. `int` vs. `str`, or user-defined types) found.
+                # The keys remain in the insertion order.
                 spaces = OrderedDict(spaces.items())
         if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
