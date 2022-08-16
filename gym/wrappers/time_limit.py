@@ -34,7 +34,7 @@ class TimeLimit(gym.Wrapper):
 
         Args:
             env: The environment to apply the wrapper
-            max_episode_steps: An optional max episode steps (if ``Ǹone``, ``env.spec.max_episode_steps`` is used)
+            max_episode_steps: An optional max episode steps (if ``None``, ``env.spec.max_episode_steps`` is used)
             new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
         super().__init__(env, new_step_api)
@@ -58,16 +58,19 @@ class TimeLimit(gym.Wrapper):
         """
         observation, reward, terminated, truncated, info = step_api_compatibility(
             self.env.step(action),
-            True,
+            to_termination_truncation=True,
         )
         self._elapsed_steps += 1
 
         if self._elapsed_steps >= self._max_episode_steps:
-            truncated = True
+            if self.new_step_api is True or terminated is False:
+                # As the old step api cannot encode both terminated and truncated, we favor terminated in the case of both.
+                #   Therefore, if new step api (i.e. not old step api) or when terminated is False to prevent the overriding
+                truncated = True
 
         return step_api_compatibility(
             (observation, reward, terminated, truncated, info),
-            self.new_step_api,
+            to_termination_truncation=self.new_step_api,
         )
 
     def reset(self, **kwargs):
