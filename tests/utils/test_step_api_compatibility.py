@@ -62,6 +62,7 @@ def test_to_done_step_api(
     )
     assert np.all(terminated == expected_terminated)
     assert np.all(truncated == expected_truncated)
+
     if is_vector_env is False:
         assert "TimeLimit.truncated" not in info
     elif isinstance(info, list):
@@ -104,7 +105,7 @@ def test_to_done_step_api(
                 0,
                 np.array([False, True, False]),
                 np.array([False, False, True]),
-                [{}, {}, {}],
+                [{"Test-Info": True}, {}, {}],
             ),
             np.array([False, True, True]),
             np.array([False, False, True]),
@@ -118,19 +119,22 @@ def test_to_terminated_truncated_step_api(
         terminated_truncated_returns, is_vector_env=is_vector_env
     )
     assert np.all(done == expected_done)
+
     if is_vector_env is False:
-        if expected_truncated:
+        if expected_done:
             assert info["TimeLimit.truncated"] == expected_truncated
         else:
             assert "TimeLimit.truncated" not in info
     elif isinstance(info, list):
-        for sub_info, trunc in zip(info, expected_truncated):
-            if trunc:
-                assert sub_info["TimeLimit.truncated"] == trunc
+        for sub_info, env_done, env_truncated in zip(
+            info, expected_done, expected_truncated
+        ):
+            if env_done:
+                assert sub_info["TimeLimit.truncated"] == env_truncated
             else:
                 assert "TimeLimit.truncated" not in sub_info
     else:  # isinstance(info, dict)
-        if np.any(expected_truncated):
+        if np.any(expected_done):
             assert np.all(info["TimeLimit.truncated"] == expected_truncated)
         else:
             assert "TimeLimit.truncated" not in info
@@ -147,14 +151,19 @@ def test_edge_case():
     # We cannot test this in test_to_terminated_truncated_step_api as the roundtripping test will fail
     _, _, done, info = to_done_step_api((0, 0, True, True, {}))
     assert done is True
-    assert info == {}
+    assert info == {"TimeLimit.truncated": False}
 
-    _, _, done, info = to_done_step_api((0, 0, np.array([True]), np.array([True]), {}))
-    assert np.all(done)
-    assert info == {}
-
+    # Test with vector dict info
     _, _, done, info = to_done_step_api(
-        (0, 0, np.array([True]), np.array([True]), [{"Test-Info": True}])
+        (0, 0, np.array([True]), np.array([True]), {}), is_vector_env=True
     )
     assert np.all(done)
-    assert info == [{"Test-Info": True}]
+    assert info == {"TimeLimit.truncated": np.array([False])}
+
+    # Test with vector list info
+    _, _, done, info = to_done_step_api(
+        (0, 0, np.array([True]), np.array([True]), [{"Test-Info": True}]),
+        is_vector_env=True,
+    )
+    assert np.all(done)
+    assert info == [{"Test-Info": True, "TimeLimit.truncated": False}]

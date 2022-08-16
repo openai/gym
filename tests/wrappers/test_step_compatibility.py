@@ -58,7 +58,7 @@ def test_step_compatibility_to_old_api(env, new_step_api):
 def test_step_compatibility_in_make(new_step_api):
     if new_step_api is None:
         with pytest.warns(
-            DeprecationWarning, match="Initializing environment in old step API"
+            DeprecationWarning, match="Initializing environment in old done step API"
         ):
             env = gym.make("CartPole-v1")
     else:

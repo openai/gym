@@ -180,7 +180,7 @@ class SyncVectorEnv(VectorEnv):
                 np.copy(self._truncateds),
                 infos,
             ),
-            new_step_api=self.new_step_api,
+            to_termination_truncation=self.new_step_api,
             is_vector_env=True,
         )
 
