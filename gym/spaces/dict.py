@@ -193,14 +193,16 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return "Dict(" + ", ".join([f"{k}: {s}" for k, s in self.spaces.items()]) + ")"
+        return (
+            "Dict(" + ", ".join([f"{k!r}: {s}" for k, s in self.spaces.items()]) + ")"
+        )
 
     def __eq__(self, other) -> bool:
         """Check whether `other` is equivalent to this instance."""
         return (
             isinstance(other, Dict)
             # Comparison of `OrderedDict`s is order-sensitive
-            and (self.spaces == other.spaces)
+            and self.spaces == other.spaces  # OrderedDict.__eq__
         )
 
     def to_jsonable(self, sample_n: list) -> dict:
