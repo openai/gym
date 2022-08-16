@@ -138,6 +138,7 @@ def test_autoreset_wrapper_autoreset():
         "count": 0,
         "final_observation": np.array([3]),
         "final_info": {"count": 3},
+        "TimeLimit.truncated": False
     }
 
     obs, reward, done, info = env.step(action)

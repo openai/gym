@@ -40,7 +40,7 @@ class StepAPICompatibility(gym.Wrapper):
         self.to_termination_truncation_api = to_termination_truncation_api
         if self.to_termination_truncation_api is False:
             deprecation(
-                "Initializing environment in old done step API which returns one bool instead of two. It is recommended to set `to_termination_truncation_api=True` to use new step API. This will be the default behaviour in future."
+                "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
             )
 
     def step(self, action):
