@@ -44,7 +44,20 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
-        utils.EzPickle.__init__(**locals())
+        utils.EzPickle.__init__(
+            self,
+            xml_file,
+            forward_reward_weight,
+            ctrl_cost_weight,
+            contact_cost_weight,
+            contact_cost_range,
+            healthy_reward,
+            terminate_when_unhealthy,
+            healthy_z_range,
+            reset_noise_scale,
+            exclude_current_positions_from_observation,
+            **kwargs
+        )
 
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight

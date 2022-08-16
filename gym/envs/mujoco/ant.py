@@ -24,7 +24,7 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         MuJocoPyEnv.__init__(
             self, "ant.xml", 5, observation_space=observation_space, **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, a):
         xposbefore = self.get_body_com("torso")[0]
