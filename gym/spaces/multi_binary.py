@@ -51,6 +51,11 @@ class MultiBinary(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape  # type: ignore
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
+
     def sample(self, mask: Optional[np.ndarray] = None) -> np.ndarray:
         """Generates a single random sample from this space.
 

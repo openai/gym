@@ -30,7 +30,7 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         MuJocoPyEnv.__init__(
             self, "humanoid.xml", 5, observation_space=observation_space, **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def _get_obs(self):
         data = self.sim.data

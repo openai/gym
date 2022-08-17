@@ -56,12 +56,15 @@ def step_to_new_api(
                         "TimeLimit.truncated" not in infos
                         or (
                             "TimeLimit.truncated" in infos
-                            and not infos["_TimeLimit.truncated"][i]
+                            and not infos["TimeLimit.truncated"][i]
                         )
-                    )  # vector env, dict info api, if mask is False, it's the same as TimeLimit.truncated attribute not being present for env 'i'
+                    )
+                    # vector env, dict info api, for env i, vector mask `_TimeLimit.truncated` is not considered, to be compatible with envpool
+                    # For env i, `TimeLimit.truncated` not being present is treated same as being present and set to False.
+                    # therefore, terminated=True, truncated=True simultaneously is not allowed while using compatibility functions
+                    # with vector info
                 )
             ):
-
                 terminateds.append(dones[i])
                 truncateds.append(False)
 
@@ -80,10 +83,11 @@ def step_to_new_api(
                 truncateds.append(True)
             else:
                 # This means info["TimeLimit.truncated"] exists but is False, which means the core environment had already terminated,
-                # but it also exceeded maximum timesteps at the same step.
+                # but it also exceeded maximum timesteps at the same step. However to be compatible with envpool, and to be backward compatible
+                # truncated is set to False here.
                 assert dones[i]
                 terminateds.append(True)
-                truncateds.append(True)
+                truncateds.append(False)
 
         return (
             observations,

@@ -139,6 +139,11 @@ class Box(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
+
     def is_bounded(self, manner: str = "both") -> bool:
         """Checks whether the box is bounded in some sense.
 
