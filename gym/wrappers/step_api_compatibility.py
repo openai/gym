@@ -1,7 +1,10 @@
 """Implementation of StepAPICompatibility wrapper class for transforming envs between new and old step API."""
 import gym
 from gym.logger import deprecation
-from gym.utils.step_api_compatibility import step_to_new_api, step_to_old_api
+from gym.utils.step_api_compatibility import (
+    convert_to_done_step_api,
+    convert_to_terminated_truncated_step_api,
+)
 
 
 class StepAPICompatibility(gym.Wrapper):
@@ -50,6 +53,6 @@ class StepAPICompatibility(gym.Wrapper):
         """
         step_returns = self.env.step(action)
         if self.output_truncation_bool:
-            return step_to_new_api(step_returns)
+            return convert_to_terminated_truncated_step_api(step_returns)
         else:
-            return step_to_old_api(step_returns)
+            return convert_to_done_step_api(step_returns)
