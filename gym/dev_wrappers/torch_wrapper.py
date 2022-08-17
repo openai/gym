@@ -36,7 +36,7 @@ def torch_to_jax(value: Any) -> Any:
 @torch_to_jax.register(torch.Tensor)
 def _torch_to_jax(value: torch.Tensor) -> DeviceArray:
     """Converts a PyTorch Tensor into a Jax DeviceArray."""
-    tensor = torch_dlpack.to_dlpack(value)
+    tensor = torch_dlpack.to_dlpack(value)  # pyright: ignore
     tensor = jax_dlpack.from_dlpack(tensor)
     return tensor
 
