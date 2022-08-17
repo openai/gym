@@ -6,6 +6,7 @@ import pytest
 import tensorflow as tf
 
 import gym
+from gym.dev_wrappers.tf_wrapper import jax_to_tf, tf_to_jax
 from gym.wrappers import JaxToTFV0
 
 
@@ -85,3 +86,27 @@ def test_tf_wrapper_vector_env():
 
     (obs, *_) = envs.step(tf.convert_to_tensor(envs.action_space.sample()))
     assert all(isinstance(o, tf.Tensor) for o in obs)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        1.0,
+        2,
+        (3.0, 4.0, 5.0),
+        [3.0, 4.0, 5.0],
+        {
+            "a": 6.0,
+            "b": 7,
+        },
+    ],
+)
+def test_tf_conversion(value):
+    assert tf_to_jax(jax_to_tf(value)) == value
+
+
+@pytest.mark.parametrize(
+    "value", [np.array([1.0, 2.0, 3.0]), jnp.array([1.0, 2.0, 3.0])]
+)
+def test_tf_array_conversion(value):
+    assert (tf_to_jax(jax_to_tf(value)) == value).all()

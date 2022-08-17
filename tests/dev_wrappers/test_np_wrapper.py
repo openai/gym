@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 import gym
+from gym.dev_wrappers.numpy_wrapper import jax_to_numpy, numpy_to_jax
 from gym.wrappers import JaxToNumpyV0
 
 
@@ -84,3 +85,27 @@ def test_np_wrapper_vector_env():
 
     (obs, *_) = envs.step(envs.action_space.sample())
     assert all(isinstance(o, np.ndarray) for o in obs)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        1.0,
+        2,
+        (3.0, 4.0, 5.0),
+        [3.0, 4.0, 5.0],
+        {
+            "a": 6.0,
+            "b": 7,
+        },
+    ],
+)
+def test_numpy_conversion(value):
+    assert numpy_to_jax(jax_to_numpy(value)) == value
+
+
+@pytest.mark.parametrize(
+    "value", [np.array([1.0, 2.0, 3.0]), jnp.array([1.0, 2.0, 3.0])]
+)
+def test_np_array_conversion(value):
+    assert (numpy_to_jax(jax_to_numpy(value)) == value).all()

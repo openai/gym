@@ -6,6 +6,7 @@ import pytest
 import torch
 
 import gym
+from gym.dev_wrappers.torch_wrapper import jax_to_torch, torch_to_jax
 from gym.wrappers import JaxToTorchV0
 
 
@@ -94,3 +95,27 @@ def test_torch_wrapper_vector_env():
 
     (obs, *_) = envs.step(torch.Tensor(envs.action_space.sample()))
     assert all(isinstance(o, torch.Tensor) for o in obs)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        1.0,
+        2,
+        (3.0, 4.0, 5.0),
+        [3.0, 4.0, 5.0],
+        {
+            "a": 6.0,
+            "b": 7,
+        },
+    ],
+)
+def test_torch_conversion(value):
+    assert torch_to_jax(jax_to_torch(value)) == value
+
+
+@pytest.mark.parametrize(
+    "value", [np.array([1.0, 2.0, 3.0]), jnp.array([1.0, 2.0, 3.0])]
+)
+def test_torch_array_conversion(value):
+    assert (torch_to_jax(jax_to_torch(value)) == value).all()
