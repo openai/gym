@@ -202,7 +202,9 @@ def test_play_loop_real_env():
             action = keys_to_action[chr(e.key) if str_keys else (e.key,)]
             obs, _, _, _ = env.step(action)
 
-        env_play = gym.make(ENV, render_mode="single_rgb_array", disable_env_checker=True)
+        env_play = gym.make(
+            ENV, render_mode="single_rgb_array", disable_env_checker=True
+        )
         if apply_wrapper:
             env_play = KeysToActionWrapper(env, keys_to_action=keys_to_action)
             assert hasattr(env_play, "get_keys_to_action")

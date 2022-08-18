@@ -51,8 +51,10 @@ class PlayableGame:
             zoom: If to zoom in on the environment render
         """
         if env.render_mode not in {"rgb_array", "single_rgb_array"}:
-            logger.error("PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
-                         f"but your environment render_mode = {env.render_mode}.")
+            logger.error(
+                "PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
+                f"but your environment render_mode = {env.render_mode}."
+            )
 
         self.env = env
         self.relevant_keys = self._get_relevant_keys(keys_to_action)
@@ -218,8 +220,10 @@ def play(
         "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
     )
     if env.render_mode not in {"rgb_array", "single_rgb_array"}:
-        logger.error("play method works only with rgb_array and single_rgb_array render modes, "
-                     f"but your environment render_mode = {env.render_mode}.")
+        logger.error(
+            "play method works only with rgb_array and single_rgb_array render modes, "
+            f"but your environment render_mode = {env.render_mode}."
+        )
 
     env.reset(seed=seed)
 
