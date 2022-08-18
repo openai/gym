@@ -99,7 +99,7 @@ class LunarLander(gym.Env, EzPickle):
     orientation engine, fire main engine, fire right orientation engine.
 
     ### Observation Space
-    There are 8 states: the coordinates of the lander in `x` & `y`, its linear
+    The state is an 8-dimensional vector: the coordinates of the lander in `x` & `y`, its linear
     velocities in `x` & `y`, its angle, its angular velocity, and two booleans
     that represent whether each leg is in contact with the ground or not.
 
@@ -192,7 +192,15 @@ class LunarLander(gym.Env, EzPickle):
         wind_power: float = 15.0,
         turbulence_power: float = 1.5,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(
+            self,
+            render_mode,
+            continuous,
+            gravity,
+            enable_wind,
+            wind_power,
+            turbulence_power,
+        )
 
         assert (
             -12.0 < gravity and gravity < 0.0

@@ -82,6 +82,11 @@ class Space(Generic[T_cov]):
         """Return the shape of the space as an immutable property."""
         return self._shape
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        raise NotImplementedError
+
     def sample(self, mask: Optional[Any] = None) -> T_cov:
         """Randomly sample an element of this space.
 

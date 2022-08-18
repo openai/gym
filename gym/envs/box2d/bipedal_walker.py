@@ -169,7 +169,7 @@ class BipedalWalker(gym.Env, EzPickle):
     }
 
     def __init__(self, render_mode: Optional[str] = None, hardcore: bool = False):
-        EzPickle.__init__(self)
+        EzPickle.__init__(self, render_mode, hardcore)
         self.isopen = True
 
         self.world = Box2D.b2World()
@@ -752,7 +752,7 @@ class BipedalWalker(gym.Env, EzPickle):
         elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
-            )
+            )[:, -VIEWPORT_W:]
 
     def close(self):
         if self.screen is not None:

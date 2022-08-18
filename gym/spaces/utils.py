@@ -6,6 +6,7 @@ These functions mostly take care of flattening and unflattening elements of spac
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
+from typing import Dict as TypingDict
 from typing import TypeVar, Union, cast
 
 import numpy as np
@@ -18,6 +19,7 @@ from gym.spaces import (
     GraphInstance,
     MultiBinary,
     MultiDiscrete,
+    Sequence,
     Space,
     Text,
     Tuple,
@@ -43,7 +45,13 @@ def flatdim(space: Space) -> int:
 
     Raises:
          NotImplementedError: if the space is not defined in ``gym.spaces``.
+         ValueError: if the space cannot be flattened into a :class:`Box`
     """
+    if not space.is_np_flattenable:
+        raise ValueError(
+            f"{space} cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+        )
+
     raise NotImplementedError(f"Unknown space: `{space}`")
 
 
@@ -65,12 +73,20 @@ def _flatdim_multidiscrete(space: MultiDiscrete) -> int:
 
 @flatdim.register(Tuple)
 def _flatdim_tuple(space: Tuple) -> int:
-    return sum(flatdim(s) for s in space.spaces)
+    if space.is_np_flattenable:
+        return sum(flatdim(s) for s in space.spaces)
+    raise ValueError(
+        f"{space} cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+    )
 
 
 @flatdim.register(Dict)
 def _flatdim_dict(space: Dict) -> int:
-    return sum(flatdim(s) for s in space.spaces.values())
+    if space.is_np_flattenable:
+        return sum(flatdim(s) for s in space.spaces.values())
+    raise ValueError(
+        f"{space} cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+    )
 
 
 @flatdim.register(Graph)
@@ -86,10 +102,11 @@ def _flatdim_text(space: Text) -> int:
 
 
 T = TypeVar("T")
+FlatType = Union[np.ndarray, TypingDict, tuple, GraphInstance]
 
 
 @singledispatch
-def flatten(space: Space[T], x: T) -> np.ndarray:
+def flatten(space: Space[T], x: T) -> FlatType:
     """Flatten a data point from a space.
 
     This is useful when e.g. points from spaces must be passed to a neural
@@ -142,13 +159,19 @@ def _flatten_multidiscrete(space, x) -> np.ndarray:
 
 
 @flatten.register(Tuple)
-def _flatten_tuple(space, x) -> np.ndarray:
-    return np.concatenate([flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
+def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
+    if space.is_np_flattenable:
+        return np.concatenate(
+            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
+        )
+    return tuple((flatten(s, x_part) for x_part, s in zip(x, space.spaces)))
 
 
 @flatten.register(Dict)
-def _flatten_dict(space, x) -> np.ndarray:
-    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+def _flatten_dict(space, x) -> Union[TypingDict, np.ndarray]:
+    if space.is_np_flattenable:
+        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+    return OrderedDict((key, flatten(s, x[key])) for key, s in space.spaces.items())
 
 
 @flatten.register(Graph)
@@ -180,9 +203,14 @@ def _flatten_text(space: Text, x: str) -> np.ndarray:
         arr[i] = space.character_index(val)
     return arr
 
+@flatten.register(Sequence)
+def _flatten_sequence(space, x) -> tuple:
+    return tuple(flatten(space.feature_space, item) for item in x)
+
+
 
 @singledispatch
-def unflatten(space: Space[T], x: np.ndarray) -> T:
+def unflatten(space: Space[T], x: FlatType) -> T:
     """Unflatten a data point from a space.
 
     This reverses the transformation applied by :func:`flatten`. You must ensure
@@ -224,24 +252,38 @@ def _unflatten_multidiscrete(space: MultiDiscrete, x: np.ndarray) -> np.ndarray:
 
 
 @unflatten.register(Tuple)
-def _unflatten_tuple(space: Tuple, x: np.ndarray) -> tuple:
-    dims = np.asarray([flatdim(s) for s in space.spaces], dtype=np.int_)
-    list_flattened = np.split(x, np.cumsum(dims[:-1]))
-    return tuple(
-        unflatten(s, flattened) for flattened, s in zip(list_flattened, space.spaces)
-    )
+def _unflatten_tuple(space: Tuple, x: Union[np.ndarray, tuple]) -> tuple:
+    if space.is_np_flattenable:
+        assert isinstance(
+            x, np.ndarray
+        ), f"{space} is numpy-flattenable. Thus, you should only unflatten numpy arrays for this space. Got a {type(x)}"
+        dims = np.asarray([flatdim(s) for s in space.spaces], dtype=np.int_)
+        list_flattened = np.split(x, np.cumsum(dims[:-1]))
+        return tuple(
+            unflatten(s, flattened)
+            for flattened, s in zip(list_flattened, space.spaces)
+        )
+    assert isinstance(
+        x, tuple
+    ), f"{space} is not numpy-flattenable. Thus, you should only unflatten tuples for this space. Got a {type(x)}"
+    return tuple(unflatten(s, flattened) for flattened, s in zip(x, space.spaces))
 
 
 @unflatten.register(Dict)
-def _unflatten_dict(space: Dict, x: np.ndarray) -> dict:
-    dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
-    list_flattened = np.split(x, np.cumsum(dims[:-1]))
-    return OrderedDict(
-        [
-            (key, unflatten(s, flattened))
-            for flattened, (key, s) in zip(list_flattened, space.spaces.items())
-        ]
-    )
+def _unflatten_dict(space: Dict, x: Union[np.ndarray, TypingDict]) -> dict:
+    if space.is_np_flattenable:
+        dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
+        list_flattened = np.split(x, np.cumsum(dims[:-1]))
+        return OrderedDict(
+            [
+                (key, unflatten(s, flattened))
+                for flattened, (key, s) in zip(list_flattened, space.spaces.items())
+            ]
+        )
+    assert isinstance(
+        x, dict
+    ), f"{space} is not numpy-flattenable. Thus, you should only unflatten dictionary for this space. Got a {type(x)}"
+    return OrderedDict((key, unflatten(s, x[key])) for key, s in space.spaces.items())
 
 
 @unflatten.register(Graph)
@@ -274,10 +316,18 @@ def _unflatten_text(space: Text, x: np.ndarray) -> str:
     )
 
 
-@singledispatch
-def flatten_space(space: Space) -> Box:
-    """Flatten a space into a single ``Box``.
+@unflatten.register(Sequence)
+def _unflatten_sequence(space: Sequence, x: tuple) -> tuple:
+    return tuple(unflatten(space.feature_space, item) for item in x)
 
+
+@singledispatch
+def flatten_space(space: Space) -> Union[Dict, Sequence, Tuple, Graph]:
+    """Flatten a space into a space that is as flat as possible.
+
+    This function will attempt to flatten `space` into a single :class:`Box` space.
+    However, this might not be possible when `space` is an instance of :class:`Graph`,
+    :class:`Sequence` or a compound space that contains a :class:`Graph` or :class:`Sequence`space.
     This is equivalent to :func:`flatten`, but operates on the space itself. The
     result for non-graph spaces is always a `Box` with flat boundaries. While
     the result for graph spaces is always a `Graph` with `node_space` being a `Box`
@@ -346,22 +396,30 @@ def _flatten_space_binary(space: Union[Discrete, MultiBinary, MultiDiscrete]) ->
 
 
 @flatten_space.register(Tuple)
-def _flatten_space_tuple(space: Tuple) -> Box:
-    space_list = [flatten_space(s) for s in space.spaces]
-    return Box(
-        low=np.concatenate([s.low for s in space_list]),
-        high=np.concatenate([s.high for s in space_list]),
-        dtype=np.result_type(*[s.dtype for s in space_list]),
-    )
+def _flatten_space_tuple(space: Tuple) -> Union[Box, Tuple]:
+    if space.is_np_flattenable:
+        space_list = [flatten_space(s) for s in space.spaces]
+        return Box(
+            low=np.concatenate([s.low for s in space_list]),
+            high=np.concatenate([s.high for s in space_list]),
+            dtype=np.result_type(*[s.dtype for s in space_list]),
+        )
+    return Tuple(spaces=[flatten_space(s) for s in space.spaces])
 
 
 @flatten_space.register(Dict)
-def _flatten_space_dict(space: Dict) -> Box:
-    space_list = [flatten_space(s) for s in space.spaces.values()]
-    return Box(
-        low=np.concatenate([s.low for s in space_list]),
-        high=np.concatenate([s.high for s in space_list]),
-        dtype=np.result_type(*[s.dtype for s in space_list]),
+def _flatten_space_dict(space: Dict) -> Union[Box, Dict]:
+    if space.is_np_flattenable:
+        space_list = [flatten_space(s) for s in space.spaces.values()]
+        return Box(
+            low=np.concatenate([s.low for s in space_list]),
+            high=np.concatenate([s.high for s in space_list]),
+            dtype=np.result_type(*[s.dtype for s in space_list]),
+        )
+    return Dict(
+        spaces=OrderedDict(
+            (key, flatten_space(space)) for key, space in space.spaces.items()
+        )
     )
 
 
@@ -380,3 +438,7 @@ def _flatten_space_text(space: Text) -> Box:
     return Box(
         low=0, high=len(space.character_set), shape=(space.max_length,), dtype=np.int32
     )
+
+@flatten_space.register(Sequence)
+def _flatten_space_sequence(space: Sequence) -> Sequence:
+    return Sequence(flatten_space(space.feature_space))

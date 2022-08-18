@@ -63,6 +63,11 @@ class Graph(Space):
 
         super().__init__(None, None, seed)
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return False
+
     def _generate_sample_space(
         self, base_space: Union[None, Box, Discrete], num: int
     ) -> Optional[Union[Box, MultiDiscrete]]:

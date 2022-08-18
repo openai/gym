@@ -40,6 +40,11 @@ class Discrete(Space[int]):
         self.start = int(start)
         super().__init__((), np.int64, seed)
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
+
     def sample(self, mask: Optional[np.ndarray] = None) -> int:
         """Generates a single random sample from this space.
 

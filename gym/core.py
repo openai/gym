@@ -31,55 +31,36 @@ ActType = TypeVar("ActType")
 RenderFrame = TypeVar("RenderFrame")
 
 
-class _EnvDecorator(type):  # TODO: remove with gym 1.0
-    """Metaclass used for adding deprecation warning to the mode kwarg in the render method."""
+# TODO: remove with gym 1.0
+def _deprecate_mode(render_func):  # type: ignore
+    """Wrapper used for adding deprecation warning to the mode kwarg in the render method."""
+    render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
 
-    def __new__(cls, name, bases, attr):
-        if "render" in attr.keys():
-            attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
+    def render(
+        self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
+    ) -> render_return:
+        if "mode" in kwargs.keys() or len(args) > 0:
+            deprecation(
+                "The argument mode in render method is deprecated; "
+                "use render_mode during environment initialization instead.\n"
+                "See here for more information: https://www.gymlibrary.ml/content/api/"
+            )
+        elif self.spec is not None and "render_mode" not in self.spec.kwargs.keys():  # type: ignore
+            deprecation(
+                "You are calling render method, "
+                "but you didn't specified the argument render_mode at environment initialization. "
+                "To maintain backward compatibility, the environment will render in human mode.\n"
+                "If you want to render in human mode, initialize the environment in this way: "
+                "gym.make('EnvName', render_mode='human') and don't call the render method.\n"
+                "See here for more information: https://www.gymlibrary.ml/content/api/"
+            )
 
-        return super().__new__(cls, name, bases, attr)
+        return render_func(self, *args, **kwargs)
 
-    @staticmethod
-    def _deprecate_mode(render_func):  # type: ignore
-        render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
-
-        def render(
-            self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
-        ) -> render_return:
-            if "mode" in kwargs.keys() or len(args) > 0:
-                deprecation(
-                    "The argument mode in render method is deprecated; "
-                    "use render_mode during environment initialization instead.\n"
-                    "See here for more information: https://www.gymlibrary.ml/content/api/"
-                )
-            elif self.spec is not None and "render_mode" not in self.spec.kwargs.keys():  # type: ignore
-                deprecation(
-                    "You are calling render method, "
-                    "but you didn't specified the argument render_mode at environment initialization. "
-                    "To maintain backward compatibility, the environment will render in human mode.\n"
-                    "If you want to render in human mode, initialize the environment in this way: "
-                    "gym.make('EnvName', render_mode='human') and don't call the render method.\n"
-                    "See here for more information: https://www.gymlibrary.ml/content/api/"
-                )
-
-            return render_func(self, *args, **kwargs)
-
-        return render
+    return render
 
 
-decorator = _EnvDecorator
-if sys.version_info[0:2] == (3, 6):
-    # needed for https://github.com/python/typing/issues/449
-    from typing import GenericMeta
-
-    class _GenericEnvDecorator(GenericMeta, _EnvDecorator):
-        pass
-
-    decorator = _GenericEnvDecorator
-
-
-class Env(Generic[ObsType, ActType], metaclass=decorator):
+class Env(Generic[ObsType, ActType]):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -106,9 +87,16 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
 
+    def __init_subclass__(cls) -> None:
+        """Hook used for wrapping render method."""
+        super().__init_subclass__()
+        if "render" in vars(cls):
+            cls.render = _deprecate_mode(vars(cls)["render"])
+
     # Set this in SOME subclasses
-    metadata = {"render_modes": []}
-    render_mode = None  # define render_mode if your environment supports rendering
+    metadata: Dict[str, Any] = {"render_modes": []}
+    # define render_mode if your environment supports rendering
+    render_mode: Optional[str] = None
     reward_range = (-float("inf"), float("inf"))
     spec: "EnvSpec" = None
 
@@ -426,7 +414,9 @@ class Wrapper(Env[ObsType, ActType]):
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
-    def render(self, *args, **kwargs):
+    def render(
+        self, *args, **kwargs
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Renders the environment."""
         return self.env.render(*args, **kwargs)
 

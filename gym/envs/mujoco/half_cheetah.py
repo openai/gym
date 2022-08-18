@@ -22,7 +22,7 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         MuJocoPyEnv.__init__(
             self, "half_cheetah.xml", 5, observation_space=observation_space, **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, action):
         xposbefore = self.sim.data.qpos[0]

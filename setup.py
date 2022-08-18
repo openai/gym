@@ -15,7 +15,7 @@ with open("gym/version.py") as file:
 extras = {
     "atari": ["ale-py~=0.7.5"],
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
-    "box2d": ["box2d-py==2.3.5", "pygame==2.1.0"],
+    "box2d": ["box2d-py==2.3.5", "pygame==2.1.0", "swig==4.*"],
     "classic_control": ["pygame==2.1.0"],
     "mujoco_py": ["mujoco_py<2.2,>=2.1"],
     "mujoco": ["mujoco==2.2.0", "imageio>=2.14.1"],

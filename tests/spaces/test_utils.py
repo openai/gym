@@ -43,6 +43,18 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
 ]
 
 
+@pytest.mark.parametrize("space", non_homogenous_spaces)
+def test_non_flattenable(space):
+    assert space.is_np_flattenable is False
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+        ),
+    ):
+        utils.flatdim(space)
+
+
 @pytest.mark.parametrize(
     ["space", "flatdim"],
     zip_longest(TESTING_SPACES, TESTING_SPACES_EXPECTED_FLATDIMS),
@@ -50,12 +62,9 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
 )
 def test_flatdim(space, flatdim):
     """Checks that the flattened dims of the space is equal to an expected value."""
-    if isinstance(space, Graph):
-        with pytest.raises(NotImplementedError):
-            utils.flatdim(space)
-    else:
-        dim = utils.flatdim(space)
-        assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
+    assert space.is_np_flattenable
+    dim = utils.flatdim(space)
+    assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)

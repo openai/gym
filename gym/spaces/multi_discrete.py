@@ -62,6 +62,11 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
+
     def sample(self, mask: Optional[tuple] = None) -> np.ndarray:
         """Generates a single random sample this space.
 
