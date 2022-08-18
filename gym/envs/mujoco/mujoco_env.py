@@ -1,6 +1,6 @@
 from functools import partial
 from os import path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -294,7 +294,9 @@ class MuJocoPyEnv(BaseMujocoEnv):
         elif mode == "human":
             self._get_viewer(mode).render()
 
-    def _get_viewer(self, mode):
+    def _get_viewer(
+        self, mode
+    ) -> Union["mujoco_py.MjViewer", "mujoco_py.MjRenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
@@ -307,9 +309,14 @@ class MuJocoPyEnv(BaseMujocoEnv):
                 "single_depth_array",
             }:
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
+            else:
+                raise AttributeError(
+                    f"Unknown mode: {mode}, expected modes: {self.metadata['render_modes']}"
+                )
 
             self.viewer_setup()
             self._viewers[mode] = self.viewer
+
         return self.viewer
 
     def get_body_com(self, body_name):
@@ -423,7 +430,9 @@ class MujocoEnv(BaseMujocoEnv):
             self.viewer.close()
         super().close()
 
-    def _get_viewer(self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def _get_viewer(
+        self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE
+    ) -> Union["gym.envs.mujoco.Viewer", "gym.envs.mujoco.RenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
@@ -440,6 +449,10 @@ class MujocoEnv(BaseMujocoEnv):
 
                 self.viewer = RenderContextOffscreen(
                     width, height, self.model, self.data
+                )
+            else:
+                raise AttributeError(
+                    f"Unexpected mode: {mode}, expected modes: {self.metadata['render_modes']}"
                 )
 
             self.viewer_setup()

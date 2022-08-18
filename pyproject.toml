@@ -8,8 +8,6 @@ include = [
 exclude = [
     "**/node_modules",
     "**/__pycache__",
-
-    "gym/envs/mujoco/mujoco_env.py",
 ]
 
 strict = [
@@ -25,17 +23,20 @@ enableTypeIgnoreComments = true
 # This is required as the CI pre-commit does not download the module (i.e. numpy, pygame, box2d)
 #   Therefore, we have to ignore missing imports
 reportMissingImports = "none"
-
-reportUnknownMemberType = "none"
-reportUnknownParameterType = "none"
-reportUnknownVariableType = "none"
-reportUnknownArgumentType = "none"
-reportPrivateUsage = "warning"
-reportUntypedFunctionDecorator = "none"
+# Some modules are missing type stubs, which is an issue when running pyright locally
 reportMissingTypeStubs = false
-reportUnboundVariable = "warning"
-reportGeneralTypeIssues ="none"
+# For warning and error, will raise an error when
 reportInvalidTypeVarUse = "none"
+
+# reportUnknownMemberType = "warning"  # -> raises 6035 warnings
+# reportUnknownParameterType = "warning"  # -> raises 1327 warnings
+# reportUnknownVariableType = "warning"  # -> raises 2585 warnings
+# reportUnknownArgumentType = "warning"  # -> raises 2104 warnings
+reportGeneralTypeIssues = "none"  # -> commented out raises 489 errors
+reportUntypedFunctionDecorator = "none"  # -> pytest.mark.parameterize issues
+
+reportPrivateUsage = "warning"
+reportUnboundVariable = "warning"
 
 [tool.pytest.ini_options]
 filterwarnings = ['ignore:.*step API.*:DeprecationWarning'] # TODO: to be removed when old step API is removed
