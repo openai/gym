@@ -22,7 +22,7 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
         MuJocoPyEnv.__init__(
             self, "swimmer.xml", 4, observation_space=observation_space, **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, a):
         ctrl_cost_coeff = 0.0001

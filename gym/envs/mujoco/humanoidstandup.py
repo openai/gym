@@ -28,7 +28,7 @@ class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
             observation_space=observation_space,
             **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def _get_obs(self):
         data = self.sim.data

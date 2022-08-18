@@ -18,7 +18,7 @@ class ReacherEnv(MuJocoPyEnv, utils.EzPickle):
     }
 
     def __init__(self, **kwargs):
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
         MuJocoPyEnv.__init__(
             self, "reacher.xml", 2, observation_space=observation_space, **kwargs

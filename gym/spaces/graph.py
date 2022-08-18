@@ -18,7 +18,7 @@ class GraphInstance(namedtuple("GraphInstance", ["nodes", "edges", "edge_links"]
         nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
         (...) must adhere to the shape of the node space.
 
-        edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
+        edges (np.ndarray): an (m x ...) sized array representing the features for m edges.
         (...) must adhere to the shape of the edge space.
 
         edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
@@ -67,6 +67,11 @@ class Graph(Space):
         self.edge_space = edge_space
 
         super().__init__(None, None, seed)
+
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return False
 
     def _generate_sample_space(
         self, base_space: Union[None, Box, Discrete], num: int
