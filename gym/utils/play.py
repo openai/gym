@@ -1,7 +1,4 @@
 """Utilities of visualising an environment."""
-
-# TODO: Convert to new step API in 1.0
-
 from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -53,6 +50,10 @@ class PlayableGame:
             keys_to_action: The dictionary of keyboard tuples and action value
             zoom: If to zoom in on the environment render
         """
+        if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+            logger.error("PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
+                         f"but your environment render_mode = {env.render_mode}.")
+
         self.env = env
         self.relevant_keys = self._get_relevant_keys(keys_to_action)
         self.video_size = self._get_video_size(zoom)
@@ -78,8 +79,9 @@ class PlayableGame:
         return relevant_keys
 
     def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
-        # TODO: this needs to be updated when the render API change goes through
-        rendered = self.env.render(mode="rgb_array")
+        rendered = self.env.render()
+        if isinstance(rendered, List):
+            rendered = rendered[-1]
         assert rendered is not None and isinstance(rendered, np.ndarray)
         video_size = [rendered.shape[1], rendered.shape[0]]
 
@@ -146,7 +148,8 @@ def play(
 
         >>> import gym
         >>> from gym.utils.play import play
-        >>> play(gym.make("CarRacing-v1"), keys_to_action={"w": np.array([0, 0.7, 0]),
+        >>> play(gym.make("CarRacing-v1", render_mode="single_rgb_array"), keys_to_action={
+        ...                                                "w": np.array([0, 0.7, 0]),
         ...                                                "a": np.array([-1, 0, 0]),
         ...                                                "s": np.array([0, 0, 1]),
         ...                                                "d": np.array([1, 0, 0]),
@@ -214,6 +217,9 @@ def play(
     deprecation(
         "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
     )
+    if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+        logger.error("play method works only with rgb_array and single_rgb_array render modes, "
+                     f"but your environment render_mode = {env.render_mode}.")
 
     env.reset(seed=seed)
 
@@ -255,8 +261,10 @@ def play(
             if callback is not None:
                 callback(prev_obs, obs, action, rew, done, info)
         if obs is not None:
-            # TODO: this needs to be updated when the render API change goes through
-            rendered = env.render(mode="rgb_array")
+            rendered = env.render()
+            if isinstance(rendered, List):
+                rendered = rendered[-1]
+            assert rendered is not None and isinstance(rendered, np.ndarray)
             display_arr(
                 game.screen, rendered, transpose=transpose, video_size=game.video_size
             )
