@@ -15,11 +15,6 @@ except ImportError:
     )
 
 
-def touch(path: str):
-    """Touch a filename at path."""
-    open(path, "a").close()
-
-
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
@@ -81,9 +76,7 @@ class VideoRecorder:
                 path = base_path + required_ext
             else:
                 # Otherwise, just generate a unique filename
-                with tempfile.NamedTemporaryFile(
-                    suffix=required_ext, delete=False
-                ) as f:
+                with tempfile.NamedTemporaryFile(suffix=required_ext) as f:
                     path = f.name
         self.path = path
 
@@ -93,9 +86,6 @@ class VideoRecorder:
             raise error.Error(
                 f"Invalid path given: {self.path} -- must have file extension {required_ext}."
             )
-        # Touch the file in any case, so we know it's present. This corrects for platform differences.
-        # Using ffmpeg on OS X, the file is precreated, but not on Linux.
-        touch(path)
 
         self.frames_per_sec = env.metadata.get("render_fps", 30)
 
@@ -108,7 +98,6 @@ class VideoRecorder:
         self.write_metadata()
 
         logger.info(f"Starting new video recorder writing to {self.path}")
-        self.empty = True
         self.recorded_frames = []
 
     @property
