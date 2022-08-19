@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from itertools import product
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 import pygame
@@ -22,7 +22,7 @@ class DummyEnvSpec:
 
 
 class DummyPlayEnv(gym.Env):
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode: Optional[str] = None):
         self.render_mode = render_mode
 
     def step(self, action):
