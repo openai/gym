@@ -246,7 +246,9 @@ def test_infinite_space(space):
         space.low.dtype == space.dtype
     ), f"Low's dtype {space.high.dtype} doesn't match `space.dtype`'"
 
-    with pytest.raises(ValueError, match="manner is not in {'below', 'above', 'both'}, actual value:"):
+    with pytest.raises(
+        ValueError, match="manner is not in {'below', 'above', 'both'}, actual value:"
+    ):
         space.is_bounded("test")
 
 

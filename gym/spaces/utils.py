@@ -203,10 +203,10 @@ def _flatten_text(space: Text, x: str) -> np.ndarray:
         arr[i] = space.character_index(val)
     return arr
 
+
 @flatten.register(Sequence)
 def _flatten_sequence(space, x) -> tuple:
     return tuple(flatten(space.feature_space, item) for item in x)
-
 
 
 @singledispatch
@@ -438,6 +438,7 @@ def _flatten_space_text(space: Text) -> Box:
     return Box(
         low=0, high=len(space.character_set), shape=(space.max_length,), dtype=np.int32
     )
+
 
 @flatten_space.register(Sequence)
 def _flatten_space_sequence(space: Sequence) -> Sequence:

@@ -165,7 +165,9 @@ class Box(Space[np.ndarray]):
         elif manner == "above":
             return above
         else:
-            raise ValueError(f"manner is not in {{'below', 'above', 'both'}}, actual value: {manner}")
+            raise ValueError(
+                f"manner is not in {{'below', 'above', 'both'}}, actual value: {manner}"
+            )
 
     def sample(self, mask: None = None) -> np.ndarray:
         r"""Generates a single random sample inside the Box.

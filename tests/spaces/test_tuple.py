@@ -1,10 +1,10 @@
 import pytest
 
-from gym.spaces import Discrete, MultiBinary, Tuple, Box, Dict
+from gym.spaces import Box, Dict, Discrete, MultiBinary, Tuple
 
 
 def test_sequence_inheritance():
-    """The gym Tuple space inherits from abc.Sequences, this test checks all functions work """
+    """The gym Tuple space inherits from abc.Sequences, this test checks all functions work"""
     spaces = [Discrete(5), Discrete(10), Discrete(5)]
     tuple_space = Tuple(spaces)
 
@@ -32,13 +32,31 @@ def test_sequence_inheritance():
         assert tuple_space[4]
 
 
-@pytest.mark.parametrize("space, seed, expected_len", [
-    (Tuple([Discrete(5), Discrete(4)]), None, 2),
-    (Tuple([Discrete(5), Discrete(4)]), 123, 3),
-    (Tuple([Discrete(5), Discrete(4)]), (123, 456), 2),
-    (Tuple((Discrete(5), Tuple((Box(low=0.0, high=1.0, shape=(3,)), Discrete(2))))), (123, (456, 789)), 3),
-    (Tuple((Discrete(3), Dict(position=Box(low=0.0, high=1.0), velocity=Discrete(2)))), (123, {"position": 456, "velocity": 789}), 3),
-])
+@pytest.mark.parametrize(
+    "space, seed, expected_len",
+    [
+        (Tuple([Discrete(5), Discrete(4)]), None, 2),
+        (Tuple([Discrete(5), Discrete(4)]), 123, 3),
+        (Tuple([Discrete(5), Discrete(4)]), (123, 456), 2),
+        (
+            Tuple(
+                (Discrete(5), Tuple((Box(low=0.0, high=1.0, shape=(3,)), Discrete(2))))
+            ),
+            (123, (456, 789)),
+            3,
+        ),
+        (
+            Tuple(
+                (
+                    Discrete(3),
+                    Dict(position=Box(low=0.0, high=1.0), velocity=Discrete(2)),
+                )
+            ),
+            (123, {"position": 456, "velocity": 789}),
+            3,
+        ),
+    ],
+)
 def test_seeds(space, seed, expected_len):
     seeds = space.seed(seed)
     assert isinstance(seeds, list) and all(isinstance(elem, int) for elem in seeds)

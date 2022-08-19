@@ -121,7 +121,10 @@ def test_mapping():
     DICT_SPACE["a"] = b
     assert DICT_SPACE["a"] == b
 
-    with pytest.raises(AssertionError, match="Trying to set a to Dict space with value that is not a gym space, actual type: <class 'int'>"):
+    with pytest.raises(
+        AssertionError,
+        match="Trying to set a to Dict space with value that is not a gym space, actual type: <class 'int'>",
+    ):
         DICT_SPACE["a"] = 5
 
     DICT_SPACE["a"] = a
