@@ -45,7 +45,7 @@ Additionally, for pull requests, the project runs a number of tests for the whol
 These tests can be run locally with `pytest` in the root folder. 
 
 ## Docstrings
-Pydocstyle has been added to the pre-commit process such that all new functions follow the (google docstring style)[https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html].
+Pydocstyle has been added to the pre-commit process such that all new functions follow the [google docstring style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 All new functions require either a short docstring, a single line explaining the purpose of a function
 or a multiline docstring that documents each argument and the return type (if there is one) of the function.
 In addition, new file and class require top docstrings that should outline the purpose of the file/class.
