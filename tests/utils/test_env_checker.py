@@ -1,12 +1,14 @@
 """Tests that the `env_checker` runs as expects and all errors are possible."""
 import re
 import warnings
+from typing import Tuple, Union
 
 import numpy as np
 import pytest
 
 import gym
 from gym import spaces
+from gym.core import ObsType
 from gym.utils.env_checker import (
     check_env,
     check_reset_options,
@@ -116,7 +118,10 @@ def test_check_reset_seed(test, func: callable, message: str):
             check_reset_seed(GenericTestEnv(reset_fn=func))
 
 
-def _deprecated_return_info(self, return_info=False):
+def _deprecated_return_info(
+    self, return_info: bool = False
+) -> Union[Tuple[ObsType, dict], ObsType]:
+    """function to simulate the signature and behavior of a `reset` function with the deprecated `return_info` optional argument"""
     if return_info:
         return self.observation_space.sample(), {}
     else:
