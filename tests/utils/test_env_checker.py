@@ -179,7 +179,7 @@ def test_check_reset_return_type(test, func: callable, message: str):
     "test,func,message",
     [
         [
-            AssertionError,
+            UserWarning,
             _deprecated_return_info,
             "`return_info` is deprecated as an optional argument to `reset`. `reset`"
             "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
@@ -190,7 +190,7 @@ def test_check_reset_return_type(test, func: callable, message: str):
 def test_check_reset_return_info_deprecation(test, func: callable, message: str):
     """Tests that return_info has been correct deprecated as an argument to `env.reset()`."""
 
-    with pytest.raises(test, match=f"^{re.escape(message)}$"):
+    with pytest.warns(test, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"):
         check_reset_return_info_deprecation(GenericTestEnv(reset_fn=func))
 
 

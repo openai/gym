@@ -160,11 +160,11 @@ def check_reset_return_info_deprecation(env: gym.Env):
     Args:
         env: The environment to check
     Raises:
-        AssertionError depending on spec violation
+        UserWarning
     """
     signature = inspect.signature(env.reset)
     if "return_info" in signature.parameters:
-        raise AssertionError(
+        logger.warn(
             "`return_info` is deprecated as an optional argument to `reset`. `reset`"
             "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
             "containing additional information."
