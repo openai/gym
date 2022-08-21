@@ -180,10 +180,7 @@ def check_seed_deprecation(env: gym.Env):
         UserWarning
     """
     seed_fn = getattr(env, "seed", None)
-    print(seed_fn)
-    print(callable(seed_fn))
     if callable(seed_fn):
-        print("warned")
         logger.warn(
             "Official support for the `seed` function is dropped. "
             "Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"

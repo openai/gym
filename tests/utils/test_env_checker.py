@@ -195,7 +195,7 @@ def test_check_reset_return_info_deprecation(test, func: callable, message: str)
 
 
 def test_check_seed_deprecation():
-    """Tests that `env.seed()` has been removed."""
+    """Tests that `check_seed_deprecation()` throws a warning if `env.seed()` has not been removed."""
 
     message = """Official support for the `seed` function is dropped. Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"""
 
@@ -211,12 +211,14 @@ def test_check_seed_deprecation():
         assert callable(env.seed)
         check_seed_deprecation(env)
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env.seed = []
+        check_seed_deprecation(env)
+        env.seed = 123
         check_seed_deprecation(env)
         del env.seed
         check_seed_deprecation(env)
+        assert len(caught_warnings) == 0
 
 
 def test_check_reset_options():
