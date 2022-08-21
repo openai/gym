@@ -171,6 +171,25 @@ def check_reset_return_info_deprecation(env: gym.Env):
         )
 
 
+def check_seed_deprecation(env: gym.Env):
+    """Makes sure support for deprecated function `seed` is dropped.
+
+    Args:
+        env: The environment to check
+    Raises:
+        UserWarning
+    """
+    seed_fn = getattr(env, "seed", None)
+    print(seed_fn)
+    print(callable(seed_fn))
+    if callable(seed_fn):
+        print("warned")
+        logger.warn(
+            "Official support for the `seed` function is dropped. "
+            "Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"
+        )
+
+
 def check_reset_return_type(env: gym.Env):
     """Checks that :meth:`reset` correctly returns a tuple of the form `(obs , info)`.
 
@@ -274,6 +293,7 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     check_space_limit(env.observation_space, "observation")
 
     # ==== Check the reset method ====
+    check_seed_deprecation(env)
     check_reset_return_info_deprecation(env)
     check_reset_return_type(env)
     check_reset_seed(env)

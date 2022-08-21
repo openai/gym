@@ -1,5 +1,6 @@
 """Tests that the `env_checker` runs as expects and all errors are possible."""
 import re
+import warnings
 
 import numpy as np
 import pytest
@@ -12,6 +13,7 @@ from gym.utils.env_checker import (
     check_reset_return_info_deprecation,
     check_reset_return_type,
     check_reset_seed,
+    check_seed_deprecation,
 )
 from tests.testing_env import GenericTestEnv
 
@@ -190,6 +192,31 @@ def test_check_reset_return_info_deprecation(test, func: callable, message: str)
 
     with pytest.raises(test, match=f"^{re.escape(message)}$"):
         check_reset_return_info_deprecation(GenericTestEnv(reset_fn=func))
+
+
+def test_check_seed_deprecation():
+    """Tests that return_info has been correct deprecated as an argument to `env.reset()`."""
+
+    message = """Official support for the `seed` function is dropped. Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"""
+
+    env = GenericTestEnv()
+
+    def seed(seed):
+        return
+
+    with pytest.warns(
+        UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
+    ):
+        env.seed = seed
+        assert callable(env.seed)
+        check_seed_deprecation(env)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        env.seed = []
+        check_seed_deprecation(env)
+        del env.seed
+        check_seed_deprecation(env)
 
 
 def test_check_reset_options():
