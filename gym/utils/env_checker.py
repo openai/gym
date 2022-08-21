@@ -45,7 +45,7 @@ def data_equivalence(data_1, data_2) -> bool:
             return data_1.keys() == data_2.keys() and all(
                 data_equivalence(data_1[k], data_2[k]) for k in data_1.keys()
             )
-        elif isinstance(data_1, tuple):
+        elif isinstance(data_1, (tuple, list)):
             return len(data_1) == len(data_2) and all(
                 data_equivalence(o_1, o_2) for o_1, o_2 in zip(data_1, data_2)
             )

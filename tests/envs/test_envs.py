@@ -1,9 +1,16 @@
+import pickle
+
 import pytest
 
 import gym
 from gym.envs.registration import EnvSpec
-from gym.utils.env_checker import check_env
-from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_env_specs
+from gym.utils.env_checker import check_env, data_equivalence
+from tests.envs.utils import (
+    all_testing_env_specs,
+    all_testing_initialised_envs,
+    assert_equals,
+    gym_testing_env_specs,
+)
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered envs.
@@ -120,3 +127,19 @@ def test_render_modes(spec):
             new_env.render()
             new_env.close()
     env.close()
+
+
+@pytest.mark.parametrize(
+    "env",
+    all_testing_initialised_envs,
+    ids=[env.spec.id for env in all_testing_initialised_envs],
+)
+def test_pickle_env(env: gym.Env):
+    pickled_env = pickle.loads(pickle.dumps(env))
+
+    data_equivalence(env.reset(), pickled_env.reset())
+
+    action = env.action_space.sample()
+    data_equivalence(env.step(action), pickled_env.step(action))
+    env.close()
+    pickled_env.close()

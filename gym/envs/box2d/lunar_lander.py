@@ -192,7 +192,15 @@ class LunarLander(gym.Env, EzPickle):
         wind_power: float = 15.0,
         turbulence_power: float = 1.5,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(
+            self,
+            render_mode,
+            continuous,
+            gravity,
+            enable_wind,
+            wind_power,
+            turbulence_power,
+        )
 
         assert (
             -12.0 < gravity and gravity < 0.0

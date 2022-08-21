@@ -18,7 +18,7 @@ class PusherEnv(MuJocoPyEnv, utils.EzPickle):
     }
 
     def __init__(self, **kwargs):
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(23,), dtype=np.float64)
         MuJocoPyEnv.__init__(
             self, "pusher.xml", 5, observation_space=observation_space, **kwargs

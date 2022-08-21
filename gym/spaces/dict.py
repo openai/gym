@@ -81,10 +81,12 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         if spaces is None:
             spaces = spaces_kwargs
-        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
+        if isinstance(spaces, Mapping) and not isinstance(spaces, OrderedDict):
             try:
                 spaces = OrderedDict(sorted(spaces.items()))
-            except TypeError:  # raise when sort by different types of keys
+            except TypeError:
+                # Incomparable types (e.g. `int` vs. `str`, or user-defined types) found.
+                # The keys remain in the insertion order.
                 spaces = OrderedDict(spaces.items())
         if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
@@ -100,9 +102,24 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return all(space.is_np_flattenable for space in self.spaces.values())
+
     def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
-        """Seed the PRNG of this space and all subspaces."""
+        """Seed the PRNG of this space and all subspaces.
+
+        Depending on the type of seed, the subspaces will be seeded differently
+        * None - All the subspaces will use a random initial seed
+        * Int - The integer is used to seed the `Dict` space that is used to generate seed values for each of the subspaces. Warning, this does not guarantee unique seeds for all of the subspaces.
+        * Dict - Using all the keys in the seed dictionary, the values are used to seed the subspaces. This allows the seeding of multiple composite subspaces (`Dict["space": Dict[...], ...]` with `{"space": {...}, ...}`).
+
+        Args:
+            seed: An optional list of ints or int to seed the (sub-)spaces.
+        """
         seeds = []
+
         if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):
                 assert key == seed_key, print(
@@ -115,19 +132,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 seeds += self.spaces[key].seed(seed[seed_key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            try:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=False,  # unique subseed for each subspace
-                )
-            except ValueError:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=True,  # we get more than INT_MAX subspaces
-                )
-
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
+            )
             for subspace, subseed in zip(self.spaces.values(), subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:
@@ -191,7 +198,17 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return "Dict(" + ", ".join([f"{k}: {s}" for k, s in self.spaces.items()]) + ")"
+        return (
+            "Dict(" + ", ".join([f"{k!r}: {s}" for k, s in self.spaces.items()]) + ")"
+        )
+
+    def __eq__(self, other) -> bool:
+        """Check whether `other` is equivalent to this instance."""
+        return (
+            isinstance(other, Dict)
+            # Comparison of `OrderedDict`s is order-sensitive
+            and self.spaces == other.spaces  # OrderedDict.__eq__
+        )
 
     def to_jsonable(self, sample_n: list) -> dict:
         """Convert a batch of samples from this space to a JSONable data type."""
