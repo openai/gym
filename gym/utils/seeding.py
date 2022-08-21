@@ -27,4 +27,4 @@ def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]
     return rng, np_seed
 
 
-RandomNumberGenerator = np.random.Generator
+RNG = RandomNumberGenerator = np.random.Generator
