@@ -171,6 +171,34 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.DEFAULT
         self._check_spaces()
 
+    def seed(self, seed=None):
+        """Seeds the vector environments.
+
+        Args:
+            seed: The seeds use with the environments
+
+        Raises:
+            AlreadyPendingCallError: Calling `seed` while waiting for a pending call to complete
+        """
+        super().seed(seed=seed)
+        self._assert_is_running()
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
+
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError(
+                f"Calling `seed` while waiting for a pending call to `{self._state.value}` to complete.",
+                self._state.value,
+            )
+
+        for pipe, seed in zip(self.parent_pipes, seed):
+            pipe.send(("seed", seed))
+        _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
+
     def reset_async(
         self,
         seed: Optional[Union[int, List[int]]] = None,
@@ -574,9 +602,13 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     info,
                 ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
+                    old_observation = observation
                     observation, info = env.reset()
-                    info["final_observation"] = observation
+                    info["final_observation"] = old_observation
                 pipe.send(((observation, reward, terminated, truncated, info), True))
+            elif command == "seed":
+                env.seed(data)
+                pipe.send((None, True))
             elif command == "close":
                 pipe.send((None, True))
                 break
@@ -640,12 +672,17 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     info,
                 ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
+                    old_observation = observation
                     observation, info = env.reset()
-                    info["final_observation"] = observation
+                    info["final_observation"] = old_observation
+
                 write_to_shared_memory(
                     observation_space, index, observation, shared_memory
                 )
                 pipe.send(((None, reward, terminated, truncated, info), True))
+            elif command == "seed":
+                env.seed(data)
+                pipe.send((None, True))
             elif command == "close":
                 pipe.send((None, True))
                 break

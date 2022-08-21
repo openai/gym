@@ -1,6 +1,6 @@
 """A synchronous vector environment."""
 from copy import deepcopy
-from typing import Any, Callable, Iterator, List, Optional, Union
+from typing import Any, Callable, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -74,6 +74,22 @@ class SyncVectorEnv(VectorEnv):
         self._truncateds = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
 
+    def seed(self, seed: Optional[Union[int, Sequence[int]]] = None):
+        """Sets the seed in all sub-environments.
+
+        Args:
+            seed: The seed
+        """
+        super().seed(seed=seed)
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
+
+        for env, single_seed in zip(self.envs, seed):
+            env.seed(single_seed)
+
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
@@ -113,7 +129,6 @@ class SyncVectorEnv(VectorEnv):
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
-
         return (deepcopy(self.observations) if self.copy else self.observations), infos
 
     def step_async(self, actions):
@@ -136,8 +151,9 @@ class SyncVectorEnv(VectorEnv):
                 info,
             ) = step_api_compatibility(env.step(action), True)
             if self._terminateds[i] or self._truncateds[i]:
+                old_observation = observation
                 observation, info = env.reset()
-                info["final_observation"] = observation
+                info["final_observation"] = old_observation
             observations.append(observation)
             infos = self._add_info(infos, info, i)
         self.observations = concatenate(
