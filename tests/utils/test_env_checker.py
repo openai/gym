@@ -195,7 +195,7 @@ def test_check_reset_return_info_deprecation(test, func: callable, message: str)
 
 
 def test_check_seed_deprecation():
-    """Tests that return_info has been correct deprecated as an argument to `env.reset()`."""
+    """Tests that `env.seed()` has been removed."""
 
     message = """Official support for the `seed` function is dropped. Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"""
 
