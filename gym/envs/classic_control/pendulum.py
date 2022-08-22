@@ -171,11 +171,8 @@ class PendulumEnv(gym.Env):
         theta, thetadot = self.state
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode="human"):
         assert mode in self.metadata["render_modes"]

@@ -570,11 +570,8 @@ class CarRacing(gym.Env, EzPickle):
         self.renderer.render_step()
         return self.state, step_reward, terminated, truncated, {}
 
-    def render(self, mode: str = "human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]

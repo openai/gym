@@ -194,13 +194,10 @@ class BlackjackEnv(gym.Env):
         else:
             return self._get_obs(), {}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
-    def _render(self, mode):
+    def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]
 
         try:
