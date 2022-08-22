@@ -180,9 +180,10 @@ class CliffWalkingEnv(Env):
 
         if self.window_surface is None:
             pygame.init()
-            pygame.display.init()
-            pygame.display.set_caption("CliffWalking")
+
             if mode == "human":
+                pygame.display.init()
+                pygame.display.set_caption("CliffWalking")
                 self.window_surface = pygame.display.set_mode(self.window_size)
             else:  # rgb_array
                 self.window_surface = pygame.Surface(self.window_size)
