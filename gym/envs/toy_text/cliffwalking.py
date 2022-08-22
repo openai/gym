@@ -183,7 +183,7 @@ class CliffWalkingEnv(Env):
 
         if self.window_surface is None:
             pygame.init()
-            
+
             if mode == "human":
                 pygame.display.init()
                 pygame.display.set_caption("CliffWalking")
