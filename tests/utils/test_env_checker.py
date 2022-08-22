@@ -133,7 +133,9 @@ def _reset_var_keyword_kwargs(self, kwargs):
 
 
 def _reset_return_info_type(self, seed=None, options=None):
-    return [1, 2]
+    """Returns a `list` instead of a `tuple`. This function is used to make sure `env_checker` correctly
+    checks that the return type of `env.reset()` is a `tuple`"""
+    return [self.observation_space.sample(), {}]
 
 
 def _reset_return_info_length(self, seed=None, options=None):
