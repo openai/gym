@@ -6,7 +6,6 @@ import numpy as np
 import gym.error
 from gym import logger
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 def _short_repr(arr: np.ndarray) -> str:

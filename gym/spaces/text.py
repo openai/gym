@@ -4,7 +4,6 @@ from typing import Any, FrozenSet, List, Optional, Set, Tuple, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 alphanumeric: FrozenSet[str] = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -30,7 +29,7 @@ class Text(Space[str]):
         *,
         min_length: int = 0,
         charset: Union[Set[str], str] = alphanumeric,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Text` space.
 

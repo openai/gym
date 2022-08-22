@@ -6,7 +6,7 @@ import numpy as np
 from gym import error
 
 
-def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]:
+def np_random(seed: Optional[int] = None) -> Tuple[np.random.Generator, Any]:
     """Generates a random number generator from the seed and returns the Generator and seed.
 
     Args:

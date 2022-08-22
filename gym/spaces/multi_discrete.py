@@ -6,7 +6,6 @@ import numpy as np
 from gym import logger
 from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
 
@@ -42,7 +41,7 @@ class MultiDiscrete(Space[np.ndarray]):
         self,
         nvec: Union[np.ndarray, List[int]],
         dtype=np.int64,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of :class:`MultiDiscrete` space.
 

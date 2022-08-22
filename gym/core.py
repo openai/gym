@@ -13,10 +13,11 @@ from typing import (
     Union,
 )
 
+import numpy as np
+
 from gym import spaces
 from gym.logger import deprecation, warn
 from gym.utils import seeding
-from gym.utils.seeding import RandomNumberGenerator
 
 if TYPE_CHECKING:
     from gym.envs.registration import EnvSpec
@@ -118,17 +119,17 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     observation_space: spaces.Space[ObsType]
 
     # Created
-    _np_random: Optional[RandomNumberGenerator] = None
+    _np_random: Optional[np.random.Generator] = None
 
     @property
-    def np_random(self) -> RandomNumberGenerator:
+    def np_random(self) -> np.random.Generator:
         """Returns the environment's internal :attr:`_np_random` that if not set will initialise with a random seed."""
         if self._np_random is None:
             self._np_random, seed = seeding.np_random()
         return self._np_random
 
     @np_random.setter
-    def np_random(self, value: RandomNumberGenerator):
+    def np_random(self, value: np.random.Generator):
         self._np_random = value
 
     def step(
@@ -397,7 +398,7 @@ class Wrapper(Env[ObsType, ActType]):
         return self.env.render_mode
 
     @property
-    def np_random(self) -> RandomNumberGenerator:
+    def np_random(self) -> np.random.Generator:
         """Returns the environment np_random."""
         return self.env.np_random
 
