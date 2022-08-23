@@ -170,7 +170,7 @@ def play(
     :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
     for last 150 steps.
 
-        >>> def callback(obs_t, obs_tp1, action, rew, done, info):
+        >>> def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         ...        return [rew,]
         >>> plotter = PlayPlot(callback, 150, ["reward"])
         >>> play(gym.make("ALE/AirRaid-v5"), callback=plotter.callback)
@@ -187,7 +187,8 @@ def play(
                 obs_tp1: observation after performing action
                 action: action that was executed
                 rew: reward that was received
-                done: whether the environment is done or not
+                terminated: whether the environment is terminated or not
+                truncated: whether the environment is truncated or not
                 info: debug info
         keys_to_action:  Mapping from keys pressed to action performed.
             Different formats are supported: Key combinations can either be expressed as a tuple of unicode code
@@ -257,6 +258,7 @@ def play(
             action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
             obs, rew, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
             if callback is not None:
                 callback(prev_obs, obs, action, rew, terminated, truncated, info)
         if obs is not None:
@@ -285,13 +287,14 @@ class PlayPlot:
         - obs_tp1: observation after performing action
         - action: action that was executed
         - rew: reward that was received
-        - done: whether the environment is done or not
+        - terminated: whether the environment is terminated or not
+        - truncated: whether the environment is truncated or not
         - info: debug info
 
     It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
 
-        >>> def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+        >>> def compute_metrics(obs_t, obs_tp, action, reward, terminated, truncated, info):
         ...     return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function

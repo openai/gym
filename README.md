@@ -31,9 +31,9 @@ observation, info = env.reset(seed=42)
 
 for _ in range(1000):
     action = env.action_space.sample()
-    observation, reward, done, info = env.step(action)
+    observation, reward, terminated, truncarted, info = env.step(action)
 
-    if done:
+    if terminated or truncated:
         observation, info = env.reset()
 env.close()
 ```

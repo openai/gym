@@ -132,10 +132,7 @@ class NormalizeReward(gym.core.Wrapper):
             rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
         rews = self.normalize(rews)
-        if not self.is_vector_env:
-            dones = terminateds or truncateds
-        else:
-            dones = np.bitwise_or(terminateds, truncateds)
+        dones = np.logical_or(terminateds, truncateds)
         self.returns[dones] = 0.0
         if not self.is_vector_env:
             rews = rews[0]

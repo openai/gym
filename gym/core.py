@@ -87,8 +87,7 @@ class Env(Generic[ObsType, ActType]):
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
-        Accepts an action and returns either a tuple `(observation, reward, terminated, truncated, info)`, or a tuple
-        (observation, reward, done, info). The latter is deprecated and will be removed in future versions.
+        Accepts an action and returns either a tuple `(observation, reward, terminated, truncated, info)`.
 
         Args:
             action (ActType): an action provided by the agent

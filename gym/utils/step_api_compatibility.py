@@ -135,8 +135,8 @@ def step_api_compatibility(
 ) -> Union[TerminatedTruncatedStepType, DoneStepType]:
     """Function to transform step returns to the API specified by `output_truncation_bool` bool.
 
-    Old step API refers to step() method returning (observation, reward, done, info)
-    New step API refers to step() method returning (observation, reward, terminated, truncated, info)
+    Done (old) step API refers to step() method returning (observation, reward, done, info)
+    Terminated Truncated (new) step API refers to step() method returning (observation, reward, terminated, truncated, info)
     (Refer to docs for details on the API change)
 
     Args:

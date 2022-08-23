@@ -10,14 +10,15 @@ class AutoResetWrapper(gym.Wrapper):
     with new step API and ``(new_obs, final_reward, final_done, info)`` with the old step API.
      - ``new_obs`` is the first observation after calling :meth:`self.env.reset`
      - ``final_reward`` is the reward after calling :meth:`self.env.step`, prior to calling :meth:`self.env.reset`.
-     - ``final_done`` is always True. In the new API, either ``final_terminated`` or ``final_truncated`` is True
+     - ``final_terminated`` is the terminated value before calling :meth:`self.env.reset`.
+     - ``final_truncated`` is the truncated value before calling :meth:`self.env.reset`. Both `final_terminated` and `final_truncated` cannot be False.
      - ``info`` is a dict containing all the keys from the info dict returned by the call to :meth:`self.env.reset`,
        with an additional key "final_observation" containing the observation returned by the last call to :meth:`self.env.step`
        and "final_info" containing the info dict returned by the last call to :meth:`self.env.step`.
 
     Warning: When using this wrapper to collect rollouts, note that when :meth:`Env.step` returns `terminated` or `truncated`, a
         new observation from after calling :meth:`Env.reset` is returned by :meth:`Env.step` alongside the
-        final reward and done state from the previous episode.
+        final reward, terminated and truncated state from the previous episode.
         If you need the final state from the previous episode, you need to retrieve it via the
         "final_observation" key in the info dict.
         Make sure you know what you're doing if you use this wrapper!
