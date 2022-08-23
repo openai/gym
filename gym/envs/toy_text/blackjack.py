@@ -167,7 +167,6 @@ class BlackjackEnv(gym.Env):
     def reset(
         self,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -189,10 +188,7 @@ class BlackjackEnv(gym.Env):
         self.renderer.reset()
         self.renderer.render_step()
 
-        if not return_info:
-            return self._get_obs()
-        else:
-            return self._get_obs(), {}
+        return self._get_obs(), {}
 
     def render(self):
         return self.renderer.get_renders()

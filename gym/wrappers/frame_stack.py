@@ -183,14 +183,8 @@ class FrameStack(gym.ObservationWrapper):
         Returns:
             The stacked observations
         """
-        if kwargs.get("return_info", False):
-            obs, info = self.env.reset(**kwargs)
-        else:
-            obs = self.env.reset(**kwargs)
-            info = None  # Unused
+        obs, info = self.env.reset(**kwargs)
+
         [self.frames.append(obs) for _ in range(self.num_stack)]
 
-        if kwargs.get("return_info", False):
-            return self.observation(None), info
-        else:
-            return self.observation(None)
+        return self.observation(None), info

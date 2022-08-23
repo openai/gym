@@ -31,10 +31,7 @@ def test_record_episode_statistics_reset_info():
     env = gym.make("CartPole-v1", disable_env_checker=True)
     env = RecordEpisodeStatistics(env)
     ob_space = env.observation_space
-    obs = env.reset()
-    assert ob_space.contains(obs)
-    del obs
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
 

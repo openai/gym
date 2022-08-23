@@ -138,13 +138,7 @@ class PendulumEnv(gym.Env):
         self.renderer.render_step()
         return self._get_obs(), -costs, False, False, {}
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         if options is None:
             high = np.array([DEFAULT_X, DEFAULT_Y])
@@ -162,10 +156,7 @@ class PendulumEnv(gym.Env):
 
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return self._get_obs()
-        else:
-            return self._get_obs(), {}
+        return self._get_obs(), {}
 
     def _get_obs(self):
         theta, thetadot = self.state

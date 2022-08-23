@@ -14,8 +14,8 @@ def test_time_aware_observation(env_id):
     assert isinstance(wrapped_env.observation_space, spaces.Box)
     assert wrapped_env.observation_space.shape[0] == env.observation_space.shape[0] + 1
 
-    obs = env.reset()
-    wrapped_obs = wrapped_env.reset()
+    obs, info = env.reset()
+    wrapped_obs, wrapped_obs_info = wrapped_env.reset()
     assert wrapped_env.t == 0.0
     assert wrapped_obs[-1] == 0.0
     assert wrapped_obs.shape[0] == obs.shape[0] + 1
@@ -30,7 +30,7 @@ def test_time_aware_observation(env_id):
     assert wrapped_obs[-1] == 2.0
     assert wrapped_obs.shape[0] == obs.shape[0] + 1
 
-    wrapped_obs = wrapped_env.reset()
+    wrapped_obs, wrapped_obs_info = wrapped_env.reset()
     assert wrapped_env.t == 0.0
     assert wrapped_obs[-1] == 0.0
     assert wrapped_obs.shape[0] == obs.shape[0] + 1

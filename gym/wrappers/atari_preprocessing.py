@@ -144,11 +144,7 @@ class AtariPreprocessing(gym.Wrapper):
     def reset(self, **kwargs):
         """Resets the environment using preprocessing."""
         # NoopReset
-        if kwargs.get("return_info", False):
-            _, reset_info = self.env.reset(**kwargs)
-        else:
-            _ = self.env.reset(**kwargs)
-            reset_info = {}
+        _, reset_info = self.env.reset(**kwargs)
 
         noops = (
             self.env.unwrapped.np_random.integers(1, self.noop_max + 1)
@@ -159,11 +155,7 @@ class AtariPreprocessing(gym.Wrapper):
             _, _, terminated, truncated, step_info = self.env.step(0)
             reset_info.update(step_info)
             if terminated or truncated:
-                if kwargs.get("return_info", False):
-                    _, reset_info = self.env.reset(**kwargs)
-                else:
-                    _ = self.env.reset(**kwargs)
-                    reset_info = {}
+                _, reset_info = self.env.reset(**kwargs)
 
         self.lives = self.ale.lives()
         if self.grayscale_obs:
@@ -172,10 +164,7 @@ class AtariPreprocessing(gym.Wrapper):
             self.ale.getScreenRGB(self.obs_buffer[0])
         self.obs_buffer[1].fill(0)
 
-        if kwargs.get("return_info", False):
-            return self._get_obs(), reset_info
-        else:
-            return self._get_obs()
+        return self._get_obs(), reset_info
 
     def _get_obs(self):
         if self.frame_skip > 1:  # more efficient in-place pooling

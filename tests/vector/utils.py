@@ -63,7 +63,7 @@ class UnittestSlowEnv(gym.Env):
         super().reset(seed=seed)
         if self.slow_reset > 0:
             time.sleep(self.slow_reset)
-        return self.observation_space.sample()
+        return self.observation_space.sample(), {}
 
     def step(self, action):
         time.sleep(action)
@@ -99,7 +99,7 @@ class CustomSpaceEnv(gym.Env):
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
-        return "reset"
+        return "reset", {}
 
     def step(self, action):
         observation = f"step({action:s})"

@@ -18,8 +18,8 @@ def test_rescale_action():
 
     seed = 0
 
-    obs = env.reset(seed=seed)
-    wrapped_obs = wrapped_env.reset(seed=seed)
+    obs, info = env.reset(seed=seed)
+    wrapped_obs, wrapped_obs_info = wrapped_env.reset(seed=seed)
     assert np.allclose(obs, wrapped_obs)
 
     obs, reward, _, _, _ = env.step([1.5])

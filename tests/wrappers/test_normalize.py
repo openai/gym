@@ -1,7 +1,6 @@
 from typing import Optional
 
 import numpy as np
-import pytest
 from numpy.testing import assert_almost_equal
 
 import gym
@@ -30,19 +29,10 @@ class DummyRewardEnv(gym.Env):
             {},
         )
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: Optional[bool] = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
-        if not return_info:
-            return np.array([self.t])
-        else:
-            return np.array([self.t]), {}
+        return np.array([self.t]), {}
 
 
 def make_env(return_reward_idx):
@@ -53,11 +43,10 @@ def make_env(return_reward_idx):
     return thunk
 
 
-@pytest.mark.parametrize("return_info", [False, True])
-def test_normalize_observation(return_info: bool):
+def test_normalize_observation():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    env.reset(return_info=return_info)
+    env.reset()
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 0.5, decimal=4)
     env.step(env.action_space.sample())
@@ -67,13 +56,7 @@ def test_normalize_observation(return_info: bool):
 def test_normalize_reset_info():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    obs = env.reset()
-    assert isinstance(obs, np.ndarray)
-    del obs
-    obs = env.reset(return_info=False)
-    assert isinstance(obs, np.ndarray)
-    del obs
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     assert isinstance(obs, np.ndarray)
     assert isinstance(info, dict)
 

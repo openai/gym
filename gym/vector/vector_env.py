@@ -52,7 +52,6 @@ class VectorEnv(gym.Env):
     def reset_async(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Reset the sub-environments asynchronously.
@@ -62,7 +61,6 @@ class VectorEnv(gym.Env):
 
         Args:
             seed: The reset seed
-            return_info: If to return info
             options: Reset options
         """
         pass
@@ -70,7 +68,6 @@ class VectorEnv(gym.Env):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Retrieves the results of a :meth:`reset_async` call.
@@ -79,7 +76,6 @@ class VectorEnv(gym.Env):
 
         Args:
             seed: The reset seed
-            return_info: If to return info
             options: Reset options
 
         Returns:
@@ -94,21 +90,19 @@ class VectorEnv(gym.Env):
         self,
         *,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Reset all parallel environments and return a batch of initial observations.
 
         Args:
             seed: The environment reset seeds
-            return_info: If to return the info
             options: If to return the options
 
         Returns:
             A batch of observations from the vectorized environment.
         """
-        self.reset_async(seed=seed, return_info=return_info, options=options)
-        return self.reset_wait(seed=seed, return_info=return_info, options=options)
+        self.reset_async(seed=seed, options=options)
+        return self.reset_wait(seed=seed, options=options)
 
     def step_async(self, actions):
         """Asynchronously performs steps in the sub-environments.
@@ -211,21 +205,6 @@ class VectorEnv(gym.Env):
             self.viewer.close()
         self.close_extras(**kwargs)
         self.closed = True
-
-    def seed(self, seed=None):
-        """Set the random seed in all parallel environments.
-
-        Args:
-            seed: Random seed for each parallel environment. If ``seed`` is a list of
-                length ``num_envs``, then the items of the list are chosen as random
-                seeds. If ``seed`` is an int, then each parallel environment uses the random
-                seed ``seed + n``, where ``n`` is the index of the parallel environment
-                (between ``0`` and ``num_envs - 1``).
-        """
-        deprecation(
-            "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
-            "Please use `env.reset(seed=seed) instead in VectorEnvs."
-        )
 
     def _add_info(self, infos: dict, info: dict, env_num: int) -> dict:
         """Add env info to the info dictionary of the vectorized environment.
@@ -330,9 +309,6 @@ class VectorEnvWrapper(VectorEnv):
 
     def close_extras(self, **kwargs):
         return self.env.close_extras(**kwargs)
-
-    def seed(self, seed=None):
-        return self.env.seed(seed)
 
     def call(self, name, *args, **kwargs):
         return self.env.call(name, *args, **kwargs)

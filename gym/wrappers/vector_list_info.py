@@ -49,9 +49,6 @@ class VectorListInfo(gym.Wrapper):
 
     def reset(self, **kwargs):
         """Resets the environment using kwargs."""
-        if not kwargs.get("return_info"):
-            return self.env.reset(**kwargs)
-
         obs, infos = self.env.reset(**kwargs)
         list_info = self._convert_info_to_list(infos)
         return obs, list_info
