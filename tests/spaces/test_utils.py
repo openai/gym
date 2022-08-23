@@ -1,9 +1,12 @@
+import re
 from itertools import zip_longest
+from typing import Optional
 
 import numpy as np
 import pytest
 
-from gym.spaces import Box, Graph, GraphInstance, utils
+import gym
+from gym.spaces import Box, Graph, utils
 from gym.utils.env_checker import data_equivalence
 from tests.spaces.utils import TESTING_SPACES, TESTING_SPACES_IDS
 
@@ -32,27 +35,21 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
     7,
     10,
     6,
+    None,
     # Dict
     7,
     8,
     17,
+    None,
     # Graph
     None,
     None,
     None,
+    # Sequence
+    None,
+    None,
+    None,
 ]
-
-
-@pytest.mark.parametrize("space", non_homogenous_spaces)
-def test_non_flattenable(space):
-    assert space.is_np_flattenable is False
-    with pytest.raises(
-        ValueError,
-        match=re.escape(
-            "cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
-        ),
-    ):
-        utils.flatdim(space)
 
 
 @pytest.mark.parametrize(
@@ -60,11 +57,19 @@ def test_non_flattenable(space):
     zip_longest(TESTING_SPACES, TESTING_SPACES_EXPECTED_FLATDIMS),
     ids=TESTING_SPACES_IDS,
 )
-def test_flatdim(space, flatdim):
+def test_flatdim(space: gym.spaces.Space, flatdim: Optional[int]):
     """Checks that the flattened dims of the space is equal to an expected value."""
-    assert space.is_np_flattenable
-    dim = utils.flatdim(space)
-    assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
+    if space.is_np_flattenable:
+        dim = utils.flatdim(space)
+        assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
+    else:
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+            ),
+        ):
+            utils.flatdim(space)
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
@@ -72,7 +77,8 @@ def test_flatten_space(space):
     """Test that the flattened spaces are a box and have the `flatdim` shape."""
     flat_space = utils.flatten_space(space)
 
-    if isinstance(flat_space, Box):
+    if space.is_np_flattenable:
+        assert isinstance(flat_space, Box)
         (single_dim,) = flat_space.shape
         flatdim = utils.flatdim(space)
 
@@ -84,7 +90,7 @@ def test_flatten_space(space):
         node_flatdim = utils.flatdim(space.node_space)
         assert node_single_dim == node_flatdim
 
-        if space.edge_space is not None:
+        if flat_space.edge_space is not None:
             (edge_single_dim,) = flat_space.edge_space.shape
             edge_flatdim = utils.flatdim(space.edge_space)
             assert edge_single_dim == edge_flatdim
@@ -97,22 +103,14 @@ def test_flatten(space):
     """Test that a flattened sample have the `flatdim` shape."""
     flattened_sample = utils.flatten(space, space.sample())
 
-    if isinstance(flattened_sample, np.ndarray):
+    if space.is_np_flattenable:
+        assert isinstance(flattened_sample, np.ndarray)
         (single_dim,) = flattened_sample.shape
         flatdim = utils.flatdim(space)
 
         assert single_dim == flatdim
-    elif isinstance(flattened_sample, GraphInstance):
-        assert isinstance(space, Graph)
-
-        node_flatdim = utils.flatdim(space.node_space)
-        assert flattened_sample.nodes.shape[1] == node_flatdim
-
-        if space.edge_space is not None:
-            edge_flatdim = utils.flatdim(space.edge_space)
-            assert flattened_sample.edges.shape[1] == edge_flatdim
     else:
-        raise Exception(f"Unknown sample type: {type(flattened_sample)}")
+        raise Exception(space)
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)

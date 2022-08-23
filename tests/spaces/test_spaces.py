@@ -75,6 +75,7 @@ SPACE_KWARGS = [
     {"spaces": (Discrete(3), Discrete(2))},  # Tuple
     {"spaces": {"a": Discrete(3), "b": Discrete(2)}},  # Dict
     {"node_space": Discrete(4), "edge_space": Discrete(3)},  # Graph
+    {"space": Discrete(4)},  # Sequence
 ]
 assert len(SPACE_CLS) == len(SPACE_KWARGS)
 
@@ -506,6 +507,7 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
                 "b": {"b_1": None, "b_2": None},
                 "c": np.array([1, 0, 0, 1], dtype=np.int8),
             },
+            None,
             # Graph spaces
             (None, np.array([1, 1, 0, 0, 0], dtype=np.int8)),
             (
@@ -516,6 +518,11 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
                 None,
             ),
             (None, None),
+            # Sequence spaces
+            None,
+            None,
+            None,
+            None,
         ],
     ),
     ids=TESTING_COMPOSITE_SPACES_IDS,

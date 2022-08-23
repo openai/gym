@@ -9,6 +9,7 @@ from gym.spaces import (
     Graph,
     MultiBinary,
     MultiDiscrete,
+    Sequence,
     Space,
     Text,
     Tuple,
@@ -47,6 +48,7 @@ TESTING_COMPOSITE_SPACES = [
     ),
     Tuple((Discrete(5), Tuple((Box(low=0.0, high=1.0, shape=(3,)), Discrete(2))))),
     Tuple((Discrete(3), Dict(position=Box(low=0.0, high=1.0), velocity=Discrete(2)))),
+    Tuple((Graph(node_space=Box(-1, 1, shape=(2, 1)), edge_space=None), Discrete(2))),
     # Dict spaces
     Dict(
         {
@@ -78,10 +80,21 @@ TESTING_COMPOSITE_SPACES = [
             "c": Discrete(4),
         }
     ),
+    Dict(
+        a=Dict(
+            a=Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=None),
+            b=Box(-100, 100, shape=(2, 2)),
+        ),
+        b=Tuple([Box(-100, 100, shape=(2,)), Box(-100, 100, shape=(2,))]),
+    ),
     # Graph spaces
     Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
     Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
     Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+    # Sequence spaces
+    Sequence(Discrete(4)),
+    Sequence(Dict({"feature": Box(0, 1, (3,))})),
+    Sequence(Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=Discrete(4))),
 ]
 TESTING_COMPOSITE_SPACES_IDS = [f"{space}" for space in TESTING_COMPOSITE_SPACES]
 
