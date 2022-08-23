@@ -89,7 +89,7 @@ class TaxiEnv(Env):
 
     ### Info
 
-    ``step`` and ``reset(return_info=True)`` will return an info dictionary that contains "p" and "action_mask" containing
+    ``step`` and ``reset()`` will return an info dictionary that contains "p" and "action_mask" containing
         the probability that the state is taken and a mask of what actions will result in a change of state to speed up training.
 
     As Taxi's initial state is a stochastic, the "p" key represents the probability of the
@@ -266,7 +266,6 @@ class TaxiEnv(Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -275,10 +274,8 @@ class TaxiEnv(Env):
         self.taxi_orientation = 0
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
+
+        return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
 
     def render(self):
         return self.renderer.get_renders()

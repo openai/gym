@@ -12,16 +12,12 @@ def basic_reset_fn(
     self,
     *,
     seed: Optional[int] = None,
-    return_info: bool = False,
     options: Optional[dict] = None,
 ) -> Union[ObsType, Tuple[ObsType, dict]]:
     """A basic reset function that will pass the environment check using random actions from the observation space."""
     super(GenericTestEnv, self).reset(seed=seed)
     self.observation_space.seed(seed)
-    if return_info:
-        return self.observation_space.sample(), {"options": options}
-    else:
-        return self.observation_space.sample()
+    return self.observation_space.sample(), {"options": options}
 
 
 def new_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
@@ -81,7 +77,6 @@ class GenericTestEnv(gym.Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ) -> Union[ObsType, Tuple[ObsType, dict]]:
         # If you need a default working reset function, use `basic_reset_fn` above

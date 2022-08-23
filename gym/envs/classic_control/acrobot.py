@@ -180,13 +180,7 @@ class AcrobotEnv(core.Env):
         self.action_space = spaces.Discrete(3)
         self.state = None
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
@@ -199,10 +193,7 @@ class AcrobotEnv(core.Env):
 
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return self._get_ob()
-        else:
-            return self._get_ob(), {}
+        return self._get_ob(), {}
 
     def step(self, a):
         s = self.state

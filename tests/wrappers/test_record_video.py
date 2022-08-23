@@ -25,10 +25,8 @@ def test_record_video_using_default_trigger():
     shutil.rmtree("videos")
 
 
-def test_record_video_reset_return_info():
-    env = gym.make(
-        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
-    )
+def test_record_video_reset():
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     ob_space = env.observation_space
     obs, info = env.reset(return_info=True)
@@ -38,33 +36,9 @@ def test_record_video_reset_return_info():
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
-    env = gym.make(
-        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
-    )
-    env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
-    ob_space = env.observation_space
-    obs = env.reset(return_info=False)
-    env.close()
-    assert os.path.isdir("videos")
-    shutil.rmtree("videos")
-    assert ob_space.contains(obs)
-
-    env = gym.make(
-        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
-    )
-    env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
-    ob_space = env.observation_space
-    obs = env.reset()
-    env.close()
-    assert os.path.isdir("videos")
-    shutil.rmtree("videos")
-    assert ob_space.contains(obs)
-
 
 def test_record_video_step_trigger():
-    env = gym.make(
-        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
-    )
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     env._max_episode_steps = 20
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     env.reset()
@@ -95,7 +69,7 @@ def make_env(gym_id, seed, **kwargs):
 
 def test_record_video_within_vector():
     envs = gym.vector.SyncVectorEnv(
-        [make_env("CartPole-v1", 1 + i, render_mode="rgb_array_list") for i in range(2)]
+        [make_env("CartPole-v1", 1 + i, render_mode="rgb_array") for i in range(2)]
     )
     envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()

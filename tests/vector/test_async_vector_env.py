@@ -28,7 +28,7 @@ def test_reset_async_vector_env(shared_memory):
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    observations = env.reset()
+    observations, infos = env.reset()
 
     env.close()
 
@@ -40,19 +40,7 @@ def test_reset_async_vector_env(shared_memory):
 
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        observations = env.reset(return_info=False)
-    finally:
-        env.close()
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert observations.shape == (8,) + env.single_observation_space.shape
-    assert observations.shape == env.observation_space.shape
-
-    try:
-        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        observations, infos = env.reset(return_info=True)
+        observations, infos = env.reset()
     finally:
         env.close()
 
@@ -145,7 +133,7 @@ def test_copy_async_vector_env(shared_memory):
 
     # TODO, these tests do nothing, understand the purpose of the tests and fix them
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory, copy=True)
-    observations = env.reset()
+    observations, infos = env.reset()
     observations[0] = 0
 
     env.close()
@@ -157,7 +145,7 @@ def test_no_copy_async_vector_env(shared_memory):
 
     # TODO, these tests do nothing, understand the purpose of the tests and fix them
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory, copy=False)
-    observations = env.reset()
+    observations, infos = env.reset()
     observations[0] = 0
 
     env.close()
@@ -270,7 +258,7 @@ def test_custom_space_async_vector_env():
     env_fns = [make_custom_space_env(i) for i in range(4)]
 
     env = AsyncVectorEnv(env_fns, shared_memory=False)
-    reset_observations = env.reset()
+    reset_observations, reset_infos = env.reset()
 
     assert isinstance(env.single_action_space, CustomSpace)
     assert isinstance(env.action_space, Tuple)

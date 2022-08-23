@@ -23,7 +23,7 @@ class FakeEnvironment(gym.Env):
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         observation = self.observation_space.sample()
-        return observation
+        return observation, {}
 
     def step(self, action):
         del action
@@ -115,5 +115,6 @@ class TestNestedDictWrapper:
     def test_nested_dicts_ravel(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)
         wrapped_env = FlattenObservation(FilterObservation(env, env.obs_keys))
-        obs = wrapped_env.reset()
+        obs, info = wrapped_env.reset()
         assert obs.shape == wrapped_env.observation_space.shape
+        assert isinstance(info, dict)

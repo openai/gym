@@ -22,8 +22,8 @@ def test_vector_env_equal(shared_memory):
     assert async_env.action_space == sync_env.action_space
     assert async_env.single_action_space == sync_env.single_action_space
 
-    async_observations = async_env.reset(seed=0)
-    sync_observations = sync_env.reset(seed=0)
+    async_observations, async_infos = async_env.reset(seed=0)
+    sync_observations, sync_infos = sync_env.reset(seed=0)
     assert np.all(async_observations == sync_observations)
 
     for _ in range(num_steps):

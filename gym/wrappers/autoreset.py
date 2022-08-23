@@ -48,7 +48,7 @@ class AutoResetWrapper(gym.Wrapper):
 
         if terminated or truncated:
 
-            new_obs, new_info = self.env.reset(return_info=True)
+            new_obs, new_info = self.env.reset()
             assert (
                 "final_observation" not in new_info
             ), 'info dict cannot contain key "final_observation" '
