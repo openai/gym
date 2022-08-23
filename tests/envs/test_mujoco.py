@@ -17,8 +17,8 @@ def verify_environments_match(
     old_env = envs.make(old_env_id, disable_env_checker=True)
     new_env = envs.make(new_env_id, disable_env_checker=True)
 
-    old_reset_obs = old_env.reset(seed=seed)
-    new_reset_obs = new_env.reset(seed=seed)
+    old_reset_obs, old_info = old_env.reset(seed=seed)
+    new_reset_obs, new_info = new_env.reset(seed=seed)
 
     np.testing.assert_allclose(old_reset_obs, new_reset_obs)
 
@@ -56,7 +56,7 @@ EXCLUDE_POS_FROM_OBS = [
 def test_obs_space_mujoco_environments(env_spec: EnvSpec):
     """Check that the returned observations are contained in the observation space of the environment"""
     env = env_spec.make(disable_env_checker=True)
-    reset_obs = env.reset()
+    reset_obs, info = env.reset()
     assert env.observation_space.contains(
         reset_obs
     ), f"Obseravtion returned by reset() of {env_spec.id} is not contained in the default observation space {env.observation_space}."
@@ -73,7 +73,7 @@ def test_obs_space_mujoco_environments(env_spec: EnvSpec):
         env = env_spec.make(
             disable_env_checker=True, exclude_current_positions_from_observation=False
         )
-        reset_obs = env.reset()
+        reset_obs, info = env.reset()
         assert env.observation_space.contains(
             reset_obs
         ), f"Obseravtion of {env_spec.id} is not contained in the default observation space {env.observation_space} when excluding current position from observation."
@@ -86,7 +86,7 @@ def test_obs_space_mujoco_environments(env_spec: EnvSpec):
     # Ant-v4 has the option of including contact forces in the observation space with the use_contact_forces argument
     if env_spec.name == "Ant" and env_spec.version == 4:
         env = env_spec.make(disable_env_checker=True, use_contact_forces=True)
-        reset_obs = env.reset()
+        reset_obs, info = env.reset()
         assert env.observation_space.contains(
             reset_obs
         ), f"Obseravtion of {env_spec.id} is not contained in the default observation space {env.observation_space} when using contact forces."

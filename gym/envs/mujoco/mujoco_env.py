@@ -142,7 +142,6 @@ class BaseMujocoEnv(gym.Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -152,10 +151,7 @@ class BaseMujocoEnv(gym.Env):
         ob = self.reset_model()
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return ob
-        else:
-            return ob, {}
+        return ob, {}
 
     def set_state(self, qpos, qvel):
         """

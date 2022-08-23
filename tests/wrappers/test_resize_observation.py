@@ -13,7 +13,7 @@ def test_resize_observation(env_id, shape):
 
     assert isinstance(env.observation_space, spaces.Box)
     assert env.observation_space.shape[-1] == 3
-    obs = env.reset()
+    obs, _ = env.reset()
     if isinstance(shape, int):
         assert env.observation_space.shape[:2] == (shape, shape)
         assert obs.shape == (shape, shape, 3)

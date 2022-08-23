@@ -18,7 +18,7 @@ class FakeEnvironment(gym.Env):
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.observation = self.observation_space.sample()
-        return self.observation
+        return self.observation, {}
 
 
 OBSERVATION_SPACES = (
@@ -67,7 +67,7 @@ class TestFlattenEnvironment:
         """
         env = FakeEnvironment(observation_space=observation_space)
         wrapped_env = FlattenObservation(env)
-        flattened = wrapped_env.reset()
+        flattened, info = wrapped_env.reset()
 
         unflattened = unflatten(env.observation_space, flattened)
         original = env.observation
