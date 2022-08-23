@@ -200,12 +200,20 @@ class CarRacing(gym.Env, EzPickle):
         domain_randomize: bool = False,
         continuous: bool = True,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(
+            self,
+            render_mode,
+            verbose,
+            lap_complete_percent,
+            domain_randomize,
+            continuous,
+        )
         self.continuous = continuous
         self.domain_randomize = domain_randomize
+        self.lap_complete_percent = lap_complete_percent
         self._init_colors()
 
-        self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
+        self.contactListener_keepref = FrictionDetector(self, self.lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen: Optional[pygame.Surface] = None
         self.surf = None
@@ -480,6 +488,10 @@ class CarRacing(gym.Env, EzPickle):
     ):
         super().reset(seed=seed)
         self._destroy()
+        self.world.contactListener_bug_workaround = FrictionDetector(
+            self, self.lap_complete_percent
+        )
+        self.world.contactListener = self.world.contactListener_bug_workaround
         self.reward = 0.0
         self.prev_reward = 0.0
         self.tile_visited_count = 0
@@ -558,11 +570,8 @@ class CarRacing(gym.Env, EzPickle):
         self.renderer.render_step()
         return self.state, step_reward, terminated, truncated, {}
 
-    def render(self, mode: str = "human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]

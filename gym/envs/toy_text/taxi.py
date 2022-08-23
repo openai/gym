@@ -280,11 +280,8 @@ class TaxiEnv(Env):
         else:
             return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode):
         assert mode in self.metadata["render_modes"]

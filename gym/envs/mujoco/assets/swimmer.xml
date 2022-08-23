@@ -21,19 +21,19 @@
       <geom density="1000" fromto="1.5 0 0 0.5 0 0" size="0.1" type="capsule"/>
       <joint axis="1 0 0" name="slider1" pos="0 0 0" type="slide"/>
       <joint axis="0 1 0" name="slider2" pos="0 0 0" type="slide"/>
-      <joint axis="0 0 1" name="rot" pos="0 0 0" type="hinge"/>
+      <joint axis="0 0 1" name="free_body_rot" pos="0 0 0" type="hinge"/>
       <body name="mid" pos="0.5 0 0">
         <geom density="1000" fromto="0 0 0 -1 0 0" size="0.1" type="capsule"/>
-        <joint axis="0 0 1" limited="true" name="rot2" pos="0 0 0" range="-100 100" type="hinge"/>
+        <joint axis="0 0 1" limited="true" name="motor1_rot" pos="0 0 0" range="-100 100" type="hinge"/>
         <body name="back" pos="-1 0 0">
           <geom density="1000" fromto="0 0 0 -1 0 0" size="0.1" type="capsule"/>
-          <joint axis="0 0 1" limited="true" name="rot3" pos="0 0 0" range="-100 100" type="hinge"/>
+          <joint axis="0 0 1" limited="true" name="motor2_rot" pos="0 0 0" range="-100 100" type="hinge"/>
         </body>
       </body>
     </body>
   </worldbody>
   <actuator>
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="rot2"/>
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="rot3"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="motor1_rot"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="motor2_rot"/>
   </actuator>
 </mujoco>

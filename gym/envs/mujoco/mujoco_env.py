@@ -1,6 +1,6 @@
 from functools import partial
 from os import path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -176,32 +176,8 @@ class BaseMujocoEnv(gym.Env):
             raise ValueError("Action dimension mismatch")
         self._step_mujoco_simulation(ctrl, n_frames)
 
-    def render(
-        self,
-        mode: str = "human",
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        camera_id: Optional[int] = None,
-        camera_name: Optional[str] = None,
-    ):
-        if self.render_mode is not None:
-            assert (
-                width is None
-                and height is None
-                and camera_id is None
-                and camera_name is None
-            ), "Unexpected argument for render. Specify render arguments at environment initialization."
-            return self.renderer.get_renders()
-        else:
-            width = width if width is not None else DEFAULT_SIZE
-            height = height if height is not None else DEFAULT_SIZE
-            return self._render(
-                mode=mode,
-                width=width,
-                height=height,
-                camera_id=camera_id,
-                camera_name=camera_name,
-            )
+    def render(self):
+        return self.renderer.get_renders()
 
     def close(self):
         if self.viewer is not None:
@@ -318,7 +294,9 @@ class MuJocoPyEnv(BaseMujocoEnv):
         elif mode == "human":
             self._get_viewer(mode).render()
 
-    def _get_viewer(self, mode):
+    def _get_viewer(
+        self, mode
+    ) -> Union["mujoco_py.MjViewer", "mujoco_py.MjRenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
@@ -331,9 +309,14 @@ class MuJocoPyEnv(BaseMujocoEnv):
                 "single_depth_array",
             }:
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
+            else:
+                raise AttributeError(
+                    f"Unknown mode: {mode}, expected modes: {self.metadata['render_modes']}"
+                )
 
             self.viewer_setup()
             self._viewers[mode] = self.viewer
+
         return self.viewer
 
     def get_body_com(self, body_name):
@@ -447,7 +430,9 @@ class MujocoEnv(BaseMujocoEnv):
             self.viewer.close()
         super().close()
 
-    def _get_viewer(self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def _get_viewer(
+        self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE
+    ) -> Union["gym.envs.mujoco.Viewer", "gym.envs.mujoco.RenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
@@ -464,6 +449,10 @@ class MujocoEnv(BaseMujocoEnv):
 
                 self.viewer = RenderContextOffscreen(
                     width, height, self.model, self.data
+                )
+            else:
+                raise AttributeError(
+                    f"Unexpected mode: {mode}, expected modes: {self.metadata['render_modes']}"
                 )
 
             self.viewer_setup()

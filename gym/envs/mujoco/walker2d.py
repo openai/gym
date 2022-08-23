@@ -22,7 +22,7 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
         MuJocoPyEnv.__init__(
             self, "walker2d.xml", 4, observation_space=observation_space, **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, a):
         posbefore = self.sim.data.qpos[0]

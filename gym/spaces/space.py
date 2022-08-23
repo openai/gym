@@ -51,7 +51,7 @@ class Space(Generic[T_cov]):
         self,
         shape: Optional[Sequence[int]] = None,
         dtype: Optional[Union[Type, str, np.dtype]] = None,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of :class:`Space`.
 
@@ -64,13 +64,13 @@ class Space(Generic[T_cov]):
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
         if seed is not None:
-            if isinstance(seed, seeding.RandomNumberGenerator):
+            if isinstance(seed, np.random.Generator):
                 self._np_random = seed
             else:
                 self.seed(seed)
 
     @property
-    def np_random(self) -> seeding.RandomNumberGenerator:
+    def np_random(self) -> np.random.Generator:
         """Lazily seed the PRNG since this is expensive and only needed if sampling from this space."""
         if self._np_random is None:
             self.seed()
@@ -81,6 +81,11 @@ class Space(Generic[T_cov]):
     def shape(self) -> Optional[Tuple[int, ...]]:
         """Return the shape of the space as an immutable property."""
         return self._shape
+
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        raise NotImplementedError
 
     def sample(self, mask: Optional[Any] = None) -> T_cov:
         """Randomly sample an element of this space.
