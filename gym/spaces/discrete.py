@@ -4,7 +4,6 @@ from typing import Optional, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Discrete(Space[int]):
@@ -21,7 +20,7 @@ class Discrete(Space[int]):
     def __init__(
         self,
         n: int,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
         start: int = 0,
     ):
         r"""Constructor of :class:`Discrete` space.

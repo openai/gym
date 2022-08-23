@@ -4,7 +4,6 @@ from typing import Optional, Sequence, Tuple, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class MultiBinary(Space[np.ndarray]):
@@ -27,7 +26,7 @@ class MultiBinary(Space[np.ndarray]):
     def __init__(
         self,
         n: Union[np.ndarray, Sequence[int], int],
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of :class:`MultiBinary` space.
 

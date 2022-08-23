@@ -8,7 +8,6 @@ from typing import Optional, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):
@@ -53,7 +52,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def __init__(
         self,
         spaces: Optional[TypingDict[str, Space]] = None,
-        seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[dict, int, np.random.Generator]] = None,
         **spaces_kwargs: Space,
     ):
         """Constructor of :class:`Dict` space.
@@ -81,10 +80,12 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         if spaces is None:
             spaces = spaces_kwargs
-        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
+        if isinstance(spaces, Mapping) and not isinstance(spaces, OrderedDict):
             try:
                 spaces = OrderedDict(sorted(spaces.items()))
-            except TypeError:  # raise when sort by different types of keys
+            except TypeError:
+                # Incomparable types (e.g. `int` vs. `str`, or user-defined types) found.
+                # The keys remain in the insertion order.
                 spaces = OrderedDict(spaces.items())
         if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
@@ -196,7 +197,17 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return "Dict(" + ", ".join([f"{k}: {s}" for k, s in self.spaces.items()]) + ")"
+        return (
+            "Dict(" + ", ".join([f"{k!r}: {s}" for k, s in self.spaces.items()]) + ")"
+        )
+
+    def __eq__(self, other) -> bool:
+        """Check whether `other` is equivalent to this instance."""
+        return (
+            isinstance(other, Dict)
+            # Comparison of `OrderedDict`s is order-sensitive
+            and self.spaces == other.spaces  # OrderedDict.__eq__
+        )
 
     def to_jsonable(self, sample_n: list) -> dict:
         """Convert a batch of samples from this space to a JSONable data type."""
