@@ -16,7 +16,7 @@ from typing import (
 import numpy as np
 
 from gym import spaces
-from gym.logger import deprecation, warn
+from gym.logger import warn
 from gym.utils import seeding
 
 if TYPE_CHECKING:

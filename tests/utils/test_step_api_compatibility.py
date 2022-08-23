@@ -2,7 +2,10 @@ import numpy as np
 import pytest
 
 from gym.utils.env_checker import data_equivalence
-from gym.utils.step_api_compatibility import convert_to_done_step_api, convert_to_terminated_truncated_step_api
+from gym.utils.step_api_compatibility import (
+    convert_to_done_step_api,
+    convert_to_terminated_truncated_step_api,
+)
 
 
 @pytest.mark.parametrize(

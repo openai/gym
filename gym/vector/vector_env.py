@@ -4,7 +4,6 @@ from typing import Any, List, Optional, Tuple, Union
 import numpy as np
 
 import gym
-from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
 
 __all__ = ["VectorEnv"]
