@@ -7,22 +7,8 @@ import re
 import sys
 import warnings
 from dataclasses import dataclass, field
-from typing import (
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    SupportsFloat,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
-import numpy as np
-
-from gym.envs.__relocated__ import internal_env_relocation_map
 from gym.wrappers import (
     AutoResetWrapper,
     HumanRendering,
@@ -36,11 +22,6 @@ if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 from gym import Env, error, logger
 
@@ -111,7 +92,7 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
     if version is not None:
         full_name += f"-v{version}"
     if ns is not None:
-        full_name = ns + "/" + full_name
+        full_name = f"{ns}/{full_name}"
     return full_name
 
 
@@ -131,7 +112,9 @@ class EnvSpec:
     """
 
     id: str
-    entry_point: Optional[Union[Callable, str]] = field(default=None)
+    entry_point: Union[Callable, str]
+
+    # Environment attributes
     reward_threshold: Optional[float] = field(default=None)
     nondeterministic: bool = field(default=False)
 
@@ -140,11 +123,11 @@ class EnvSpec:
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
     disable_env_checker: bool = field(default=False)
-    new_step_api: bool = field(default=False)
 
     # Environment arguments
     kwargs: dict = field(default_factory=dict)
 
+    # post-init attributes
     namespace: Optional[str] = field(init=False)
     name: str = field(init=False)
     version: Optional[int] = field(init=False)
@@ -187,23 +170,6 @@ def _check_name_exists(ns: Optional[str], name: str):
 
     if name in names:
         return
-
-    if namespace is None and name in internal_env_relocation_map:
-        relocated_namespace, relocated_package = internal_env_relocation_map[name]
-        message = f"The environment `{name}` has been moved out of Gym to the package `{relocated_package}`."
-
-        # Check if the package is installed
-        # If not instruct the user to install the package and then how to instantiate the env
-        if importlib.util.find_spec(relocated_package) is None:
-            message += (
-                f" Please install the package via `pip install {relocated_package}`."
-            )
-
-        # Otherwise the user should be able to instantiate the environment directly
-        if namespace != relocated_namespace:
-            message += f" You can instantiate the new namespaced environment as `{relocated_namespace}/{name}`."
-
-        raise error.NameNotFound(message)
 
     suggestion = difflib.get_close_matches(name, names, n=1)
     namespace_msg = f" in namespace {ns}" if ns else ""
@@ -313,8 +279,7 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
             else:
                 logger.warn(
                     f"The environment namespace magic key `{plugin.name}` is unsupported. "
-                    "To register an environment at the root namespace you should specify "
-                    "the `__root__` namespace."
+                    "To register an environment at the root namespace you should specify the `__root__` namespace."
                 )
 
         with context:
@@ -325,126 +290,8 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 logger.warn(str(e))
 
 
-# fmt: off
-# Classic control
-# ----------------------------------------
-
-
-@overload
-def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
-@overload
-def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
-@overload
-def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-
-# Box2d
-# ----------------------------------------
-
-
-@overload
-def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
-@overload
-def make(id: Literal["CarRacing-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
-
-# Toy Text
-# ----------------------------------------
-
-
-@overload
-def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-@overload
-def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
-
-# Mujoco
-# ----------------------------------------
-
-
-@overload
-def make(id: Literal[
-    "Reacher-v2",
-    "Pusher-v2",
-    "Thrower-v2",
-    "Striker-v2",
-    "InvertedPendulum-v2",
-    "InvertedDoublePendulum-v2",
-    "HalfCheetah-v2", "HalfCheetah-v3",
-    "Hopper-v2", "Hopper-v3",
-    "Swimmer-v2", "Swimmer-v3",
-    "Walker2d-v2", "Walker2d-v3",
-    "Ant-v2"
-], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
-
-
-@overload
-def make(id: str, **kwargs) -> Env: ...
-@overload
-def make(id: EnvSpec, **kwargs) -> Env: ...
-
-# fmt: on
-
-
-class EnvRegistry(dict):
-    """A glorified dictionary for compatibility reasons.
-
-    Turns out that some existing code directly used the old `EnvRegistry` code,
-    even though the intended API was just `register` and `make`.
-    This reimplements some old methods, so that e.g. pybullet environments will still work.
-
-    Ideally, nobody should ever use these methods, and they will be removed soon.
-    """
-
-    # TODO: remove this at 1.0
-
-    def make(self, path: str, **kwargs) -> Env:
-        logger.warn(
-            "The `registry.make` method is deprecated. Please use `gym.make` instead."
-        )
-        return make(path, **kwargs)
-
-    def register(self, id: str, **kwargs) -> None:
-        logger.warn(
-            "The `registry.register` method is deprecated. Please use `gym.register` instead."
-        )
-        return register(id, **kwargs)
-
-    def all(self) -> Iterable[EnvSpec]:
-        logger.warn(
-            "The `registry.all` method is deprecated. Please use `registry.values` instead."
-        )
-        return self.values()
-
-    def spec(self, path: str) -> EnvSpec:
-        logger.warn(
-            "The `registry.spec` method is deprecated. Please use `gym.spec` instead."
-        )
-        return spec(path)
-
-    def namespace(self, ns: str):
-        logger.warn(
-            "The `registry.namespace` method is deprecated. Please use `gym.namespace` instead."
-        )
-        return namespace(ns)
-
-    @property
-    def env_specs(self):
-        logger.warn(
-            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. Please use `registry` directly as a dictionary instead."
-        )
-        return self
-
-
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: Dict[str, EnvSpec] = EnvRegistry()
+registry: Dict[str, EnvSpec] = {}
 current_namespace: Optional[str] = None
 
 
@@ -503,7 +350,17 @@ def namespace(ns: str):
     current_namespace = old_namespace
 
 
-def register(id: str, **kwargs):
+def register(
+    id: str,
+    entry_point: Union[Callable, str],
+    reward_threshold: Optional[float] = None,
+    nondeterministic: bool = False,
+    max_episode_steps: Optional[int] = None,
+    order_enforce: bool = True,
+    autoreset: bool = False,
+    disable_env_checker: bool = False,
+    **kwargs,
+):
     """Register an environment with gym.
 
     The `id` parameter corresponds to the name of the environment, with the syntax as follows:
@@ -513,6 +370,13 @@ def register(id: str, **kwargs):
 
     Args:
         id: The environment id
+        entry_point: The entry point for creating the environment
+        reward_threshold: The reward threshold considered to have learnt an environment
+        nondeterministic: If the environment is nondeterministic (even with knowledge of the initial seed and all actions)
+        max_episode_steps: The maximum number of episodes steps before truncation. Used by the Time Limit wrapper.
+        order_enforce: If to enable the order enforcer wrapper to ensure users run functions in the correct order
+        autoreset: If to add the autoreset wrapper such that reset does not need to be called.
+        disable_env_checker: If to disable the environment checker for the environment. Recommended to False.
         **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
@@ -524,11 +388,9 @@ def register(id: str, **kwargs):
             and kwargs.get("namespace") != current_namespace
         ):
             logger.warn(
-                f"Custom namespace `{kwargs.get('namespace')}` is being overridden "
-                f"by namespace `{current_namespace}`. If you are developing a "
-                "plugin you shouldn't specify a namespace in `register` "
-                "calls. The namespace is specified through the "
-                "entry point package metadata."
+                f"Custom namespace `{kwargs.get('namespace')}` is being overridden by namespace `{current_namespace}`. "
+                f"If you are developing a plugin you shouldn't specify a namespace in `register` calls. "
+                "The namespace is specified through the entry point package metadata."
             )
         ns_id = current_namespace
     else:
@@ -536,11 +398,21 @@ def register(id: str, **kwargs):
 
     full_id = get_env_id(ns_id, name, version)
 
-    spec = EnvSpec(id=full_id, **kwargs)
-    _check_spec_register(spec)
-    if spec.id in registry:
-        logger.warn(f"Overriding environment {spec.id}")
-    registry[spec.id] = spec
+    new_spec = EnvSpec(
+        id=full_id,
+        entry_point=entry_point,
+        reward_threshold=reward_threshold,
+        nondeterministic=nondeterministic,
+        max_episode_steps=max_episode_steps,
+        order_enforce=order_enforce,
+        autoreset=autoreset,
+        disable_env_checker=disable_env_checker,
+        **kwargs,
+    )
+    _check_spec_register(new_spec)
+    if new_spec.id in registry:
+        logger.warn(f"Overriding environment {new_spec.id} already in registry.")
+    registry[new_spec.id] = new_spec
 
 
 def make(
@@ -552,6 +424,8 @@ def make(
     **kwargs,
 ) -> Env:
     """Create an environment according to the given ID.
+
+    To find all available environments use `gym.envs.registry.keys()` for all valid ids.
 
     Args:
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
