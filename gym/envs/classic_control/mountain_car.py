@@ -97,7 +97,7 @@ class MountainCarEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "rgb_array_list"],
         "render_fps": 30,
     }
 
@@ -190,7 +190,7 @@ class MountainCarEnv(gym.Env):
                 self.screen = pygame.display.set_mode(
                     (self.screen_width, self.screen_height)
                 )
-            else:  # mode in {"rgb_array", "single_rgb_array"}
+            else:  # mode in {"rgb_array", "rgb_array_list"}
                 self.screen = pygame.Surface((self.screen_width, self.screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -264,7 +264,7 @@ class MountainCarEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        elif mode in {"rgb_array", "single_rgb_array"}:
+        elif mode in {"rgb_array", "rgb_array_list"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )

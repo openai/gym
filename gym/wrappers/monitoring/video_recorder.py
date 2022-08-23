@@ -7,13 +7,6 @@ from typing import List, Optional
 
 from gym import error, logger
 
-try:
-    from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
-except ImportError:
-    raise error.DependencyNotInstalled(
-        "MoviePy is not installed, run `pip install moviepy`"
-    )
-
 
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
@@ -45,6 +38,12 @@ class VideoRecorder:
             Error: You can pass at most one of `path` or `base_path`
             Error: Invalid path given that must have a particular file extension
         """
+        try:
+            import moviepy  # noqa: F401
+        except ImportError:
+            raise error.DependencyNotInstalled(
+                "MoviePy is not installed, run `pip install moviepy`"
+            )
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
@@ -54,7 +53,7 @@ class VideoRecorder:
 
         self.render_mode = env.render_mode
 
-        if "rgb_array" != self.render_mode and "single_rgb_array" != self.render_mode:
+        if "rgb_array_list" != self.render_mode and "rgb_array" != self.render_mode:
             logger.warn(
                 f"Disabling video recorder because environment {env} was not initialized with any compatible video "
                 "mode between `single_rgb_array` and `rgb_array`"
@@ -145,6 +144,13 @@ class VideoRecorder:
 
         # Close the encoder
         if len(self.recorded_frames) > 0:
+            try:
+                from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+            except ImportError:
+                raise error.DependencyNotInstalled(
+                    "MoviePy is not installed, run `pip install moviepy`"
+                )
+
             logger.debug("Closing video encoder: path=%s", self.path)
             clip = ImageSequenceClip(self.recorded_frames, fps=self.frames_per_sec)
             clip.write_videofile(self.path)

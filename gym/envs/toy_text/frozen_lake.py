@@ -156,7 +156,7 @@ class FrozenLakeEnv(Env):
     """
 
     metadata = {
-        "render_modes": ["human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "ansi", "rgb_array", "rgb_array_list"],
         "render_fps": 4,
     }
 
@@ -278,7 +278,7 @@ class FrozenLakeEnv(Env):
         assert mode in self.metadata["render_modes"]
         if mode == "ansi":
             return self._render_text()
-        elif mode in {"human", "rgb_array", "single_rgb_array"}:
+        elif mode in {"human", "rgb_array", "rgb_array_list"}:
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
@@ -296,7 +296,7 @@ class FrozenLakeEnv(Env):
                 pygame.display.init()
                 pygame.display.set_caption("Frozen Lake")
                 self.window_surface = pygame.display.set_mode(self.window_size)
-            elif mode in {"rgb_array", "single_rgb_array"}:
+            elif mode in {"rgb_array", "rgb_array_list"}:
                 self.window_surface = pygame.Surface(self.window_size)
 
         assert (
@@ -374,7 +374,7 @@ class FrozenLakeEnv(Env):
             pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        elif mode in {"rgb_array", "single_rgb_array"}:
+        elif mode in {"rgb_array", "rgb_array_list"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
             )

@@ -98,7 +98,9 @@ def test_step_sync_vector_env(use_single_action_space):
 
 
 def test_call_sync_vector_env():
-    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
+    env_fns = [
+        make_env("CartPole-v1", i, render_mode="rgb_array_list") for i in range(4)
+    ]
 
     env = SyncVectorEnv(env_fns)
     _ = env.reset()

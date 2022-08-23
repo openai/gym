@@ -27,7 +27,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     logger.warn("Matplotlib is not installed, run `pip install gym[other]`")
-    plt = None
+    matplotlib, plt = None, None
 
 
 class MissingKeysToAction(Exception):
@@ -50,7 +50,7 @@ class PlayableGame:
             keys_to_action: The dictionary of keyboard tuples and action value
             zoom: If to zoom in on the environment render
         """
-        if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+        if env.render_mode not in {"rgb_array", "rgb_array_list"}:
             logger.error(
                 "PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
                 f"but your environment render_mode = {env.render_mode}."
@@ -150,7 +150,7 @@ def play(
 
         >>> import gym
         >>> from gym.utils.play import play
-        >>> play(gym.make("CarRacing-v1", render_mode="single_rgb_array"), keys_to_action={
+        >>> play(gym.make("CarRacing-v1", render_mode="rgb_array"), keys_to_action={
         ...                                                "w": np.array([0, 0.7, 0]),
         ...                                                "a": np.array([-1, 0, 0]),
         ...                                                "s": np.array([0, 0, 1]),
@@ -219,7 +219,7 @@ def play(
     deprecation(
         "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
     )
-    if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+    if env.render_mode not in {"rgb_array", "rgb_array_list"}:
         logger.error(
             "play method works only with rgb_array and single_rgb_array render modes, "
             f"but your environment render_mode = {env.render_mode}."
@@ -266,7 +266,7 @@ def play(
                 callback(prev_obs, obs, action, rew, done, info)
         if obs is not None:
             rendered = env.render()
-            if isinstance(rendered, List):
+            if isinstance(rendered, list):
                 rendered = rendered[-1]
             assert rendered is not None and isinstance(rendered, np.ndarray)
             display_arr(
@@ -279,6 +279,7 @@ def play(
 
         pygame.display.flip()
         clock.tick(fps)
+    pygame.display.quit()
     pygame.quit()
 
 

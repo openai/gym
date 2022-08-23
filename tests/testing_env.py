@@ -55,9 +55,13 @@ class GenericTestEnv(gym.Env):
         render_mode: Optional[str] = None,
         spec: EnvSpec = EnvSpec("TestingEnv-v0"),
     ):
+        render_modes = [] if render_modes is None else render_modes
         self.metadata = {"render_modes": render_modes}
         if render_fps:
             self.metadata["render_fps"] = render_fps
+        assert render_mode is None or (
+            render_modes is not None and render_mode in render_modes
+        )
         self.render_mode = render_mode
         self.spec = spec
 
@@ -81,7 +85,10 @@ class GenericTestEnv(gym.Env):
         options: Optional[dict] = None,
     ) -> Union[ObsType, Tuple[ObsType, dict]]:
         # If you need a default working reset function, use `basic_reset_fn` above
-        raise NotImplementedError("TestingEnv reset_fn is not set")
+        raise NotImplementedError("TestingEnv reset_fn is not set.")
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
-        raise NotImplementedError("TestingEnv step_fn is not set")
+        raise NotImplementedError("TestingEnv step_fn is not set.")
+
+    def render(self):
+        raise NotImplementedError("testingEnv render_fn is not set.")

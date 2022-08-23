@@ -1,5 +1,6 @@
 import pickle
 
+import numpy as np
 import pytest
 
 import gym
@@ -9,7 +10,6 @@ from tests.envs.utils import (
     all_testing_env_specs,
     all_testing_initialised_envs,
     assert_equals,
-    gym_testing_env_specs,
 )
 
 # This runs a smoketest on each official registered env. We may want
@@ -112,19 +112,56 @@ def test_env_determinism_rollout(env_spec: EnvSpec):
     env_2.close()
 
 
+def check_rendered(rendered_frame, mode: str):
+    """Check that the rendered frame is as expected."""
+    if mode == "rgb_array_list":
+        assert isinstance(rendered_frame, list)
+        for frame in rendered_frame:
+            check_rendered(frame, "rgb_array")
+    elif mode == "rgb_array":
+        assert isinstance(rendered_frame, np.ndarray)
+        assert len(rendered_frame.shape) == 3
+        assert rendered_frame.shape[2] == 3
+        assert np.all(rendered_frame >= 0) and np.all(rendered_frame <= 255)
+    elif mode == "ansi":
+        assert isinstance(rendered_frame, str)
+        assert len(rendered_frame) > 0
+    elif mode == "state_pixels_list":
+        assert isinstance(rendered_frame, list)
+        for frame in rendered_frame:
+            check_rendered(frame, "rgb_array")
+    elif mode == "state_pixels":
+        check_rendered(rendered_frame, "rgb_array")
+    elif mode == "depth_array_list":
+        assert isinstance(rendered_frame, list)
+        for frame in rendered_frame:
+            check_rendered(frame, "depth_array")
+    elif mode == "depth_array":
+        assert isinstance(rendered_frame, np.ndarray)
+        assert len(rendered_frame.shape) == 2
+    else:
+        raise Exception(f"Unknown mode: {mode}")
+
+
 @pytest.mark.parametrize(
-    "spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
 def test_render_modes(spec):
     env = spec.make()
 
-    for mode in env.metadata.get("render_modes", []):
+    assert len(env.metadata["render_modes"]) > 0
+    for mode in env.metadata["render_modes"]:
         if mode != "human":
             new_env = spec.make(render_mode=mode)
 
             new_env.reset()
+            rendered = new_env.render()
+            check_rendered(rendered, mode)
+
             new_env.step(new_env.action_space.sample())
-            new_env.render()
+            rendered = new_env.render()
+            check_rendered(rendered, mode)
+
             new_env.close()
     env.close()
 

@@ -9,9 +9,9 @@ from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
 class BrokenRecordableEnv(gym.Env):
-    metadata = {"render_modes": ["rgb_array"]}
+    metadata = {"render_modes": ["rgb_array_list"]}
 
-    def __init__(self, render_mode="rgb_array"):
+    def __init__(self, render_mode="rgb_array_list"):
         self.render_mode = render_mode
 
     def render(self):
@@ -29,7 +29,9 @@ class UnrecordableEnv(gym.Env):
 
 
 def test_record_simple():
-    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+    env = gym.make(
+        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
@@ -44,7 +46,9 @@ def test_record_simple():
 
 def test_autoclose():
     def record():
-        env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+        env = gym.make(
+            "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+        )
         rec = VideoRecorder(env)
         env.reset()
         rec.capture_frame()
@@ -91,7 +95,9 @@ def test_record_breaking_render_method():
 
 
 def test_text_envs():
-    env = gym.make("FrozenLake-v1", render_mode="rgb_array", disable_env_checker=True)
+    env = gym.make(
+        "FrozenLake-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
     video = VideoRecorder(env)
     try:
         env.reset()

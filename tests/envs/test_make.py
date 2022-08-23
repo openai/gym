@@ -173,8 +173,10 @@ def test_make_render_mode():
     env.close()
 
     # Make sure that render_mode is applied correctly
-    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
-    assert env.render_mode == "rgb_array"
+    env = gym.make(
+        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
+    assert env.render_mode == "rgb_array_list"
     env.reset()
     renders = env.render()
     assert isinstance(
@@ -224,7 +226,9 @@ def test_make_render_mode():
         TypeError, match=re.escape("got an unexpected keyword argument 'render_mode'")
     ):
         gym.make(
-            "test/NoHumanOldAPI-v0", render_mode="rgb_array", disable_env_checker=True
+            "test/NoHumanOldAPI-v0",
+            render_mode="rgb_array_list",
+            disable_env_checker=True,
         )
 
     # Make sure that an additional error is thrown a user tries to use the wrapper on an environment with old API

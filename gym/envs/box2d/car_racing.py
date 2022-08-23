@@ -184,10 +184,10 @@ class CarRacing(gym.Env, EzPickle):
     metadata = {
         "render_modes": [
             "human",
+            "rgb_array_list",
+            "state_pixels_list",
             "rgb_array",
             "state_pixels",
-            "single_rgb_array",
-            "single_state_pixels",
         ],
         "render_fps": FPS,
     }
@@ -545,7 +545,7 @@ class CarRacing(gym.Env, EzPickle):
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
 
-        self.state = self._render("single_state_pixels")
+        self.state = self._render("state_pixels")
 
         step_reward = 0
         terminated = False
@@ -605,7 +605,7 @@ class CarRacing(gym.Env, EzPickle):
             zoom,
             trans,
             angle,
-            mode not in ["state_pixels", "single_state_pixels"],
+            mode not in ["state_pixels_list", "state_pixels"],
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
@@ -627,9 +627,9 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if mode in {"rgb_array", "single_rgb_array"}:
+        if mode in {"rgb_array", "rgb_array_list"}:
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif mode in {"state_pixels", "single_state_pixels"}:
+        elif mode in {"state_pixels_list", "state_pixels"}:
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen

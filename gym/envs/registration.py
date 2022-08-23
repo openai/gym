@@ -638,17 +638,17 @@ def make(
             if (
                 mode == "human"
                 and "human" not in render_modes
-                and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+                and ("rgb_array" in render_modes or "rgb_array_list" in render_modes)
             ):
                 logger.warn(
                     "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
                     "The HumanRendering wrapper is being applied to your environment."
                 )
                 apply_human_rendering = True
-                if "single_rgb_array" in render_modes:
-                    _kwargs["render_mode"] = "single_rgb_array"
-                else:
+                if "rgb_array" in render_modes:
                     _kwargs["render_mode"] = "rgb_array"
+                else:
+                    _kwargs["render_mode"] = "rgb_array_list"
             elif mode not in render_modes:
                 logger.warn(
                     f"The environment is being initialised with mode ({mode}) that is not in the possible render_modes ({render_modes})."
