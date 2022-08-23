@@ -85,10 +85,10 @@ class PlayableGame:
         if isinstance(rendered, List):
             rendered = rendered[-1]
         assert rendered is not None and isinstance(rendered, np.ndarray)
-        video_size = [rendered.shape[1], rendered.shape[0]]
+        video_size = (rendered.shape[1], rendered.shape[0])
 
         if zoom is not None:
-            video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+            video_size = (int(video_size[0] * zoom), int(video_size[1] * zoom))
 
         return video_size
 
@@ -225,62 +225,64 @@ def play(
             f"but your environment render_mode = {env.render_mode}."
         )
 
-    env.reset(seed=seed)
+    try:
+        env.reset(seed=seed)
 
-    if keys_to_action is None:
-        if hasattr(env, "get_keys_to_action"):
-            keys_to_action = env.get_keys_to_action()
-        elif hasattr(env.unwrapped, "get_keys_to_action"):
-            keys_to_action = env.unwrapped.get_keys_to_action()
-        else:
-            raise MissingKeysToAction(
-                f"{env.spec.id} does not have explicit key to action mapping, "
-                "please specify one manually"
+        if keys_to_action is None:
+            if hasattr(env, "get_keys_to_action"):
+                keys_to_action = env.get_keys_to_action()
+            elif hasattr(env.unwrapped, "get_keys_to_action"):
+                keys_to_action = env.unwrapped.get_keys_to_action()
+            else:
+                raise MissingKeysToAction(
+                    f"{env.spec.id} does not have explicit key to action mapping, "
+                    "please specify one manually"
+                )
+        assert keys_to_action is not None
+
+        key_code_to_action = {}
+        for key_combination, action in keys_to_action.items():
+            key_code = tuple(
+                sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
             )
-    assert keys_to_action is not None
+            key_code_to_action[key_code] = action
 
-    key_code_to_action = {}
-    for key_combination, action in keys_to_action.items():
-        key_code = tuple(
-            sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
-        )
-        key_code_to_action[key_code] = action
+        game = PlayableGame(env, key_code_to_action, zoom)
 
-    game = PlayableGame(env, key_code_to_action, zoom)
+        if fps is None:
+            fps = env.metadata.get("render_fps", 30)
 
-    if fps is None:
-        fps = env.metadata.get("render_fps", 30)
+        done, obs = True, None
+        clock = pygame.time.Clock()
 
-    done, obs = True, None
-    clock = pygame.time.Clock()
+        while game.running:
+            if done:
+                done = False
+                obs = env.reset(seed=seed)
+            else:
+                action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
+                prev_obs = obs
+                obs, rew, done, info = env.step(action)
+                if callback is not None:
+                    callback(prev_obs, obs, action, rew, done, info)
+            if obs is not None:
+                rendered = env.render()
+                if isinstance(rendered, list):
+                    rendered = rendered[-1]
+                assert rendered is not None and isinstance(rendered, np.ndarray)
+                display_arr(
+                    game.screen, rendered, transpose=transpose, video_size=game.video_size
+                )
 
-    while game.running:
-        if done:
-            done = False
-            obs = env.reset(seed=seed)
-        else:
-            action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
-            prev_obs = obs
-            obs, rew, done, info = env.step(action)
-            if callback is not None:
-                callback(prev_obs, obs, action, rew, done, info)
-        if obs is not None:
-            rendered = env.render()
-            if isinstance(rendered, list):
-                rendered = rendered[-1]
-            assert rendered is not None and isinstance(rendered, np.ndarray)
-            display_arr(
-                game.screen, rendered, transpose=transpose, video_size=game.video_size
-            )
+            # process pygame events
+            for event in pygame.event.get():
+                game.process_event(event)
 
-        # process pygame events
-        for event in pygame.event.get():
-            game.process_event(event)
-
-        pygame.display.flip()
-        clock.tick(fps)
-    pygame.display.quit()
-    pygame.quit()
+            pygame.display.flip()
+            clock.tick(fps)
+        pygame.quit()
+    finally:
+        env.close()
 
 
 class PlayPlot:

@@ -20,7 +20,7 @@ IRRELEVANT_KEY = 1
 PlayableEnv = partial(
     GenericTestEnv,
     render_modes=["rgb_array"],
-    render_fn=lambda self: np.ones((2, 2, 3)),
+    render_fn=lambda self: np.ones((10, 10, 3)),
 )
 
 
@@ -86,14 +86,14 @@ def test_play_relevant_keys_with_env_attribute():
 def test_video_size_no_zoom():
     env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
-    assert game.video_size == list(env.render().shape)
+    assert game.video_size == env.render().shape[:2]
 
 
 def test_video_size_zoom():
     env = PlayableEnv(render_mode="rgb_array")
     zoom = 2.2
     game = PlayableGame(env, dummy_keys_to_action(), zoom)
-    assert game.video_size == tuple(int(shape * zoom) for shape in env.render().shape)
+    assert game.video_size == tuple(int(dim * zoom) for dim in env.render().shape[:2])
 
 
 def test_keyboard_quit_event():
