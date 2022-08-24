@@ -44,6 +44,8 @@ class RenderContext:
         self.model = model
         self.data = data
         self.offscreen = offscreen
+        self.offwidth = model.vis.global_.offwidth
+        self.offheight = model.vis.global_.offheight
         max_geom = 1000
 
         mujoco.mj_forward(self.model, self.data)
@@ -70,21 +72,9 @@ class RenderContext:
             if self.con.currentBuffer != mujoco.mjtFramebuffer.mjFB_WINDOW:
                 raise RuntimeError("Window rendering not supported")
 
-    def update_offscreen_size(self, width, height):
-        if width != self.con.offWidth or height != self.con.offHeight:
-            self.model.vis.global_.offwidth = width
-            self.model.vis.global_.offheight = height
-            self.con.free()
-            self._set_mujoco_buffers()
-
-    def render(self, width, height, camera_id=None, segmentation=False):
+    def render(self, camera_id=None, segmentation=False):
+        width, height = self.offwidth, self.offheight
         rect = mujoco.MjrRect(left=0, bottom=0, width=width, height=height)
-
-        # Sometimes buffers are too small.
-        if width > self.con.offWidth or height > self.con.offHeight:
-            new_width = max(width, self.model.vis.global_.offwidth)
-            new_height = max(height, self.model.vis.global_.offheight)
-            self.update_offscreen_size(new_width, new_height)
 
         if camera_id is not None:
             if camera_id == -1:
@@ -126,7 +116,8 @@ class RenderContext:
             self.scn.flags[mujoco.mjtRndFlag.mjRND_SEGMENT] = 0
             self.scn.flags[mujoco.mjtRndFlag.mjRND_IDCOLOR] = 0
 
-    def read_pixels(self, width, height, depth=True, segmentation=False):
+    def read_pixels(self, depth=True, segmentation=False):
+        width, height = self.offwidth, self.offheight
         rect = mujoco.MjrRect(left=0, bottom=0, width=width, height=height)
 
         rgb_arr = np.zeros(3 * rect.width * rect.height, dtype=np.uint8)
@@ -231,8 +222,10 @@ class RenderContext:
 class RenderContextOffscreen(RenderContext):
     """Offscreen rendering class with opengl context."""
 
-    def __init__(self, width, height, model, data):
-
+    def __init__(self, model, data):
+        # We must make GLContext before MjrContext
+        width = model.vis.global_.offwidth
+        height = model.vis.global_.offheight
         self._get_opengl_backend(width, height)
         self.opengl_context.make_current()
 
