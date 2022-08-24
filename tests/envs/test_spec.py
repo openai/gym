@@ -57,7 +57,7 @@ def test_spec_malformed_lookup():
 
 
 def test_spec_versioned_lookups():
-    gym.register("test/Test2-v5")
+    gym.register("test/Test2-v5", None)
 
     with pytest.raises(
         gym.error.VersionNotFound,
@@ -79,7 +79,7 @@ def test_spec_versioned_lookups():
 
 
 def test_spec_default_lookups():
-    gym.register("test/Test3")
+    gym.register("test/Test3", None)
 
     with pytest.raises(
         gym.error.DeprecatedEnv,
