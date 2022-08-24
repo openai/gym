@@ -6,7 +6,6 @@ import numpy as np
 import gym.error
 from gym import logger
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 def _short_repr(arr: np.ndarray) -> str:
@@ -57,7 +56,7 @@ class Box(Space[np.ndarray]):
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
         dtype: Type = np.float32,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Box`.
 

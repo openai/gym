@@ -167,7 +167,6 @@ class BlackjackEnv(gym.Env):
     def reset(
         self,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -189,18 +188,12 @@ class BlackjackEnv(gym.Env):
         self.renderer.reset()
         self.renderer.render_step()
 
-        if not return_info:
-            return self._get_obs()
-        else:
-            return self._get_obs(), {}
+        return self._get_obs(), {}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
-    def _render(self, mode):
+    def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]
 
         try:

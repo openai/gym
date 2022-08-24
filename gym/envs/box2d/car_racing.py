@@ -483,7 +483,6 @@ class CarRacing(gym.Env, EzPickle):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -519,10 +518,7 @@ class CarRacing(gym.Env, EzPickle):
         self.car = Car(self.world, *self.track[0][1:4])
 
         self.renderer.reset()
-        if not return_info:
-            return self.step(None)[0]
-        else:
-            return self.step(None)[0], {}
+        return self.step(None)[0], {}
 
     def step(self, action: Union[np.ndarray, int]):
         assert self.car is not None
@@ -570,11 +566,8 @@ class CarRacing(gym.Env, EzPickle):
         self.renderer.render_step()
         return self.state, step_reward, terminated, truncated, {}
 
-    def render(self, mode: str = "human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]

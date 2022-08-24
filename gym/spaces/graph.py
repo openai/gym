@@ -7,7 +7,6 @@ from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class GraphInstance(NamedTuple):
@@ -35,7 +34,7 @@ class Graph(Space):
         self,
         node_space: Union[Box, Discrete],
         edge_space: Union[None, Box, Discrete],
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Graph`.
 

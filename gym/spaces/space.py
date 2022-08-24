@@ -51,7 +51,7 @@ class Space(Generic[T_cov]):
         self,
         shape: Optional[Sequence[int]] = None,
         dtype: Optional[Union[Type, str, np.dtype]] = None,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of :class:`Space`.
 
@@ -64,13 +64,13 @@ class Space(Generic[T_cov]):
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
         if seed is not None:
-            if isinstance(seed, seeding.RandomNumberGenerator):
+            if isinstance(seed, np.random.Generator):
                 self._np_random = seed
             else:
                 self.seed(int(seed))
 
     @property
-    def np_random(self) -> seeding.RandomNumberGenerator:
+    def np_random(self) -> np.random.Generator:
         """Lazily seed the PRNG since this is expensive and only needed if sampling from this space."""
         if self._np_random is None:
             self.seed()

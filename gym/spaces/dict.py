@@ -10,7 +10,6 @@ from typing import Tuple, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):
@@ -60,7 +59,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 TypingSequence[Tuple[str, Space]],
             ]
         ] = None,
-        seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[dict, int, np.random.Generator]] = None,
         **spaces_kwargs: Space,
     ):
         """Constructor of :class:`Dict` space.

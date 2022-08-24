@@ -20,7 +20,7 @@ extras = {
     "mujoco_py": ["mujoco_py<2.2,>=2.1"],
     "mujoco": ["mujoco==2.2.0", "imageio>=2.14.1"],
     "toy_text": ["pygame==2.1.0"],
-    "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0"],
+    "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0", "moviepy>=1.0.0"],
 }
 
 # Testing dependency groups.

@@ -57,8 +57,8 @@ def test_initialise_failures(env, message):
     env.close()
 
 
-def _reset_failure(self, seed=None, return_info=False, options=None):
-    return np.array([-1.0], dtype=np.float32)
+def _reset_failure(self, seed=None, options=None):
+    return np.array([-1.0], dtype=np.float32), {}
 
 
 def _step_failure(self, action):

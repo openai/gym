@@ -149,28 +149,17 @@ class CliffWalkingEnv(Env):
         self.renderer.render_step()
         return (int(s), r, t, False, {"prob": p})
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+        return int(self.s), {"prob": 1}
+
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode="human"):
         if mode == "ansi":
@@ -183,9 +172,10 @@ class CliffWalkingEnv(Env):
 
         if self.window_surface is None:
             pygame.init()
-            pygame.display.init()
-            pygame.display.set_caption("CliffWalking")
+
             if mode == "human":
+                pygame.display.init()
+                pygame.display.set_caption("CliffWalking")
                 self.window_surface = pygame.display.set_mode(self.window_size)
             else:  # rgb_array
                 self.window_surface = pygame.Surface(self.window_size)

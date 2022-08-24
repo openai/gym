@@ -25,16 +25,10 @@ class FakeEnvironment(gym.Env):
         image_shape = (32, 32, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         observation = self.observation_space.sample()
-        return observation if not return_info else (observation, {})
+        return observation, {}
 
     def step(self, action):
         del action
@@ -79,8 +73,9 @@ class TestFilterObservation:
         assert tuple(wrapped_env.observation_space.spaces.keys()) == tuple(filter_keys)
 
         # Check that the added space item is consistent with the added observation.
-        observation = wrapped_env.reset()
+        observation, info = wrapped_env.reset()
         assert len(observation) == len(filter_keys)
+        assert isinstance(info, dict)
 
     @pytest.mark.parametrize("filter_keys,error_type,error_match", ERROR_TEST_CASES)
     def test_raises_with_incorrect_arguments(

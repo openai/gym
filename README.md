@@ -1,10 +1,14 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+## Important notice
+
+### Due to issues with the domain registration, the documentation has been moved to [https://www.gymlibrary.dev/](https://www.gymlibrary.dev/) as opposed to the old .ml address.
+
 ## Gym
 
 Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
-Gym documentation website is at [https://www.gymlibrary.ml/](https://www.gymlibrary.ml/), and you can propose fixes and changes to it [here](https://github.com/Farama-Foundation/gym-docs).
+Gym documentation website is at [https://www.gymlibrary.dev/](https://www.gymlibrary.dev/), and you can propose fixes and changes to it [here](https://github.com/Farama-Foundation/gym-docs).
 
 Gym also has a discord server for development purposes that you can join here: https://discord.gg/nHg2JRN489
 
@@ -23,14 +27,14 @@ The Gym API's API models environments as simple Python `env` classes. Creating e
 ```python
 import gym
 env = gym.make("CartPole-v1")
-observation, info = env.reset(seed=42, return_info=True)
+observation, info = env.reset(seed=42)
 
 for _ in range(1000):
     action = env.action_space.sample()
     observation, reward, done, info = env.step(action)
 
     if done:
-        observation, info = env.reset(return_info=True)
+        observation, info = env.reset()
 env.close()
 ```
 

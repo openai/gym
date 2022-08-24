@@ -89,20 +89,12 @@ class NormalizeObservation(gym.core.Wrapper):
 
     def reset(self, **kwargs):
         """Resets the environment and normalizes the observation."""
-        if kwargs.get("return_info", False):
-            obs, info = self.env.reset(**kwargs)
+        obs, info = self.env.reset(**kwargs)
 
-            if self.is_vector_env:
-                return self.normalize(obs), info
-            else:
-                return self.normalize(np.array([obs]))[0], info
+        if self.is_vector_env:
+            return self.normalize(obs), info
         else:
-            obs = self.env.reset(**kwargs)
-
-            if self.is_vector_env:
-                return self.normalize(obs)
-            else:
-                return self.normalize(np.array([obs]))[0]
+            return self.normalize(np.array([obs]))[0], info
 
     def normalize(self, obs):
         """Normalises the observation using the running mean and variance of the observations."""

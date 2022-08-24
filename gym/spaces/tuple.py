@@ -7,7 +7,6 @@ from typing import Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Tuple(Space[tuple], Sequence):
@@ -26,7 +25,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[Union[int, List[int], seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, List[int], np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Tuple` space.
 
