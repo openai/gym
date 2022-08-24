@@ -172,3 +172,8 @@ class Text(Space[str]):
     def characters(self) -> str:
         """Returns a string with all Text characters."""
         return self._char_str
+
+    @property
+    def is_np_flattenable(self) -> bool:
+        """The flattened version is an integer array for each character, padded to the max character length."""
+        return True

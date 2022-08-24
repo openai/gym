@@ -56,7 +56,7 @@ class Box(Space[np.ndarray]):
         low: Union[SupportsFloat, np.ndarray],
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
-        dtype: Union[Type, object] = np.float32,
+        dtype: Type = np.float32,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         r"""Constructor of :class:`Box`.

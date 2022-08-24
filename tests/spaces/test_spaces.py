@@ -53,9 +53,12 @@ def test_seed_reproducibility(space):
     space_1 = space
     space_2 = copy.deepcopy(space)
 
-    assert space_1.seed(0) == space_2.seed(0)
-    # With the same seed, the two spaces should be identical
-    assert all(data_equivalence(space_1.sample(), space_2.sample()) for _ in range(10))
+    for seed in range(5):
+        assert space_1.seed(seed) == space_2.seed(seed)
+        # With the same seed, the two spaces should be identical
+        assert all(
+            data_equivalence(space_1.sample(), space_2.sample()) for _ in range(10)
+        )
 
     assert space_1.seed(123) != space_2.seed(456)
     # Due to randomness, it is difficult to test that random seeds produce different answers
@@ -90,6 +93,11 @@ def test_seed_np_random(space_cls, kwarg):
 
     space = space_cls(seed=rng, **kwarg)
     assert space.np_random is rng
+    assert space.shape is None or (
+        isinstance(space.shape, tuple)
+        and all(isinstance(dim, int) for dim in space.shape)
+    )
+    assert space.dtype is None or isinstance(space.dtype, np.dtype)
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
@@ -108,7 +116,7 @@ def test_repr(space):
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
-def test_error_seed(space):
+def test_error_seed(space: Space):
     with pytest.raises((TypeError, gym.error.Error)):
         # We can't use string because it is a Sequence, therefore, custom class is easiest
         space.seed(Space())
@@ -499,6 +507,7 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
                 np.array([0, 0, 0], dtype=np.int8),
                 {"position": None, "velocity": np.array([1, 1], dtype=np.int8)},
             ),
+            (None, np.array([0, 1], dtype=np.int8)),
             # Dict spaces
             {"position": np.array([0, 1, 1, 0, 1], dtype=np.int8), "velocity": None},
             {"position": np.array([1, 1, 0, 1, 0, 0], dtype=np.int8), "velocity": None},
@@ -507,7 +516,7 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
                 "b": {"b_1": None, "b_2": None},
                 "c": np.array([1, 0, 0, 1], dtype=np.int8),
             },
-            None,
+            {"a": {"a": (None, None), "b": None}, "b": (None, None)},
             # Graph spaces
             (None, np.array([1, 1, 0, 0, 0], dtype=np.int8)),
             (
@@ -517,12 +526,11 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
                 ),
                 None,
             ),
-            (None, None),
+            (np.array([1, 0, 1], dtype=np.int8), np.array([0, 0, 1, 1], dtype=np.int8)),
             # Sequence spaces
-            None,
-            None,
-            None,
-            None,
+            (None, np.array([1, 0, 1, 1], dtype=np.int8)),
+            (np.array([4, 5, 6]), None),
+            (np.array([2, 3, 4]), (None, np.array([1, 0, 0, 1], dtype=np.int8))),
         ],
     ),
     ids=TESTING_COMPOSITE_SPACES_IDS,

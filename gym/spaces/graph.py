@@ -118,6 +118,9 @@ class Graph(Space):
 
         if mask is not None:
             node_space_mask, edge_space_mask = mask
+            if node_space_mask is not None:
+                if num_nodes > 1 and not isinstance(node_space_mask, tuple):
+                    node_space_mask = tuple(node_space_mask for _ in range(num_nodes))
         else:
             node_space_mask, edge_space_mask = None, None
 

@@ -1,4 +1,3 @@
-import re
 from itertools import zip_longest
 from typing import Optional
 
@@ -65,9 +64,6 @@ def test_flatdim(space: gym.spaces.Space, flatdim: Optional[int]):
     else:
         with pytest.raises(
             ValueError,
-            match=re.escape(
-                "cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
-            ),
         ):
             utils.flatdim(space)
 
@@ -95,7 +91,9 @@ def test_flatten_space(space):
             edge_flatdim = utils.flatdim(space.edge_space)
             assert edge_single_dim == edge_flatdim
     else:
-        raise Exception(f"Unknown flattened space: {type(flat_space)}")
+        assert isinstance(
+            space, (gym.spaces.Tuple, gym.spaces.Dict, gym.spaces.Sequence)
+        )
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)
@@ -110,7 +108,7 @@ def test_flatten(space):
 
         assert single_dim == flatdim
     else:
-        raise Exception(space)
+        assert isinstance(flattened_sample, (tuple, dict, Graph))
 
 
 @pytest.mark.parametrize("space", TESTING_SPACES, ids=TESTING_SPACES_IDS)

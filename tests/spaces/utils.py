@@ -85,12 +85,12 @@ TESTING_COMPOSITE_SPACES = [
             a=Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=None),
             b=Box(-100, 100, shape=(2, 2)),
         ),
-        b=Tuple([Box(-100, 100, shape=(2,)), Box(-100, 100, shape=(2,))]),
+        b=Tuple((Box(-100, 100, shape=(2,)), Box(-100, 100, shape=(2,)))),
     ),
     # Graph spaces
     Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
     Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
-    Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+    Graph(node_space=Discrete(3), edge_space=Discrete(4)),
     # Sequence spaces
     Sequence(Discrete(4)),
     Sequence(Dict({"feature": Box(0, 1, (3,))})),
