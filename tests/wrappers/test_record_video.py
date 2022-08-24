@@ -29,7 +29,7 @@ def test_record_video_reset():
     env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     ob_space = env.observation_space
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     env.close()
     assert os.path.isdir("videos")
     shutil.rmtree("videos")

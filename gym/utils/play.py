@@ -243,7 +243,9 @@ def play(
         key_code_to_action = {}
         for key_combination, action in keys_to_action.items():
             key_code = tuple(
-                sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
+                sorted(
+                    ord(key) if isinstance(key, str) else key for key in key_combination
+                )
             )
             key_code_to_action[key_code] = action
 
@@ -271,7 +273,10 @@ def play(
                     rendered = rendered[-1]
                 assert rendered is not None and isinstance(rendered, np.ndarray)
                 display_arr(
-                    game.screen, rendered, transpose=transpose, video_size=game.video_size
+                    game.screen,
+                    rendered,
+                    transpose=transpose,
+                    video_size=game.video_size,
                 )
 
             # process pygame events
