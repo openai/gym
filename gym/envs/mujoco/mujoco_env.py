@@ -49,7 +49,9 @@ class BaseMujocoEnv(gym.Env):
         if not path.exists(self.fullpath):
             raise OSError(f"File {self.fullpath} does not exist")
 
-        self._initialize_simulation()
+        self.width = width
+        self.height = height
+        self._initialize_simulation()  # may use width and height
 
         self.init_qpos = self.data.qpos.ravel().copy()
         self.init_qvel = self.data.qvel.ravel().copy()
@@ -76,8 +78,6 @@ class BaseMujocoEnv(gym.Env):
         self.render_mode = render_mode
         render_frame = partial(
             self._render,
-            width=width,
-            height=height,
             camera_name=camera_name,
             camera_id=camera_id,
         )
@@ -126,8 +126,6 @@ class BaseMujocoEnv(gym.Env):
     def _render(
         self,
         mode: str = "human",
-        width: int = DEFAULT_SIZE,
-        height: int = DEFAULT_SIZE,
         camera_id: Optional[int] = None,
         camera_name: Optional[str] = None,
     ):
@@ -249,11 +247,10 @@ class MuJocoPyEnv(BaseMujocoEnv):
     def _render(
         self,
         mode: str = "human",
-        width: int = DEFAULT_SIZE,
-        height: int = DEFAULT_SIZE,
         camera_id: Optional[int] = None,
         camera_name: Optional[str] = None,
     ):
+        width, height = self.width, self.height
         assert mode in self.metadata["render_modes"]
         if mode in {
             "rgb_array",
@@ -350,6 +347,9 @@ class MujocoEnv(BaseMujocoEnv):
 
     def _initialize_simulation(self):
         self.model = mujoco.MjModel.from_xml_path(self.fullpath)
+        # MjrContext will copy model.vis.global_.off* to con.off*
+        self.model.vis.global_.offwidth = self.width
+        self.model.vis.global_.offheight = self.height
         self.data = mujoco.MjData(self.model)
 
     def _reset_simulation(self):
@@ -376,8 +376,6 @@ class MujocoEnv(BaseMujocoEnv):
     def _render(
         self,
         mode: str = "human",
-        width: int = DEFAULT_SIZE,
-        height: int = DEFAULT_SIZE,
         camera_id: Optional[int] = None,
         camera_name: Optional[str] = None,
     ):
@@ -406,16 +404,16 @@ class MujocoEnv(BaseMujocoEnv):
                     camera_name,
                 )
 
-                self._get_viewer(mode).render(width, height, camera_id=camera_id)
+                self._get_viewer(mode).render(camera_id=camera_id)
 
         if mode in {"rgb_array", "single_rgb_array"}:
-            data = self._get_viewer(mode).read_pixels(width, height, depth=False)
+            data = self._get_viewer(mode).read_pixels(depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode in {"depth_array", "single_depth_array"}:
-            self._get_viewer(mode).render(width, height)
+            self._get_viewer(mode).render()
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
+            data = self._get_viewer(mode).read_pixels(depth=True)[1]
             # original image is upside-down, so flip it
             return data[::-1, :]
         elif mode == "human":
@@ -427,7 +425,7 @@ class MujocoEnv(BaseMujocoEnv):
         super().close()
 
     def _get_viewer(
-        self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE
+        self, mode
     ) -> Union["gym.envs.mujoco.Viewer", "gym.envs.mujoco.RenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
@@ -443,9 +441,7 @@ class MujocoEnv(BaseMujocoEnv):
             }:
                 from gym.envs.mujoco import RenderContextOffscreen
 
-                self.viewer = RenderContextOffscreen(
-                    width, height, self.model, self.data
-                )
+                self.viewer = RenderContextOffscreen(self.model, self.data)
             else:
                 raise AttributeError(
                     f"Unexpected mode: {mode}, expected modes: {self.metadata['render_modes']}"
