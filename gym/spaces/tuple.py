@@ -1,8 +1,9 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
 from collections.abc import Sequence
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 from typing import Tuple as TypingTuple
 from typing import Union
+from typing import Sequence as TypingSequence
 
 import numpy as np
 
@@ -25,7 +26,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[Union[int, List[int], np.random.Generator]] = None,
+        seed: Optional[Union[int, TypingSequence[int], np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Tuple` space.
 
@@ -47,7 +48,7 @@ class Tuple(Space[tuple], Sequence):
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return all(space.is_np_flattenable for space in self.spaces)
 
-    def seed(self, seed: Optional[Union[int, Sequence[int]]] = None) -> list:
+    def seed(self, seed: Optional[Union[int, TypingSequence[int]]] = None) -> TypingSequence[int]:
         """Seed the PRNG of this space and all subspaces.
 
         Depending on the type of seed, the subspaces will be seeded differently
@@ -83,7 +84,7 @@ class Tuple(Space[tuple], Sequence):
 
         return seeds
 
-    def sample(self, mask: Optional[TypingTuple[Optional[np.ndarray]]] = None) -> tuple:
+    def sample(self, mask: Optional[TypingTuple[Optional[np.ndarray], ...]] = None) -> tuple:
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
