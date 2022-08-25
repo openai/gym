@@ -205,7 +205,7 @@ def env_reset_passive_checker(env, **kwargs):
         assert isinstance(
             info, dict
         ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
-        return result
+    return result
 
 
 def env_step_passive_checker(env, action):
