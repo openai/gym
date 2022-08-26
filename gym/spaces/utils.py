@@ -6,9 +6,11 @@ These functions mostly take care of flattening and unflattening elements of spac
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, cast
+from typing import Any, Callable
 from typing import Dict as TypingDict
-
+from typing import List, Optional
+from typing import Sequence as TypingSequence
+from typing import TypeVar, Union, cast
 
 import numpy as np
 
@@ -402,7 +404,8 @@ def _flatten_space_graph(space: Graph) -> Graph:
         if space.edge_space is not None
         else None,
     )
-    
+
+
 @flatten_space.register(Sequence)
 def _flatten_space_sequence(space: Sequence) -> Sequence:
     return Sequence(flatten_space(space.feature_space))
@@ -487,7 +490,7 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
             apply_function(subspace, val, func, None)
             for subspace, val in zip(space.spaces, x)
         )
-    elif isinstance(args, Sequence):
+    elif isinstance(args, TypingSequence):
         assert len(args) == len(space)
         return tuple(
             apply_function(subspace, val, func, arg) if arg is not None else val

@@ -64,10 +64,7 @@ class TestingEnv(gym.Env):
     ) -> Union[ObsType, TypingTuple[ObsType, dict]]:
         """Reset the environment."""
         self.steps_left = self.env_length
-        if return_info:
-            return self.observation_space.sample(), {}
-        else:
-            return self.observation_space.sample()
+        return self.observation_space.sample(), {}
 
     def step(self, action: ActType) -> TypingTuple[ObsType, float, bool, dict]:
         """Step through the environment."""
