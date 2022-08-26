@@ -16,6 +16,7 @@ def resize_space(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ) -> Any:
     """Resize space with the provided args."""
+    raise NotImplementedError
 
 
 @resize_space.register(Discrete)

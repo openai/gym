@@ -7,7 +7,7 @@ from typing import Sequence
 from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import ArgType, FuncArgType
-from gym.spaces import Box, Dict, Space, Tuple
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
 @singledispatch
@@ -21,11 +21,22 @@ def make_scale_args(space: Space, args: FuncArgType, fn: Callable):
     where -1, 1 was the old action space bound.
     old action space is needed to rescale actions.
     """
-    ...
+    raise NotImplementedError
+
+
+@make_scale_args.register(Discrete)
+@make_scale_args.register(MultiDiscrete)
+@make_scale_args.register(MultiBinary)
+def _make_scale_args_not_scalable(space: Space, args: FuncArgType, fn: Callable):
+    """Do nothing in case of not scalable spaces.
+
+    Trying to rescale `Discrete`, `Multibinary` and `MultiDiscrete`
+    spaces has no effect.
+    """
 
 
 @make_scale_args.register(Box)
-def _make_scale_args_box(space: Space, args: Sequence, fn: Callable):
+def _make_scale_args_box(space: Box, args: Sequence, fn: Callable):
     if args is None:
         return (space.low, space.high, space.low, space.high)
     return (*args, space.low, space.high)
@@ -33,7 +44,7 @@ def _make_scale_args_box(space: Space, args: Sequence, fn: Callable):
 
 @make_scale_args.register(Dict)
 def _make_scale_args_dict(
-    space: Tuple, args: FuncArgType[TypingDict[str, ArgType]], fn: Callable
+    space: Dict, args: FuncArgType[TypingDict[str, ArgType]], fn: Callable
 ):
     extended_args = deepcopy(args)
 

@@ -13,6 +13,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 @singledispatch
 def grayscale_space(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Make observation space grayscale (i.e. flatten third dimension)."""
+    raise NotImplementedError
 
 
 @grayscale_space.register(Discrete)

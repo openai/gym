@@ -12,6 +12,7 @@ def transform_space_bounds(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ) -> Any:
     """Transform space bounds with the provided args."""
+    raise NotImplementedError
 
 
 @transform_space_bounds.register(Discrete)

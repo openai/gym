@@ -13,6 +13,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 @singledispatch
 def reshape_space(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Reshape space with the provided args."""
+    raise NotImplementedError
 
 
 @reshape_space.register(Discrete)

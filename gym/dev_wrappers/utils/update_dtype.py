@@ -11,6 +11,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 @singledispatch
 def update_dtype(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Transform space dtype with the provided args."""
+    raise NotImplementedError
 
 
 @update_dtype.register(Discrete)

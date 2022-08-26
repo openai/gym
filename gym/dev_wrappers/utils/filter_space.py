@@ -11,6 +11,7 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 @singledispatch
 def filter_space(space: Space, args: FuncArgType) -> Any:
     """Filter space with the provided args."""
+    raise NotImplementedError
 
 
 @filter_space.register(Box)
