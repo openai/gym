@@ -4,7 +4,6 @@ from typing import Optional, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Discrete(Space[int]):
@@ -21,7 +20,7 @@ class Discrete(Space[int]):
     def __init__(
         self,
         n: int,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
         start: int = 0,
     ):
         r"""Constructor of :class:`Discrete` space.
@@ -39,6 +38,11 @@ class Discrete(Space[int]):
         self.n = int(n)
         self.start = int(start)
         super().__init__((), np.int64, seed)
+
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
 
     def sample(self, mask: Optional[np.ndarray] = None) -> int:
         """Generates a single random sample from this space.

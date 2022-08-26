@@ -4,7 +4,6 @@ from typing import Iterable, List, Optional, Sequence, Tuple, Union
 import numpy as np
 
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Tuple(Space[tuple], Sequence):
@@ -23,7 +22,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[Union[int, List[int], seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, List[int], np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Tuple` space.
 
@@ -40,8 +39,22 @@ class Tuple(Space[tuple], Sequence):
             ), "Elements of the tuple must be instances of gym.Space"
         super().__init__(None, None, seed)  # type: ignore
 
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return all(space.is_np_flattenable for space in self.spaces)
+
     def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
-        """Seed the PRNG of this space and all subspaces."""
+        """Seed the PRNG of this space and all subspaces.
+
+        Depending on the type of seed, the subspaces will be seeded differently
+        * None - All the subspaces will use a random initial seed
+        * Int - The integer is used to seed the `Tuple` space that is used to generate seed values for each of the subspaces. Warning, this does not guarantee unique seeds for all of the subspaces.
+        * List - Values used to seed the subspaces. This allows the seeding of multiple composite subspaces (`List(42, 54, ...)`).
+
+        Args:
+            seed: An optional list of ints or int to seed the (sub-)spaces.
+        """
         seeds = []
 
         if isinstance(seed, list):
@@ -49,19 +62,9 @@ class Tuple(Space[tuple], Sequence):
                 seeds += space.seed(seed[i])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
-            try:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=False,  # unique subseed for each subspace
-                )
-            except ValueError:
-                subseeds = self.np_random.choice(
-                    np.iinfo(int).max,
-                    size=len(self.spaces),
-                    replace=True,  # we get more than INT_MAX subspaces
-                )
-
+            subseeds = self.np_random.integers(
+                np.iinfo(np.int32).max, size=len(self.spaces)
+            )
             for subspace, subseed in zip(self.spaces, subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:

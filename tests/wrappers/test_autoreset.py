@@ -39,19 +39,10 @@ class DummyResetEnv(gym.Env):
             {"count": self.count},  # Info
         )
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: Optional[bool] = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         """Resets the DummyEnv to return the count array and info with count."""
         self.count = 0
-        if not return_info:
-            return np.array([self.count])
-        else:
-            return np.array([self.count]), {"count": self.count}
+        return np.array([self.count]), {"count": self.count}
 
 
 def unwrap_env(env) -> Generator[gym.Wrapper, None, None]:
@@ -113,7 +104,7 @@ def test_autoreset_wrapper_autoreset():
     env = DummyResetEnv()
     env = AutoResetWrapper(env)
 
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     assert obs == np.array([0])
     assert info == {"count": 0}
 
@@ -138,6 +129,7 @@ def test_autoreset_wrapper_autoreset():
         "count": 0,
         "final_observation": np.array([3]),
         "final_info": {"count": 3},
+        "TimeLimit.truncated": False,
     }
 
     obs, reward, done, info = env.step(action)

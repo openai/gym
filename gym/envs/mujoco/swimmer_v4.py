@@ -42,8 +42,8 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
 
     | Num | Action                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
     |-----|------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
-    | 0   | Torque applied on the first rotor  | -1          | 1           | rot2                             | hinge | torque (N m) |
-    | 1   | Torque applied on the second rotor | -1          | 1           | rot3                             | hinge | torque (N m) |
+    | 0   | Torque applied on the first rotor  | -1          | 1           | motor1_rot                       | hinge | torque (N m) |
+    | 1   | Torque applied on the second rotor | -1          | 1           | motor2_rot                       | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -62,14 +62,14 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
 
     | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
     | --- | ------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
-    | 0   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
-    | 1   | angle of the first rotor             | -Inf | Inf | rot2                             | hinge | angle (rad)              |
-    | 2   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
+    | 0   | angle of the front tip               | -Inf | Inf | free_body_rot                    | hinge | angle (rad)              |
+    | 1   | angle of the first rotor             | -Inf | Inf | motor1_rot                       | hinge | angle (rad)              |
+    | 2   | angle of the second rotor            | -Inf | Inf | motor2_rot                       | hinge | angle (rad)              |
     | 3   | velocity of the tip along the x-axis | -Inf | Inf | slider1                          | slide | velocity (m/s)           |
     | 4   | velocity of the tip along the y-axis | -Inf | Inf | slider2                          | slide | velocity (m/s)           |
-    | 5   | angular velocity of front tip        | -Inf | Inf | rot                              | hinge | angular velocity (rad/s) |
-    | 6   | angular velocity of first rotor      | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
-    | 7   | angular velocity of second rotor     | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
+    | 5   | angular velocity of front tip        | -Inf | Inf | free_body_rot                    | hinge | angular velocity (rad/s) |
+    | 6   | angular velocity of first rotor      | -Inf | Inf | motor1_rot                       | hinge | angular velocity (rad/s) |
+    | 7   | angular velocity of second rotor     | -Inf | Inf | motor2_rot                             | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of two parts:
@@ -143,7 +143,14 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
-        utils.EzPickle.__init__(**locals())
+        utils.EzPickle.__init__(
+            self,
+            forward_reward_weight,
+            ctrl_cost_weight,
+            reset_noise_scale,
+            exclude_current_positions_from_observation,
+            **kwargs
+        )
 
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight

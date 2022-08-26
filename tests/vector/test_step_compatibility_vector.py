@@ -12,7 +12,7 @@ class OldStepEnv(gym.Env):
         self.observation_space = Discrete(2)
 
     def reset(self):
-        return 0
+        return 0, {}
 
     def step(self, action):
         obs = self.observation_space.sample()
@@ -28,7 +28,7 @@ class NewStepEnv(gym.Env):
         self.observation_space = Discrete(2)
 
     def reset(self):
-        return 0
+        return 0, {}
 
     def step(self, action):
         obs = self.observation_space.sample()

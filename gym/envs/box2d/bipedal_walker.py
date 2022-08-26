@@ -169,7 +169,7 @@ class BipedalWalker(gym.Env, EzPickle):
     }
 
     def __init__(self, render_mode: Optional[str] = None, hardcore: bool = False):
-        EzPickle.__init__(self)
+        EzPickle.__init__(self, render_mode, hardcore)
         self.isopen = True
 
         self.world = Box2D.b2World()
@@ -428,7 +428,6 @@ class BipedalWalker(gym.Env, EzPickle):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -514,10 +513,7 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.lidar = [LidarCallback() for _ in range(10)]
         self.renderer.reset()
-        if not return_info:
-            return self.step(np.array([0, 0, 0, 0]))[0]
-        else:
-            return self.step(np.array([0, 0, 0, 0]))[0], {}
+        return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action: np.ndarray):
         assert self.hull is not None
@@ -608,11 +604,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.renderer.render_step()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
-    def render(self, mode: str = "human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode: str = "human"):
         assert mode in self.metadata["render_modes"]
