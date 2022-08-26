@@ -1,11 +1,23 @@
+import re
 from collections import OrderedDict
 
 import numpy as np
 import pytest
 
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, utils
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    GraphInstance,
+    MultiBinary,
+    MultiDiscrete,
+    Sequence,
+    Tuple,
+    utils,
+)
 
-spaces = [
+homogeneous_spaces = [
     Discrete(3),
     Box(low=0.0, high=np.inf, shape=(2, 2)),
     Box(low=0.0, high=np.inf, shape=(2, 2), dtype=np.float16),
@@ -33,14 +45,62 @@ spaces = [
 
 flatdims = [3, 4, 4, 15, 7, 9, 14, 10, 7, 3, 8]
 
+non_homogenous_spaces = [
+    Graph(node_space=Box(low=-100, high=100, shape=(2, 2)), edge_space=Discrete(5)),  #
+    Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(2, 2))),  #
+    Graph(node_space=Discrete(5), edge_space=None),  #
+    Sequence(Discrete(4)),  #
+    Sequence(Box(-10, 10, shape=(2, 2))),  #
+    Sequence(Tuple([Box(-10, 10, shape=(2,)), Box(-10, 10, shape=(2,))])),  #
+    Dict(a=Sequence(Discrete(4)), b=Box(-10, 10, shape=(2, 2))),  #
+    Dict(
+        a=Graph(node_space=Discrete(4), edge_space=Discrete(4)),
+        b=Box(-10, 10, shape=(2, 2)),
+    ),  #
+    Tuple([Sequence(Discrete(4)), Box(-10, 10, shape=(2, 2))]),  #
+    Tuple(
+        [
+            Graph(node_space=Discrete(4), edge_space=Discrete(4)),
+            Box(-10, 10, shape=(2, 2)),
+        ]
+    ),  #
+    Sequence(Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=Discrete(4))),  #
+    Dict(
+        a=Dict(
+            a=Sequence(Box(-100, 100, shape=(2, 2))), b=Box(-100, 100, shape=(2, 2))
+        ),
+        b=Tuple([Box(-100, 100, shape=(2,)), Box(-100, 100, shape=(2,))]),
+    ),  #
+    Dict(
+        a=Dict(
+            a=Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=None),
+            b=Box(-100, 100, shape=(2, 2)),
+        ),
+        b=Tuple([Box(-100, 100, shape=(2,)), Box(-100, 100, shape=(2,))]),
+    ),
+]
 
-@pytest.mark.parametrize(["space", "flatdim"], zip(spaces, flatdims))
+
+@pytest.mark.parametrize("space", non_homogenous_spaces)
+def test_non_flattenable(space):
+    assert space.is_np_flattenable is False
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "cannot be flattened to a numpy array, probably because it contains a `Graph` or `Sequence` subspace"
+        ),
+    ):
+        utils.flatdim(space)
+
+
+@pytest.mark.parametrize(["space", "flatdim"], zip(homogeneous_spaces, flatdims))
 def test_flatdim(space, flatdim):
+    assert space.is_np_flattenable
     dim = utils.flatdim(space)
     assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces)
 def test_flatten_space_boxes(space):
     flat_space = utils.flatten_space(space)
     assert isinstance(flat_space, Box), f"Expected {type(flat_space)} to equal {Box}"
@@ -49,18 +109,18 @@ def test_flatten_space_boxes(space):
     assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces + non_homogenous_spaces)
 def test_flat_space_contains_flat_points(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
     flat_space = utils.flatten_space(space)
     for i, flat_sample in enumerate(flattened_samples):
-        assert (
-            flat_sample in flat_space
+        assert flat_space.contains(
+            flat_sample
         ), f"Expected sample #{i} {flat_sample} to be in {flat_space}"
 
 
-@pytest.mark.parametrize("space", spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces)
 def test_flatten_dim(space):
     sample = utils.flatten(space, space.sample())
     (single_dim,) = sample.shape
@@ -68,7 +128,7 @@ def test_flatten_dim(space):
     assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces + non_homogenous_spaces)
 def test_flatten_roundtripping(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
@@ -81,11 +141,14 @@ def test_flatten_roundtripping(space):
         assert compare_nested(
             original, roundtripped
         ), f"Expected sample #{i} {original} to equal {roundtripped}"
+        assert space.contains(roundtripped)
 
 
 def compare_nested(left, right):
-    if isinstance(left, np.ndarray) and isinstance(right, np.ndarray):
-        return np.allclose(left, right)
+    if type(left) != type(right):
+        return False
+    elif isinstance(left, np.ndarray) and isinstance(right, np.ndarray):
+        return left.shape == right.shape and np.allclose(left, right)
     elif isinstance(left, OrderedDict) and isinstance(right, OrderedDict):
         res = len(left) == len(right)
         for ((left_key, left_value), (right_key, right_value)) in zip(
@@ -131,7 +194,7 @@ expected_flattened_dtypes = [
 
 @pytest.mark.parametrize(
     ["original_space", "expected_flattened_dtype"],
-    zip(spaces, expected_flattened_dtypes),
+    zip(homogeneous_spaces, expected_flattened_dtypes),
 )
 def test_dtypes(original_space, expected_flattened_dtype):
     flattened_space = utils.flatten_space(original_space)
@@ -178,7 +241,7 @@ def compare_sample_types(original_space, original_sample, unflattened_sample):
         )
 
 
-samples = [
+homogeneous_samples = [
     2,
     np.array([[1.0, 3.0], [5.0, 8.0]], dtype=np.float32),
     np.array([[1.0, 3.0], [5.0, 8.0]], dtype=np.float16),
@@ -195,7 +258,7 @@ samples = [
 ]
 
 
-expected_flattened_samples = [
+expected_flattened_hom_samples = [
     np.array([0, 0, 1], dtype=np.int64),
     np.array([1.0, 3.0, 5.0, 8.0], dtype=np.float32),
     np.array([1.0, 3.0, 5.0, 8.0], dtype=np.float16),
@@ -209,23 +272,297 @@ expected_flattened_samples = [
     np.array([0, 0, 0, 1, 0, 0, 0, 0], dtype=np.int64),
 ]
 
+non_homogenous_samples = [
+    GraphInstance(
+        np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.float32),
+        np.array(
+            [
+                0,
+            ],
+            dtype=int,
+        ),
+        np.array([[0, 1]], dtype=int),
+    ),
+    GraphInstance(
+        np.array([0, 1], dtype=int),
+        np.array([[[1, 2], [3, 4]]], dtype=np.float32),
+        np.array([[0, 1]], dtype=int),
+    ),
+    GraphInstance(np.array([0, 1], dtype=int), None, np.array([[0, 1]], dtype=int)),
+    (0, 1, 2),
+    (
+        np.array([[0, 1], [2, 3]], dtype=np.float32),
+        np.array([[4, 5], [6, 7]], dtype=np.float32),
+    ),
+    (
+        (np.array([0, 1], dtype=np.float32), np.array([2, 3], dtype=np.float32)),
+        (np.array([4, 5], dtype=np.float32), np.array([6, 7], dtype=np.float32)),
+    ),
+    OrderedDict(
+        [("a", (0, 1, 2)), ("b", np.array([[0, 1], [2, 3]], dtype=np.float32))]
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                GraphInstance(
+                    np.array([1, 2], dtype=np.int),
+                    np.array(
+                        [
+                            0,
+                        ],
+                        dtype=int,
+                    ),
+                    np.array([[0, 1]], dtype=int),
+                ),
+            ),
+            ("b", np.array([[0, 1], [2, 3]], dtype=np.float32)),
+        ]
+    ),
+    ((0, 1, 2), np.array([[0, 1], [2, 3]], dtype=np.float32)),
+    (
+        GraphInstance(
+            np.array([1, 2], dtype=np.int),
+            np.array(
+                [
+                    0,
+                ],
+                dtype=int,
+            ),
+            np.array([[0, 1]], dtype=int),
+        ),
+        np.array([[0, 1], [2, 3]], dtype=np.float32),
+    ),
+    (
+        GraphInstance(
+            nodes=np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.float32),
+            edges=np.array([0], dtype=int),
+            edge_links=np.array([[0, 1]]),
+        ),
+        GraphInstance(
+            nodes=np.array(
+                [[[8, 9], [10, 11]], [[12, 13], [14, 15]]], dtype=np.float32
+            ),
+            edges=np.array([1], dtype=int),
+            edge_links=np.array([[0, 1]]),
+        ),
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                OrderedDict(
+                    [
+                        (
+                            "a",
+                            (
+                                np.array([[0, 1], [2, 3]], dtype=np.float32),
+                                np.array([[4, 5], [6, 7]], dtype=np.float32),
+                            ),
+                        ),
+                        ("b", np.array([[8, 9], [10, 11]], dtype=np.float32)),
+                    ]
+                ),
+            ),
+            (
+                "b",
+                (
+                    np.array([12, 13], dtype=np.float32),
+                    np.array([14, 15], dtype=np.float32),
+                ),
+            ),
+        ]
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                OrderedDict(
+                    [
+                        (
+                            "a",
+                            GraphInstance(
+                                np.array(
+                                    [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
+                                    dtype=np.float32,
+                                ),
+                                None,
+                                np.array([[0, 1]], dtype=int),
+                            ),
+                        ),
+                        ("b", np.array([[8, 9], [10, 11]], dtype=np.float32)),
+                    ]
+                ),
+            ),
+            (
+                "b",
+                (
+                    np.array([12, 13], dtype=np.float32),
+                    np.array([14, 15], dtype=np.float32),
+                ),
+            ),
+        ]
+    ),
+]
+
+
+expected_flattened_non_hom_samples = [
+    GraphInstance(
+        np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float32),
+        np.array([[1, 0, 0, 0, 0]], dtype=int),
+        np.array([[0, 1]], dtype=int),
+    ),
+    GraphInstance(
+        np.array([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0]], dtype=int),
+        np.array([[1, 2, 3, 4]], dtype=np.float32),
+        np.array([[0, 1]], dtype=int),
+    ),
+    GraphInstance(
+        np.array([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0]], dtype=int),
+        None,
+        np.array([[0, 1]], dtype=int),
+    ),
+    (
+        np.array([1, 0, 0, 0], dtype=int),
+        np.array([0, 1, 0, 0], dtype=int),
+        np.array([0, 0, 1, 0], dtype=int),
+    ),
+    (
+        np.array([0, 1, 2, 3], dtype=np.float32),
+        np.array([4, 5, 6, 7], dtype=np.float32),
+    ),
+    (
+        np.array([0, 1, 2, 3], dtype=np.float32),
+        np.array([4, 5, 6, 7], dtype=np.float32),
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                (
+                    np.array([1, 0, 0, 0], dtype=int),
+                    np.array([0, 1, 0, 0], dtype=int),
+                    np.array([0, 0, 1, 0], dtype=int),
+                ),
+            ),
+            ("b", np.array([0, 1, 2, 3], dtype=np.float32)),
+        ]
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                GraphInstance(
+                    np.array([[0, 1, 0, 0], [0, 0, 1, 0]], dtype=int),
+                    np.array([[1, 0, 0, 0]], dtype=int),
+                    np.array([[0, 1]], dtype=int),
+                ),
+            ),
+            ("b", np.array([0, 1, 2, 3], dtype=np.float32)),
+        ]
+    ),
+    (
+        (
+            np.array([1, 0, 0, 0], dtype=int),
+            np.array([0, 1, 0, 0], dtype=int),
+            np.array([0, 0, 1, 0], dtype=int),
+        ),
+        np.array([0, 1, 2, 3], dtype=np.float32),
+    ),
+    (
+        GraphInstance(
+            np.array([[0, 1, 0, 0], [0, 0, 1, 0]], dtype=np.float32),
+            np.array([[1, 0, 0, 0]], dtype=int),
+            np.array([[0, 1]], dtype=int),
+        ),
+        np.array([0, 1, 2, 3], dtype=np.float32),
+    ),
+    (
+        GraphInstance(
+            np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.float32),
+            np.array([[1, 0, 0, 0]]),
+            np.array([[0, 1]]),
+        ),
+        GraphInstance(
+            np.array([[8, 9, 10, 11], [12, 13, 14, 15]], dtype=np.float32),
+            np.array([[0, 1, 0, 0]]),
+            np.array([[0, 1]]),
+        ),
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                OrderedDict(
+                    [
+                        (
+                            "a",
+                            (
+                                np.array([0, 1, 2, 3], dtype=np.float32),
+                                np.array([4, 5, 6, 7], dtype=np.float32),
+                            ),
+                        ),
+                        ("b", np.array([8, 9, 10, 11], dtype=np.float32)),
+                    ]
+                ),
+            ),
+            ("b", (np.array([12, 13, 14, 15], dtype=np.float32))),
+        ]
+    ),
+    OrderedDict(
+        [
+            (
+                "a",
+                OrderedDict(
+                    [
+                        (
+                            "a",
+                            GraphInstance(
+                                np.array(
+                                    [[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float32
+                                ),
+                                None,
+                                np.array([[0, 1]], dtype=int),
+                            ),
+                        ),
+                        ("b", np.array([8, 9, 10, 11], dtype=np.float32)),
+                    ]
+                ),
+            ),
+            ("b", (np.array([12, 13, 14, 15], dtype=np.float32))),
+        ]
+    ),
+]
+
 
 @pytest.mark.parametrize(
     ["space", "sample", "expected_flattened_sample"],
-    zip(spaces, samples, expected_flattened_samples),
+    zip(
+        homogeneous_spaces + non_homogenous_spaces,
+        homogeneous_samples + non_homogenous_samples,
+        expected_flattened_hom_samples + expected_flattened_non_hom_samples,
+    ),
 )
 def test_flatten(space, sample, expected_flattened_sample):
-    assert sample in space
-
     flattened_sample = utils.flatten(space, sample)
-    assert flattened_sample.shape == expected_flattened_sample.shape
-    assert flattened_sample.dtype == expected_flattened_sample.dtype
-    assert np.all(flattened_sample == expected_flattened_sample)
+    flat_space = utils.flatten_space(space)
+
+    assert sample in space
+    assert flattened_sample in flat_space
+
+    if space.is_np_flattenable:
+        assert isinstance(flattened_sample, np.ndarray)
+        assert flattened_sample.shape == expected_flattened_sample.shape
+        assert flattened_sample.dtype == expected_flattened_sample.dtype
+        assert np.all(flattened_sample == expected_flattened_sample)
+    else:
+        assert not isinstance(flattened_sample, np.ndarray)
+        assert compare_nested(flattened_sample, expected_flattened_sample)
 
 
 @pytest.mark.parametrize(
     ["space", "flattened_sample", "expected_sample"],
-    zip(spaces, expected_flattened_samples, samples),
+    zip(homogeneous_spaces, expected_flattened_hom_samples, homogeneous_samples),
 )
 def test_unflatten(space, flattened_sample, expected_sample):
     sample = utils.unflatten(space, flattened_sample)
@@ -256,7 +593,8 @@ expected_flattened_spaces = [
 
 
 @pytest.mark.parametrize(
-    ["space", "expected_flattened_space"], zip(spaces, expected_flattened_spaces)
+    ["space", "expected_flattened_space"],
+    zip(homogeneous_spaces, expected_flattened_spaces),
 )
 def test_flatten_space(space, expected_flattened_space):
     flattened_space = utils.flatten_space(space)

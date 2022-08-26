@@ -1,23 +1,35 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
-from typing import Optional
+import warnings
+from typing import TYPE_CHECKING, Optional
 
-import Box2D
 import numpy as np
-from Box2D.b2 import (
-    circleShape,
-    contactListener,
-    edgeShape,
-    fixtureDef,
-    polygonShape,
-    revoluteJointDef,
-)
 
 import gym
 from gym import error, spaces
-from gym.utils import EzPickle, seeding
+from gym.error import DependencyNotInstalled
+from gym.utils import EzPickle, colorize
+from gym.utils.renderer import Renderer
+from gym.utils.step_api_compatibility import step_api_compatibility
+
+try:
+    import Box2D
+    from Box2D.b2 import (
+        circleShape,
+        contactListener,
+        edgeShape,
+        fixtureDef,
+        polygonShape,
+        revoluteJointDef,
+    )
+except ImportError:
+    raise DependencyNotInstalled("box2d is not installed, run `pip install gym[box2d]`")
+
+
+if TYPE_CHECKING:
+    import pygame
+
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -87,7 +99,7 @@ class LunarLander(gym.Env, EzPickle):
     orientation engine, fire main engine, fire right orientation engine.
 
     ### Observation Space
-    There are 8 states: the coordinates of the lander in `x` & `y`, its linear
+    The state is an 8-dimensional vector: the coordinates of the lander in `x` & `y`, its linear
     velocities in `x` & `y`, its angle, its angular velocity, and two booleans
     that represent whether each leg is in contact with the ground or not.
 
@@ -129,6 +141,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
+        turbulence_power: float = 1.5,
     )
     ```
     If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
@@ -149,10 +162,11 @@ class LunarLander(gym.Env, EzPickle):
     `k` is set to 0.01.
     `C` is sampled randomly between -9999 and 9999.
 
-    `wind_power` dictates the maximum magnitude of wind.
+    `wind_power` dictates the maximum magnitude of linear wind applied to the craft. The recommended value for `wind_power` is between 0.0 and 20.0.
+    `turbulence_power` dictates the maximum magnitude of rotational wind applied to the craft. The recommended value for `turbulence_power` is between 0.0 and 2.0.
 
     ### Version History
-    - v2: Count energy spent
+    - v2: Count energy spent and in v0.24, added turbulance with wind power and turbulence_power parameters
     - v1: Legs contact with ground added in state vector; contact with ground
         give +10 reward points, and -10 if then lose contact; reward
         renormalized to 200; harder initial random push.
@@ -164,36 +178,63 @@ class LunarLander(gym.Env, EzPickle):
     Created by Oleg Klimov
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": FPS,
+    }
 
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         continuous: bool = False,
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
+        turbulence_power: float = 1.5,
     ):
-        EzPickle.__init__(self)
+        EzPickle.__init__(
+            self,
+            render_mode,
+            continuous,
+            gravity,
+            enable_wind,
+            wind_power,
+            turbulence_power,
+        )
 
         assert (
             -12.0 < gravity and gravity < 0.0
         ), f"gravity (current value: {gravity}) must be between -12 and 0"
         self.gravity = gravity
 
-        assert (
-            0.0 < wind_power and wind_power < 20.0
-        ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
+        if 0.0 > wind_power or wind_power > 20.0:
+            warnings.warn(
+                colorize(
+                    f"WARN: wind_power value is recommended to be between 0.0 and 20.0, (current value: {wind_power})",
+                    "yellow",
+                ),
+            )
         self.wind_power = wind_power
+
+        if 0.0 > turbulence_power or turbulence_power > 2.0:
+            warnings.warn(
+                colorize(
+                    f"WARN: turbulence_power value is recommended to be between 0.0 and 2.0, (current value: {turbulence_power})",
+                    "yellow",
+                ),
+            )
+        self.turbulence_power = turbulence_power
 
         self.enable_wind = enable_wind
         self.wind_idx = np.random.randint(-9999, 9999)
+        self.torque_idx = np.random.randint(-9999, 9999)
 
-        self.screen = None
+        self.screen: pygame.Surface = None
         self.clock = None
         self.isopen = True
         self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
-        self.lander = None
+        self.lander: Optional[Box2D.b2Body] = None
         self.particles = []
 
         self.prev_reward = None
@@ -245,6 +286,9 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
     def _destroy(self):
         if not self.moon:
             return
@@ -261,7 +305,6 @@ class LunarLander(gym.Env, EzPickle):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -305,7 +348,7 @@ class LunarLander(gym.Env, EzPickle):
         self.moon.color2 = (0.0, 0.0, 0.0)
 
         initial_y = VIEWPORT_H / SCALE
-        self.lander = self.world.CreateDynamicBody(
+        self.lander: Box2D.b2Body = self.world.CreateDynamicBody(
             position=(VIEWPORT_W / SCALE / 2, initial_y),
             angle=0.0,
             fixtures=fixtureDef(
@@ -368,10 +411,8 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
-        if not return_info:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0]
-        else:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
+        self.renderer.reset()
+        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -396,7 +437,10 @@ class LunarLander(gym.Env, EzPickle):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
+        assert self.lander is not None
+
         # Update wind
+        assert self.lander is not None, "You forgot to call reset()"
         if self.enable_wind and not (
             self.legs[0].ground_contact or self.legs[1].ground_contact
         ):
@@ -412,6 +456,18 @@ class LunarLander(gym.Env, EzPickle):
             self.wind_idx += 1
             self.lander.ApplyForceToCenter(
                 (wind_mag, 0.0),
+                True,
+            )
+
+            # the function used for torque is tanh(sin(2 k x) + sin(pi k x)),
+            # which is proven to never be periodic, k = 0.01
+            torque_mag = math.tanh(
+                math.sin(0.02 * self.torque_idx)
+                + (math.sin(math.pi * 0.01 * self.torque_idx))
+            ) * (self.turbulence_power)
+            self.torque_idx += 1
+            self.lander.ApplyTorque(
+                (torque_mag),
                 True,
             )
 
@@ -526,27 +582,37 @@ class LunarLander(gym.Env, EzPickle):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
-        done = False
+        terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
-            done = True
+            terminated = True
             reward = -100
         if not self.lander.awake:
-            done = True
+            terminated = True
             reward = +100
-        return np.array(state, dtype=np.float32), reward, done, {}
+        self.renderer.render_step()
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
-    def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+    def render(self):
+        return self.renderer.get_renders()
 
-        if self.screen is None:
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
+
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface(self.screen.get_size())
+        self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))
         pygame.draw.rect(self.surf, (255, 255, 255), self.surf.get_rect())
@@ -625,19 +691,17 @@ class LunarLander(gym.Env, EzPickle):
                     )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
 
         if mode == "human":
+            assert self.screen is not None
+            self.screen.blit(self.surf, (0, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:
@@ -657,15 +721,16 @@ def heuristic(env, s):
     Args:
         env: The environment
         s (list): The state. Attributes:
-                  s[0] is the horizontal coordinate
-                  s[1] is the vertical coordinate
-                  s[2] is the horizontal speed
-                  s[3] is the vertical speed
-                  s[4] is the angle
-                  s[5] is the angular speed
-                  s[6] 1 if first leg has contact, else 0
-                  s[7] 1 if second leg has contact, else 0
-    returns:
+            s[0] is the horizontal coordinate
+            s[1] is the vertical coordinate
+            s[2] is the horizontal speed
+            s[3] is the vertical speed
+            s[4] is the angle
+            s[5] is the angular speed
+            s[6] 1 if first leg has contact, else 0
+            s[7] 1 if second leg has contact, else 0
+
+    Returns:
          a: The heuristic to be fed into the step function defined above to determine the next step and reward.
     """
 
@@ -705,22 +770,22 @@ def demo_heuristic_lander(env, seed=None, render=False):
 
     total_reward = 0
     steps = 0
-    s = env.reset(seed=seed)
+    s, info = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)
         total_reward += r
 
         if render:
             still_open = env.render()
-            if still_open == False:
+            if still_open is False:
                 break
 
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("observations:", " ".join([f"{x:+0.2f}" for x in s]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
         steps += 1
-        if done:
+        if terminated or truncated:
             break
     if render:
         env.close()

@@ -8,33 +8,34 @@ import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
-class BrokenRecordableEnv:
-    metadata = {"render_modes": [None, "rgb_array"]}
+class BrokenRecordableEnv(gym.Env):
+    metadata = {"render_modes": ["rgb_array"]}
 
-    def render(self, mode=None):
+    def __init__(self, render_mode="rgb_array"):
+        self.render_mode = render_mode
+
+    def render(self):
         pass
 
 
-class UnrecordableEnv:
+class UnrecordableEnv(gym.Env):
     metadata = {"render_modes": [None]}
 
-    def render(self, mode=None):
+    def __init__(self, render_mode=None):
+        self.render_mode = render_mode
+
+    def render(self):
         pass
 
 
 def test_record_simple():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
-    proc = rec.encoder.proc
-
-    assert proc.poll() is None  # subprocess is running
 
     rec.close()
 
-    assert proc.poll() is not None  # subprocess is terminated
-    assert not rec.empty
     assert not rec.broken
     assert os.path.exists(rec.path)
     f = open(rec.path)
@@ -43,26 +44,22 @@ def test_record_simple():
 
 def test_autoclose():
     def record():
-        env = gym.make("CartPole-v1")
+        env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
         rec = VideoRecorder(env)
         env.reset()
         rec.capture_frame()
 
         rec_path = rec.path
-        proc = rec.encoder.proc
-
-        assert proc.poll() is None  # subprocess is running
 
         # The function ends without an explicit `rec.close()` call
         # The Python interpreter will implicitly do `del rec` on garbage cleaning
-        return rec_path, proc
+        return rec_path
 
-    rec_path, proc = record()
+    rec_path = record()
 
     gc.collect()  # do explicit garbage collection for test
     time.sleep(5)  # wait for subprocess exiting
 
-    assert proc.poll() is not None  # subprocess is terminated
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
@@ -72,7 +69,6 @@ def test_no_frames():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)
     rec.close()
-    assert rec.empty
     assert rec.functional
     assert not os.path.exists(rec.path)
 
@@ -90,13 +86,12 @@ def test_record_breaking_render_method():
     rec = VideoRecorder(env)
     rec.capture_frame()
     rec.close()
-    assert rec.empty
     assert rec.broken
     assert not os.path.exists(rec.path)
 
 
 def test_text_envs():
-    env = gym.make("FrozenLake-v1")
+    env = gym.make("FrozenLake-v1", render_mode="rgb_array", disable_env_checker=True)
     video = VideoRecorder(env)
     try:
         env.reset()

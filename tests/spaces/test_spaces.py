@@ -1,12 +1,25 @@
 import copy
 import json  # note: ujson fails this test due to float equality
 import pickle
+import string
 import tempfile
+from typing import List, Union
 
 import numpy as np
 import pytest
 
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    MultiBinary,
+    MultiDiscrete,
+    Sequence,
+    Space,
+    Text,
+    Tuple,
+)
 
 
 @pytest.mark.parametrize(
@@ -40,6 +53,13 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"feature": Box(0, 1, (3,))})),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_roundtripping(space):
@@ -94,6 +114,13 @@ def test_roundtripping(space):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"feature": Box(0, 1, (3,))})),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_equality(space):
@@ -130,6 +157,21 @@ def test_equality(space):
         ),
         (Dict({"position": Discrete(5)}), Dict({"position": Discrete(4)})),
         (Dict({"position": Discrete(5)}), Dict({"speed": Discrete(5)})),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)
+            ),
+            Graph(node_space=Discrete(5), edge_space=None),
+        ),
+        (
+            Sequence(Discrete(4)),
+            Sequence(Dict({"feature": Box(0, 1, (3,))})),
+        ),
+        (Sequence(Discrete(4)), Sequence(Discrete(4, start=-1))),
+        (
+            Text(5),
+            Text(min_length=1, max_length=10, charset=string.digits),
+        ),
     ],
 )
 def test_inequality(spaces):
@@ -137,36 +179,298 @@ def test_inequality(spaces):
     assert space1 != space2, f"Expected {space1} != {space2}"
 
 
+# The expected sum of variance for an alpha of 0.05
+# CHI_SQUARED = [0] + [scipy.stats.chi2.isf(0.05, df=df) for df in range(1, 25)]
+CHI_SQUARED = np.array(
+    [
+        0.01,
+        3.8414588206941285,
+        5.991464547107983,
+        7.814727903251178,
+        9.487729036781158,
+        11.070497693516355,
+        12.59158724374398,
+        14.067140449340167,
+        15.507313055865454,
+        16.91897760462045,
+    ]
+)
+
+
 @pytest.mark.parametrize(
     "space",
     [
+        Discrete(1),
         Discrete(5),
         Discrete(8, start=-20),
-        Box(low=0, high=255, shape=(2,), dtype="uint8"),
-        Box(low=-np.inf, high=np.inf, shape=(3, 3)),
-        Box(low=1.0, high=np.inf, shape=(3, 3)),
-        Box(low=-np.inf, high=2.0, shape=(3, 3)),
+        Box(low=0, high=255, shape=(2,), dtype=np.uint8),
+        Box(low=-np.inf, high=np.inf, shape=(3,)),
+        Box(low=1.0, high=np.inf, shape=(3,)),
+        Box(low=-np.inf, high=2.0, shape=(3,)),
+        Box(low=np.array([0, 2]), high=np.array([10, 4])),
+        MultiDiscrete([3, 5]),
+        MultiDiscrete(np.array([[3, 5], [2, 1]])),
+        MultiBinary([2, 4]),
     ],
 )
-def test_sample(space):
+def test_sample(space: Space, n_trials: int = 1_000):
+    """Test the space sample has the expected distribution with the chi-squared test and KS test.
+
+    Example code with scipy.stats.chisquared
+
+    import scipy.stats
+    variance = np.sum(np.square(observed_frequency - expected_frequency) / expected_frequency)
+    f'X2 at alpha=0.05 = {scipy.stats.chi2.isf(0.05, df=4)}'
+    f'p-value = {scipy.stats.chi2.sf(variance, df=4)}'
+    scipy.stats.chisquare(f_obs=observed_frequency)
+    """
     space.seed(0)
-    n_trials = 100
     samples = np.array([space.sample() for _ in range(n_trials)])
-    expected_mean = 0.0
-    if isinstance(space, Box):
-        if space.is_bounded():
-            expected_mean = (space.high + space.low) / 2
-        elif space.is_bounded("below"):
-            expected_mean = 1 + space.low
-        elif space.is_bounded("above"):
-            expected_mean = -1 + space.high
+    assert len(samples) == n_trials
+
+    # todo add Box space test
+    if isinstance(space, Discrete):
+        expected_frequency = np.ones(space.n) * n_trials / space.n
+        observed_frequency = np.zeros(space.n)
+        for sample in samples:
+            observed_frequency[sample - space.start] += 1
+        degrees_of_freedom = space.n - 1
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == n_trials
+
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency) / expected_frequency
+        )
+        assert variance < CHI_SQUARED[degrees_of_freedom]
+    elif isinstance(space, MultiBinary):
+        expected_frequency = n_trials / 2
+        observed_frequency = np.sum(samples, axis=0)
+        assert observed_frequency.shape == space.shape
+
+        # As this is a binary space, then we can be lazy in the variance as the np.square is symmetric for the 0 and 1 categories
+        variance = (
+            2 * np.square(observed_frequency - expected_frequency) / expected_frequency
+        )
+        assert variance.shape == space.shape
+        assert np.all(variance < CHI_SQUARED[1])
+    elif isinstance(space, MultiDiscrete):
+        # Due to the multi-axis capability of MultiDiscrete, these functions need to be recursive and that the expected / observed numpy are of non-regular shapes
+        def _generate_frequency(dim, func):
+            if isinstance(dim, np.ndarray):
+                return np.array(
+                    [_generate_frequency(sub_dim, func) for sub_dim in dim],
+                    dtype=object,
+                )
+            else:
+                return func(dim)
+
+        def _update_observed_frequency(obs_sample, obs_freq):
+            if isinstance(obs_sample, np.ndarray):
+                for sub_sample, sub_freq in zip(obs_sample, obs_freq):
+                    _update_observed_frequency(sub_sample, sub_freq)
+            else:
+                obs_freq[obs_sample] += 1
+
+        expected_frequency = _generate_frequency(
+            space.nvec, lambda dim: np.ones(dim) * n_trials / dim
+        )
+        observed_frequency = _generate_frequency(space.nvec, lambda dim: np.zeros(dim))
+        for sample in samples:
+            _update_observed_frequency(sample, observed_frequency)
+
+        def _chi_squared_test(dim, exp_freq, obs_freq):
+            if isinstance(dim, np.ndarray):
+                for sub_dim, sub_exp_freq, sub_obs_freq in zip(dim, exp_freq, obs_freq):
+                    _chi_squared_test(sub_dim, sub_exp_freq, sub_obs_freq)
+            else:
+                assert exp_freq.shape == (dim,) and obs_freq.shape == (dim,)
+                assert np.sum(obs_freq) == n_trials
+                assert np.sum(exp_freq) == n_trials
+                _variance = np.sum(np.square(exp_freq - obs_freq) / exp_freq)
+                _degrees_of_freedom = dim - 1
+                assert _variance < CHI_SQUARED[_degrees_of_freedom]
+
+        _chi_squared_test(space.nvec, expected_frequency, observed_frequency)
+
+
+@pytest.mark.parametrize(
+    "space,mask",
+    [
+        (Discrete(5), np.array([0, 1, 1, 0, 1], dtype=np.int8)),
+        (Discrete(4, start=-20), np.array([1, 1, 0, 1], dtype=np.int8)),
+        (Discrete(4, start=1), np.array([0, 0, 0, 0], dtype=np.int8)),
+        (MultiBinary([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
+        (
+            MultiDiscrete([5, 3]),
+            (
+                np.array([0, 1, 1, 0, 1], dtype=np.int8),
+                np.array([0, 1, 1], dtype=np.int8),
+            ),
+        ),
+        (
+            MultiDiscrete(np.array([4, 2])),
+            (np.array([0, 0, 0, 0], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
+        ),
+        (
+            MultiDiscrete(np.array([[2, 2], [4, 3]])),
+            (
+                (np.array([0, 1], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
+                (
+                    np.array([0, 1, 1, 0], dtype=np.int8),
+                    np.array([1, 0, 0], dtype=np.int8),
+                ),
+            ),
+        ),
+    ],
+)
+def test_space_sample_mask(space, mask, n_trials: int = 100):
+    """Test the space sample with mask works using the pearson chi-squared test."""
+    space.seed(1)
+    samples = np.array([space.sample(mask) for _ in range(n_trials)])
+
+    if isinstance(space, Discrete):
+        if np.any(mask == 1):
+            expected_frequency = np.ones(space.n) * (n_trials / np.sum(mask)) * mask
         else:
-            expected_mean = 0.0
-    elif isinstance(space, Discrete):
-        expected_mean = space.start + space.n / 2
+            expected_frequency = np.zeros(space.n)
+            expected_frequency[0] = n_trials
+        observed_frequency = np.zeros(space.n)
+        for sample in samples:
+            observed_frequency[sample - space.start] += 1
+        degrees_of_freedom = max(np.sum(mask) - 1, 0)
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == n_trials
+        assert np.sum(expected_frequency) == n_trials
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency)
+            / np.clip(expected_frequency, 1, None)
+        )
+        assert variance < CHI_SQUARED[degrees_of_freedom]
+    elif isinstance(space, MultiBinary):
+        expected_frequency = np.ones(space.shape) * mask * (n_trials / 2)
+        observed_frequency = np.sum(samples, axis=0)
+        assert space.shape == expected_frequency.shape == observed_frequency.shape
+
+        variance = (
+            2
+            * np.square(observed_frequency - expected_frequency)
+            / np.clip(expected_frequency, 1, None)
+        )
+        assert variance.shape == space.shape
+        assert np.all(variance < CHI_SQUARED[1])
+    elif isinstance(space, MultiDiscrete):
+        # Due to the multi-axis capability of MultiDiscrete, these functions need to be recursive and that the expected / observed numpy are of non-regular shapes
+        def _generate_frequency(
+            _dim: Union[np.ndarray, int], _mask, func: callable
+        ) -> List:
+            if isinstance(_dim, np.ndarray):
+                return [
+                    _generate_frequency(sub_dim, sub_mask, func)
+                    for sub_dim, sub_mask in zip(_dim, _mask)
+                ]
+            else:
+                return func(_dim, _mask)
+
+        def _update_observed_frequency(obs_sample, obs_freq):
+            if isinstance(obs_sample, np.ndarray):
+                for sub_sample, sub_freq in zip(obs_sample, obs_freq):
+                    _update_observed_frequency(sub_sample, sub_freq)
+            else:
+                obs_freq[obs_sample] += 1
+
+        def _exp_freq_fn(_dim: int, _mask: np.ndarray):
+            if np.any(_mask == 1):
+                assert _dim == len(_mask)
+                return np.ones(_dim) * (n_trials / np.sum(_mask)) * _mask
+            else:
+                freq = np.zeros(_dim)
+                freq[0] = n_trials
+                return freq
+
+        expected_frequency = _generate_frequency(
+            space.nvec, mask, lambda dim, _mask: _exp_freq_fn(dim, _mask)
+        )
+        observed_frequency = _generate_frequency(
+            space.nvec, mask, lambda dim, _: np.zeros(dim)
+        )
+        for sample in samples:
+            _update_observed_frequency(sample, observed_frequency)
+
+        def _chi_squared_test(dim, _mask, exp_freq, obs_freq):
+            if isinstance(dim, np.ndarray):
+                for sub_dim, sub_mask, sub_exp_freq, sub_obs_freq in zip(
+                    dim, _mask, exp_freq, obs_freq
+                ):
+                    _chi_squared_test(sub_dim, sub_mask, sub_exp_freq, sub_obs_freq)
+            else:
+                assert exp_freq.shape == (dim,) and obs_freq.shape == (dim,)
+                assert np.sum(obs_freq) == n_trials
+                assert np.sum(exp_freq) == n_trials
+                _variance = np.sum(
+                    np.square(exp_freq - obs_freq) / np.clip(exp_freq, 1, None)
+                )
+                _degrees_of_freedom = max(np.sum(_mask) - 1, 0)
+                assert _variance < CHI_SQUARED[_degrees_of_freedom]
+
+        _chi_squared_test(space.nvec, mask, expected_frequency, observed_frequency)
     else:
-        raise NotImplementedError
-    np.testing.assert_allclose(expected_mean, samples.mean(), atol=3.0 * samples.std())
+        raise NotImplementedError()
+
+
+@pytest.mark.parametrize(
+    "space,mask",
+    [
+        (
+            Dict(a=Discrete(2), b=MultiDiscrete([2, 4])),
+            {
+                "a": np.array([0, 1], dtype=np.int8),
+                "b": (
+                    np.array([0, 1], dtype=np.int8),
+                    np.array([1, 1, 0, 0], dtype=np.int8),
+                ),
+            },
+        ),
+        (
+            Tuple([Box(0, 1, ()), Discrete(3), MultiBinary([2, 1])]),
+            (
+                None,
+                np.array([0, 1, 0], dtype=np.int8),
+                np.array([[0], [1]], dtype=np.int8),
+            ),
+        ),
+        (
+            Dict(a=Tuple([Box(0, 1, ()), Discrete(3)]), b=Discrete(3)),
+            {
+                "a": (None, np.array([1, 0, 0], dtype=np.int8)),
+                "b": np.array([0, 1, 1], dtype=np.int8),
+            },
+        ),
+        (Graph(node_space=Discrete(5), edge_space=Discrete(3)), None),
+        (
+            Graph(node_space=Discrete(3), edge_space=Box(low=0, high=1, shape=(5,))),
+            None,
+        ),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3,)), edge_space=Discrete(3)
+            ),
+            None,
+        ),
+        (Sequence(Discrete(2)), (None, np.array([0, 1], dtype=np.int8))),
+        (
+            Sequence(Discrete(2)),
+            (np.array([2, 3, 4], dtype=np.int8), np.array([0, 1], dtype=np.int8)),
+        ),
+        (Sequence(Discrete(2)), (np.array([2, 3, 4], dtype=np.int8), None)),
+        (Sequence(Discrete(2)), (None, None)),
+        (Sequence(Discrete(2)), None),
+    ],
+)
+def test_composite_space_sample_mask(space, mask):
+    """Test that composite space samples use the mask correctly."""
+    space.sample(mask)
 
 
 @pytest.mark.parametrize(
@@ -191,6 +495,17 @@ def test_sample(space):
         (
             Box(low=np.array([-np.inf, 0.0]), high=np.array([0.0, np.inf])),
             Box(low=np.array([-np.inf, 1.0]), high=np.array([0.0, np.inf])),
+        ),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)
+            ),
+            Graph(node_space=Discrete(5), edge_space=None),
+        ),
+        (Sequence(Discrete(4)), Sequence(Discrete(3))),
+        (
+            Text(5),
+            Text(min_length=1, max_length=10, charset=string.digits),
         ),
     ],
 )
@@ -306,6 +621,14 @@ def test_box_dtype_check():
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_returns_list(space):
@@ -365,6 +688,14 @@ def sample_equal(sample1, sample2):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_reproducibility(space):
@@ -405,10 +736,25 @@ def test_seed_reproducibility(space):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_subspace_incorrelated(space):
-    subspaces = space.spaces if isinstance(space, Tuple) else space.spaces.values()
+    subspaces = []
+    if isinstance(space, Tuple):
+        subspaces = space.spaces
+    elif isinstance(space, Dict):
+        subspaces = space.spaces.values()
+    elif isinstance(space, Graph):
+        if space.edge_space is not None:
+            subspaces = [space.node_space, space.edge_space]
+        else:
+            subspaces = [space.node_space]
 
     space.seed(0)
     states = [
@@ -502,9 +848,11 @@ def test_space_legacy_state_pickling():
     space.__setstate__(legacy_state)
 
     assert space.shape == legacy_state["shape"]
-    assert space._shape == legacy_state["shape"]
+    assert space._shape == legacy_state["shape"]  # pyright: reportPrivateUsage=false
     assert space.np_random == legacy_state["np_random"]
-    assert space._np_random == legacy_state["np_random"]
+    assert (
+        space._np_random == legacy_state["np_random"]
+    )  # pyright: reportPrivateUsage=false
     assert space.n == 3
     assert space.dtype == legacy_state["dtype"]
 
@@ -569,20 +917,20 @@ def test_infinite_space(space):
     # but floats are unbounded for infinite
     if np.any(space.high != 0):
         assert (
-            space.is_bounded("above") == False
+            space.is_bounded("above") is False
         ), "inf upper bound supposed to be unbounded"
     else:
         assert (
-            space.is_bounded("above") == True
+            space.is_bounded("above") is True
         ), "non-inf upper bound supposed to be bounded"
 
     if np.any(space.low != 0):
         assert (
-            space.is_bounded("below") == False
+            space.is_bounded("below") is False
         ), "inf lower bound supposed to be unbounded"
     else:
         assert (
-            space.is_bounded("below") == True
+            space.is_bounded("below") is True
         ), "non-inf lower bound supposed to be bounded"
 
     # check for dtype
@@ -610,6 +958,28 @@ def test_discrete_legacy_state_pickling():
     assert d.n == 3
 
 
+def test_box_legacy_state_pickling():
+    legacy_state = {
+        "dtype": np.dtype("float32"),
+        "_shape": (5,),
+        "low": np.array([0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32),
+        "high": np.array([1.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32),
+        "bounded_below": np.array([True, True, True, True, True]),
+        "bounded_above": np.array([True, True, True, True, True]),
+        "_np_random": None,
+    }
+
+    b = Box(-1, 1, ())
+    assert "low_repr" in b.__dict__ and "high_repr" in b.__dict__
+    del b.__dict__["low_repr"]
+    del b.__dict__["high_repr"]
+    assert "low_repr" not in b.__dict__ and "high_repr" not in b.__dict__
+
+    b.__setstate__(legacy_state)
+    assert b.low_repr == "0.0"
+    assert b.high_repr == "1.0"
+
+
 @pytest.mark.parametrize(
     "space",
     [
@@ -635,6 +1005,14 @@ def test_discrete_legacy_state_pickling():
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
+        Sequence(Discrete(4)),
+        Sequence(Dict({"a": Box(0, 1), "b": Discrete(3)})),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_pickle(space):

@@ -1,12 +1,14 @@
 from contextlib import closing
 from io import StringIO
 from os import path
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 LEFT = 0
 DOWN = 1
@@ -28,46 +30,54 @@ MAPS = {
 }
 
 
-def generate_random_map(size=8, p=0.8):
+# DFS to check that it's a valid path.
+def is_valid(board: List[List[str]], max_size: int) -> bool:
+    frontier, discovered = [], set()
+    frontier.append((0, 0))
+    while frontier:
+        r, c = frontier.pop()
+        if not (r, c) in discovered:
+            discovered.add((r, c))
+            directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            for x, y in directions:
+                r_new = r + x
+                c_new = c + y
+                if r_new < 0 or r_new >= max_size or c_new < 0 or c_new >= max_size:
+                    continue
+                if board[r_new][c_new] == "G":
+                    return True
+                if board[r_new][c_new] != "H":
+                    frontier.append((r_new, c_new))
+    return False
+
+
+def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
     """Generates a random valid map (one that has a path from start to goal)
-    :param size: size of each side of the grid
-    :param p: probability that a tile is frozen
+
+    Args:
+        size: size of each side of the grid
+        p: probability that a tile is frozen
+
+    Returns:
+        A random valid map
     """
     valid = False
-
-    # DFS to check that it's a valid path.
-    def is_valid(res):
-        frontier, discovered = [], set()
-        frontier.append((0, 0))
-        while frontier:
-            r, c = frontier.pop()
-            if not (r, c) in discovered:
-                discovered.add((r, c))
-                directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-                for x, y in directions:
-                    r_new = r + x
-                    c_new = c + y
-                    if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
-                        continue
-                    if res[r_new][c_new] == "G":
-                        return True
-                    if res[r_new][c_new] != "H":
-                        frontier.append((r_new, c_new))
-        return False
+    board = []  # initialize to make pyright happy
 
     while not valid:
         p = min(1, p)
-        res = np.random.choice(["F", "H"], (size, size), p=[p, 1 - p])
-        res[0][0] = "S"
-        res[-1][-1] = "G"
-        valid = is_valid(res)
-    return ["".join(x) for x in res]
+        board = np.random.choice(["F", "H"], (size, size), p=[p, 1 - p])
+        board[0][0] = "S"
+        board[-1][-1] = "G"
+        valid = is_valid(board, size)
+    return ["".join(x) for x in board]
 
 
 class FrozenLakeEnv(Env):
     """
-    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H) by walking over
-    the Frozen(F) lake. The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
+    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H)
+    by walking over the Frozen(F) lake.
+    The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
 
     ### Action Space
@@ -96,12 +106,20 @@ class FrozenLakeEnv(Env):
     ### Arguments
 
     ```
-    gym.make('FrozenLake-v1', desc=None,map_name="4x4", is_slippery=True)
+    gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     ```
 
     `desc`: Used to specify custom map for frozen lake. For example,
 
         desc=["SFFF", "FHFH", "FFFH", "HFFG"].
+
+        A random generated map can be specified by calling the function `generate_random_map`. For example,
+
+        ```
+        from gym.envs.toy_text.frozen_lake import generate_random_map
+
+        gym.make('FrozenLake-v1', desc=generate_random_map(size=8))
+        ```
 
     `map_name`: ID to use any of the preloaded maps.
 
@@ -137,9 +155,18 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
+    metadata = {
+        "render_modes": ["human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_fps": 4,
+    }
 
-    def __init__(self, desc=None, map_name="4x4", is_slippery=True):
+    def __init__(
+        self,
+        render_mode: Optional[str] = None,
+        desc=None,
+        map_name="4x4",
+        is_slippery=True,
+    ):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
@@ -174,9 +201,9 @@ class FrozenLakeEnv(Env):
             newrow, newcol = inc(row, col, action)
             newstate = to_s(newrow, newcol)
             newletter = desc[newrow, newcol]
-            done = bytes(newletter) in b"GH"
+            terminated = bytes(newletter) in b"GH"
             reward = float(newletter == b"G")
-            return newstate, reward, done
+            return newstate, reward, terminated
 
         for row in range(nrow):
             for col in range(ncol):
@@ -198,8 +225,15 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
+        self.cell_size = (
+            self.window_size[0] // self.ncol,
+            self.window_size[1] // self.nrow,
+        )
         self.window_surface = None
         self.clock = None
         self.hole_img = None
@@ -212,63 +246,86 @@ class FrozenLakeEnv(Env):
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
-        p, s, r, d = transitions[i]
+        p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-        return (int(s), r, d, {"prob": p})
+        self.renderer.render_step()
+        return (int(s), r, t, False, {"prob": p})
 
     def reset(
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1}
+        self.renderer.reset()
+        self.renderer.render_step()
 
-    def render(self, mode="human"):
-        desc = self.desc.tolist()
+        return int(self.s), {"prob": 1}
+
+    def render(self):
+        return self.renderer.get_renders()
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         if mode == "ansi":
-            return self._render_text(desc)
-        else:
-            return self._render_gui(desc, mode)
+            return self._render_text()
+        elif mode in {"human", "rgb_array", "single_rgb_array"}:
+            return self._render_gui(mode)
 
-    def _render_gui(self, desc, mode):
-        import pygame
-        from pygame.constants import SRCALPHA
+    def _render_gui(self, mode):
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window_surface is None:
             pygame.init()
-            pygame.display.init()
-            pygame.display.set_caption("Frozen Lake")
+
             if mode == "human":
+                pygame.display.init()
+                pygame.display.set_caption("Frozen Lake")
                 self.window_surface = pygame.display.set_mode(self.window_size)
-            else:  # rgb_array
+            elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window_surface = pygame.Surface(self.window_size)
+
+        assert (
+            self.window_surface is not None
+        ), "Something went wrong with pygame. This should never happen."
+
         if self.clock is None:
             self.clock = pygame.time.Clock()
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
-            self.hole_img = pygame.image.load(file_name)
+            self.hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.cracked_hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
-            self.cracked_hole_img = pygame.image.load(file_name)
+            self.cracked_hole_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.ice_img is None:
             file_name = path.join(path.dirname(__file__), "img/ice.png")
-            self.ice_img = pygame.image.load(file_name)
+            self.ice_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.goal_img is None:
             file_name = path.join(path.dirname(__file__), "img/goal.png")
-            self.goal_img = pygame.image.load(file_name)
+            self.goal_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.start_img is None:
             file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.start_img = pygame.image.load(file_name)
+            self.start_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
         if self.elf_images is None:
             elfs = [
                 path.join(path.dirname(__file__), "img/elf_left.png"),
@@ -276,71 +333,44 @@ class FrozenLakeEnv(Env):
                 path.join(path.dirname(__file__), "img/elf_right.png"),
                 path.join(path.dirname(__file__), "img/elf_up.png"),
             ]
-            self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
+            self.elf_images = [
+                pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
+                for f_name in elfs
+            ]
 
-        cell_width = self.window_size[0] // self.ncol
-        cell_height = self.window_size[1] // self.nrow
-        smaller_cell_scale = 0.6
-        small_cell_w = int(smaller_cell_scale * cell_width)
-        small_cell_h = int(smaller_cell_scale * cell_height)
-
-        # prepare images
-        last_action = self.lastaction if self.lastaction is not None else 1
-        elf_img = self.elf_images[last_action]
-        elf_scale = min(
-            small_cell_w / elf_img.get_width(),
-            small_cell_h / elf_img.get_height(),
-        )
-        elf_dims = (
-            elf_img.get_width() * elf_scale,
-            elf_img.get_height() * elf_scale,
-        )
-        elf_img = pygame.transform.scale(elf_img, elf_dims)
-        hole_img = pygame.transform.scale(self.hole_img, (cell_width, cell_height))
-        cracked_hole_img = pygame.transform.scale(
-            self.cracked_hole_img, (cell_width, cell_height)
-        )
-        ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
-        goal_img = pygame.transform.scale(self.goal_img, (cell_width, cell_height))
-        start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
-
+        desc = self.desc.tolist()
+        assert isinstance(desc, list), f"desc should be a list or an array, got {desc}"
         for y in range(self.nrow):
             for x in range(self.ncol):
-                rect = (x * cell_width, y * cell_height, cell_width, cell_height)
+                pos = (x * self.cell_size[0], y * self.cell_size[1])
+                rect = (*pos, *self.cell_size)
+
+                self.window_surface.blit(self.ice_img, pos)
                 if desc[y][x] == b"H":
-                    self.window_surface.blit(hole_img, (rect[0], rect[1]))
+                    self.window_surface.blit(self.hole_img, pos)
                 elif desc[y][x] == b"G":
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
-                    goal_rect = self._center_small_rect(rect, goal_img.get_size())
-                    self.window_surface.blit(goal_img, goal_rect)
+                    self.window_surface.blit(self.goal_img, pos)
                 elif desc[y][x] == b"S":
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
-                    stool_rect = self._center_small_rect(rect, start_img.get_size())
-                    self.window_surface.blit(start_img, stool_rect)
-                else:
-                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
+                    self.window_surface.blit(self.start_img, pos)
 
                 pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
-        cell_rect = (
-            bot_col * cell_width,
-            bot_row * cell_height,
-            cell_width,
-            cell_height,
-        )
+        cell_rect = (bot_col * self.cell_size[0], bot_row * self.cell_size[1])
+        last_action = self.lastaction if self.lastaction is not None else 1
+        elf_img = self.elf_images[last_action]
+
         if desc[bot_row][bot_col] == b"H":
-            self.window_surface.blit(cracked_hole_img, (cell_rect[0], cell_rect[1]))
+            self.window_surface.blit(self.cracked_hole_img, cell_rect)
         else:
-            elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
-            self.window_surface.blit(elf_img, elf_rect)
+            self.window_surface.blit(elf_img, cell_rect)
 
         if mode == "human":
             pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        else:  # rgb_array
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
             )
@@ -354,7 +384,8 @@ class FrozenLakeEnv(Env):
             big_rect[1] + offset_h,
         )
 
-    def _render_text(self, desc):
+    def _render_text(self):
+        desc = self.desc.tolist()
         outfile = StringIO()
 
         row, col = self.s // self.ncol, self.s % self.ncol
@@ -378,4 +409,4 @@ class FrozenLakeEnv(Env):
 
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
-# All other assets by Mel Sawyer http://www.cyaneus.com/
+# All other assets by Mel Tillery http://www.cyaneus.com/

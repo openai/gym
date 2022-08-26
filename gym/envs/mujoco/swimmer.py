@@ -1,24 +1,48 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
+from gym.spaces import Box
 
 
-class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "swimmer.xml", 4)
-        utils.EzPickle.__init__(self)
+class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 25,
+    }
+
+    def __init__(self, **kwargs):
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float64)
+        MuJocoPyEnv.__init__(
+            self, "swimmer.xml", 4, observation_space=observation_space, **kwargs
+        )
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, a):
         ctrl_cost_coeff = 0.0001
         xposbefore = self.sim.data.qpos[0]
         self.do_simulation(a, self.frame_skip)
         xposafter = self.sim.data.qpos[0]
+
+        self.renderer.render_step()
+
         reward_fwd = (xposafter - xposbefore) / self.dt
         reward_ctrl = -ctrl_cost_coeff * np.square(a).sum()
         reward = reward_fwd + reward_ctrl
         ob = self._get_obs()
-        return ob, reward, False, dict(reward_fwd=reward_fwd, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_fwd=reward_fwd, reward_ctrl=reward_ctrl),
+        )
 
     def _get_obs(self):
         qpos = self.sim.data.qpos

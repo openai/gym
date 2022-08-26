@@ -1,5 +1,3 @@
-# gym
-
 The MIT License
 
 Copyright (c) 2016 OpenAI (https://openai.com)
