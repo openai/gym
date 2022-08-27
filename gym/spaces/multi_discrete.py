@@ -7,8 +7,6 @@ from gym import logger
 from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
 
-SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
-
 
 class MultiDiscrete(Space[np.ndarray]):
     """This represents the cartesian product of arbitrary :class:`Discrete` spaces.
@@ -39,7 +37,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     def __init__(
         self,
-        nvec: Union[np.ndarray, List[int]],
+        nvec: Union[np.ndarray, list],
         dtype=np.int64,
         seed: Optional[Union[int, np.random.Generator]] = None,
     ):
@@ -68,7 +66,7 @@ class MultiDiscrete(Space[np.ndarray]):
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return True
 
-    def sample(self, mask: Optional[SAMPLE_MASK_TYPE] = None) -> np.ndarray:
+    def sample(self, mask: Optional[tuple] = None) -> np.ndarray:
         """Generates a single random sample this space.
 
         Args:
@@ -82,15 +80,31 @@ class MultiDiscrete(Space[np.ndarray]):
         if mask is not None:
 
             def _apply_mask(
-                sub_mask: SAMPLE_MASK_TYPE, sub_nvec: np.ndarray
+                sub_mask: Union[np.ndarray, tuple],
+                sub_nvec: Union[np.ndarray, np.integer],
             ) -> Union[int, List[int]]:
-                if isinstance(sub_mask, np.ndarray):
+                # TODO: consider a special case where the mask can be a single np.ndarray, i.e MD([2, 2])
+                if isinstance(sub_nvec, np.ndarray):
+                    assert isinstance(
+                        sub_mask, tuple
+                    ), f"Expects the mask to be a tuple for sub_nvec ({sub_nvec}), actual type: {type(sub_mask)}"
+                    assert len(sub_mask) == len(
+                        sub_nvec
+                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
+                    return [
+                        _apply_mask(new_mask, new_nvec)
+                        for new_mask, new_nvec in zip(sub_mask, sub_nvec)
+                    ]
+                else:
                     assert np.issubdtype(
                         type(sub_nvec), np.integer
-                    ), f"Expects the mask to be for an action, actual for {sub_nvec}"
+                    ), f"Expects the sub_nvec to be an action, actually: {sub_nvec}, {type(sub_nvec)}"
+                    assert isinstance(
+                        sub_mask, np.ndarray
+                    ), f"Expects the sub mask to be np.ndarray, actual type: {type(sub_mask)}"
                     assert (
                         len(sub_mask) == sub_nvec
-                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {sub_nvec}"
+                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, action: {sub_nvec}"
                     assert (
                         sub_mask.dtype == np.int8
                     ), f"Expects the mask dtype to be np.int8, actual dtype: {sub_mask.dtype}"
@@ -104,17 +118,6 @@ class MultiDiscrete(Space[np.ndarray]):
                         return self.np_random.choice(np.where(valid_action_mask)[0])
                     else:
                         return 0
-                else:
-                    assert isinstance(
-                        sub_mask, tuple
-                    ), f"Expects the mask to be a tuple or np.ndarray, actual type: {type(sub_mask)}"
-                    assert len(sub_mask) == len(
-                        sub_nvec
-                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
-                    return [
-                        _apply_mask(new_mask, new_nvec)
-                        for new_mask, new_nvec in zip(sub_mask, sub_nvec)
-                    ]
 
             return np.array(_apply_mask(mask, self.nvec), dtype=self.dtype)
 
@@ -124,9 +127,16 @@ class MultiDiscrete(Space[np.ndarray]):
         """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, Sequence):
             x = np.array(x)  # Promote list to array for contains check
+
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        return bool(x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all())
+        return bool(
+            isinstance(x, np.ndarray)
+            and x.shape == self.shape
+            and x.dtype != object
+            and np.all(0 <= x)
+            and np.all(x < self.nvec)
+        )
 
     def to_jsonable(self, sample_n: Iterable[np.ndarray]):
         """Convert a batch of samples from this space to a JSONable data type."""
@@ -147,13 +157,18 @@ class MultiDiscrete(Space[np.ndarray]):
             subspace = Discrete(nvec)
         else:
             subspace = MultiDiscrete(nvec, self.dtype)  # type: ignore
+
+        # you don't need to deepcopy as np random generator call replaces the state not the data
         subspace.np_random.bit_generator.state = self.np_random.bit_generator.state
+
         return subspace
 
     def __len__(self):
         """Gives the ``len`` of samples from this space."""
         if self.nvec.ndim >= 2:
-            logger.warn("Get length of a multi-dimensional MultiDiscrete space.")
+            logger.warn(
+                "Getting the length of a multi-dimensional MultiDiscrete space."
+            )
         return len(self.nvec)
 
     def __eq__(self, other):
