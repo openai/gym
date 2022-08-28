@@ -83,18 +83,21 @@ class MultiDiscrete(Space[np.ndarray]):
                 sub_mask: Union[np.ndarray, tuple],
                 sub_nvec: Union[np.ndarray, np.integer],
             ) -> Union[int, List[int]]:
-                # TODO: consider a special case where the mask can be a single np.ndarray, i.e MD([2, 2])
                 if isinstance(sub_nvec, np.ndarray):
-                    assert isinstance(
-                        sub_mask, tuple
-                    ), f"Expects the mask to be a tuple for sub_nvec ({sub_nvec}), actual type: {type(sub_mask)}"
-                    assert len(sub_mask) == len(
-                        sub_nvec
-                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
-                    return [
-                        _apply_mask(new_mask, new_nvec)
-                        for new_mask, new_nvec in zip(sub_mask, sub_nvec)
-                    ]
+                    if np.all(sub_mask.shape == sub_nvec):
+                        # todo - test
+                        return self.np_random.choice(sub_mask, axis=-1)
+                    else:
+                        assert isinstance(
+                            sub_mask, tuple
+                        ), f"Expects the mask to be a tuple for sub_nvec ({sub_nvec}), actual type: {type(sub_mask)}"
+                        assert len(sub_mask) == len(
+                            sub_nvec
+                        ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
+                        return [
+                            _apply_mask(new_mask, new_nvec)
+                            for new_mask, new_nvec in zip(sub_mask, sub_nvec)
+                        ]
                 else:
                     assert np.issubdtype(
                         type(sub_nvec), np.integer

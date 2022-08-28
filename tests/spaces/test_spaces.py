@@ -406,10 +406,10 @@ SPACE_KWARGS = [
     {"nvec": [3, 2]},  # MultiDiscrete
     {"n": 2},  # MultiBinary
     {"max_length": 5},  # Text
-    {"spaces": (Discrete(3), Discrete(2))},  # Tuple
-    {"spaces": {"a": Discrete(3), "b": Discrete(2)}},  # Dict
-    {"node_space": Discrete(4), "edge_space": Discrete(3)},  # Graph
-    {"space": Discrete(4)},  # Sequence
+    # {"spaces": (Discrete(3), Discrete(2))},  # Tuple
+    # {"spaces": {"a": Discrete(3), "b": Discrete(2)}},  # Dict
+    # {"node_space": Discrete(4), "edge_space": Discrete(3)},  # Graph
+    # {"space": Discrete(4)},  # Sequence
 ]
 assert len(SPACE_CLS) == len(SPACE_KWARGS)
 
