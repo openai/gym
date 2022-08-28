@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from typing import (
     Callable,
     Dict,
-    Iterable,
     List,
     Optional,
     Sequence,
