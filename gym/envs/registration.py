@@ -7,7 +7,20 @@ import re
 import sys
 import warnings
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    SupportsFloat,
+    Tuple,
+    Union,
+    overload,
+)
+
+import numpy as np
 
 from gym.wrappers import (
     AutoResetWrapper,
@@ -22,6 +35,11 @@ if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 from gym import Env, error, logger
 
@@ -92,7 +110,7 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
     if version is not None:
         full_name += f"-v{version}"
     if ns is not None:
-        full_name = f"{ns}/{full_name}"
+        full_name = ns + "/" + full_name
     return full_name
 
 
@@ -288,6 +306,68 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 fn()
             except Exception as e:
                 logger.warn(str(e))
+
+
+# fmt: off
+# Classic control
+# ----------------------------------------
+@overload
+def make(id: str, **kwargs) -> Env: ...
+@overload
+def make(id: EnvSpec, **kwargs) -> Env: ...
+
+
+@overload
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+@overload
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+@overload
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+
+
+# Box2d
+# ----------------------------------------
+@overload
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+@overload
+def make(id: Literal["CarRacing-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+
+
+# Toy Text
+# ----------------------------------------
+@overload
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+@overload
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+
+
+# Mujoco
+# ----------------------------------------
+@overload
+def make(id: Literal[
+    "Reacher-v2", "Reacher-v4",
+    "Pusher-v2", "Pusher-v4",
+    "InvertedPendulum-v2", "InvertedPendulum-v4",
+    "InvertedDoublePendulum-v2", "InvertedDoublePendulum-v4",
+    "HalfCheetah-v2", "HalfCheetah-v3", "HalfCheetah-v4",
+    "Hopper-v2", "Hopper-v3", "Hopper-v4",
+    "Swimmer-v2", "Swimmer-v3", "Swimmer-v4",
+    "Walker2d-v2", "Walker2d-v3", "Walker2d-v4",
+    "Ant-v2", "Ant-v3", "Ant-v4",
+    "HumanoidStandup-v2", "HumanoidStandup-v4",
+    "Humanoid-v2", "Humanoid-v3", "Humanoid-v4",
+], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
+# fmt: on
 
 
 # Global registry of environments. Meant to be accessed through `register` and `make`
