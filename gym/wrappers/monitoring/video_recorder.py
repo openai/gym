@@ -7,13 +7,6 @@ from typing import List, Optional
 
 from gym import error, logger
 
-try:
-    from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
-except ImportError:
-    raise error.DependencyNotInstalled(
-        "MoviePy is not installed, run `pip install moviepy`"
-    )
-
 
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
@@ -45,6 +38,14 @@ class VideoRecorder:
             Error: You can pass at most one of `path` or `base_path`
             Error: Invalid path given that must have a particular file extension
         """
+        try:
+            # check that moviepy is now installed
+            import moviepy  # noqa: F401
+        except ImportError:
+            raise error.DependencyNotInstalled(
+                "MoviePy is not installed, run `pip install moviepy`"
+            )
+
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
@@ -145,7 +146,14 @@ class VideoRecorder:
 
         # Close the encoder
         if len(self.recorded_frames) > 0:
-            logger.debug("Closing video encoder: path=%s", self.path)
+            try:
+                from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+            except ImportError:
+                raise error.DependencyNotInstalled(
+                    "MoviePy is not installed, run `pip install moviepy`"
+                )
+
+            logger.debug(f"Closing video encoder: path={self.path}")
             clip = ImageSequenceClip(self.recorded_frames, fps=self.frames_per_sec)
             clip.write_videofile(self.path)
         else:
