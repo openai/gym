@@ -516,66 +516,6 @@ def test_class_inequality(spaces):
     assert spaces[1] != spaces[0]
 
 
-@pytest.mark.parametrize(
-    "space_fn",
-    [
-        lambda: Dict(space1="abc"),
-        lambda: Dict({"space1": "abc"}),
-        lambda: Tuple(["abc"]),
-    ],
-)
-def test_bad_space_calls(space_fn):
-    with pytest.raises(AssertionError):
-        space_fn()
-
-
-def test_seed_Dict():
-    test_space = Dict(
-        {
-            "a": Box(low=0, high=1, shape=(3, 3)),
-            "b": Dict(
-                {
-                    "b_1": Box(low=-100, high=100, shape=(2,)),
-                    "b_2": Box(low=-1, high=1, shape=(2,)),
-                }
-            ),
-            "c": Discrete(5),
-        }
-    )
-
-    seed_dict = {
-        "a": 0,
-        "b": {
-            "b_1": 1,
-            "b_2": 2,
-        },
-        "c": 3,
-    }
-
-    test_space.seed(seed_dict)
-
-    # "Unpack" the dict sub-spaces into individual spaces
-    a = Box(low=0, high=1, shape=(3, 3))
-    a.seed(0)
-    b_1 = Box(low=-100, high=100, shape=(2,))
-    b_1.seed(1)
-    b_2 = Box(low=-1, high=1, shape=(2,))
-    b_2.seed(2)
-    c = Discrete(5)
-    c.seed(3)
-
-    for i in range(10):
-        test_s = test_space.sample()
-        a_s = a.sample()
-        assert (test_s["a"] == a_s).all()
-        b_1_s = b_1.sample()
-        assert (test_s["b"]["b_1"] == b_1_s).all()
-        b_2_s = b_2.sample()
-        assert (test_s["b"]["b_2"] == b_2_s).all()
-        c_s = c.sample()
-        assert test_s["c"] == c_s
-
-
 def test_box_dtype_check():
     # Related Issues:
     # https://github.com/openai/gym/issues/2357
@@ -763,23 +703,6 @@ def test_seed_subspace_incorrelated(space):
     ]
 
     assert len(states) == len(set(states))
-
-
-def test_tuple():
-    spaces = [Discrete(5), Discrete(10), Discrete(5)]
-    space_tuple = Tuple(spaces)
-
-    assert len(space_tuple) == len(spaces)
-    assert space_tuple.count(Discrete(5)) == 2
-    assert space_tuple.count(MultiBinary(2)) == 0
-    for i, space in enumerate(space_tuple):
-        assert space == spaces[i]
-    for i, space in enumerate(reversed(space_tuple)):
-        assert space == spaces[len(spaces) - 1 - i]
-    assert space_tuple.index(Discrete(5)) == 0
-    assert space_tuple.index(Discrete(5), 1) == 2
-    with pytest.raises(ValueError):
-        space_tuple.index(Discrete(10), 0, 1)
 
 
 def test_multidiscrete_as_tuple():

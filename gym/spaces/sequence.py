@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
+import gym
 from gym.spaces.space import Space
 from gym.utils import seeding
 
@@ -25,7 +26,7 @@ class Sequence(Space[Tuple]):
     def __init__(
         self,
         space: Space,
-        seed: Optional[Union[int, List[int], seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of the :class:`Sequence` space.
 
@@ -33,6 +34,9 @@ class Sequence(Space[Tuple]):
             space: Elements in the sequences this space represent must belong to this space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
         """
+        assert isinstance(
+            space, gym.Space
+        ), f"Expects the feature space to be instance of a gym Space, actual type: {type(space)}"
         self.feature_space = space
         super().__init__(
             None, None, seed  # type: ignore
@@ -50,17 +54,20 @@ class Sequence(Space[Tuple]):
         return False
 
     def sample(
-        self, mask: Optional[Tuple[Optional[np.ndarray], Any]] = None
+        self,
+        mask: Optional[Tuple[Optional[Union[np.ndarray, int]], Optional[Any]]] = None,
     ) -> Tuple[Any]:
         """Generates a single random sample from this space.
 
         Args:
             mask: An optional mask for (optionally) the length of the sequence and (optionally) the values in the sequence.
                 If you specify `mask`, it is expected to be a tuple of the form `(length_mask, sample_mask)` where `length_mask`
-                is either `None` if you do not want to specify any restrictions on the length of the sampled sequence (then, the
-                length will be randomly drawn from a geometric distribution), or a `np.ndarray` of integers, in which case the length of
-                the sampled sequence is randomly drawn from this array. The second element of the tuple, `sample` mask
-                specifies a mask that is applied when sampling elements from the base space.
+                is
+                - `None` The length will be randomly drawn from a geometric distribution)
+                - `np.ndarray` of integers, in which case the length of the sampled sequence is randomly drawn from this array.
+                - `int` for a fixed length sample
+                The second element of the mask tuple `sample` mask specifies a mask that is applied when
+                sampling elements from the base space. The mask is applied for each feature space sample.
 
         Returns:
             A tuple of random length with random samples of elements from the :attr:`feature_space`.
@@ -68,11 +75,28 @@ class Sequence(Space[Tuple]):
         if mask is not None:
             length_mask, feature_mask = mask
         else:
-            length_mask = None
-            feature_mask = None
+            length_mask, feature_mask = None, None
+
         if length_mask is not None:
-            length = self.np_random.choice(length_mask)
+            if np.issubdtype(type(length_mask), np.integer):
+                assert (
+                    0 <= length_mask
+                ), f"Expects the length mask to be greater than zero, actual value: {length_mask}"
+                length = length_mask
+            elif isinstance(length_mask, np.ndarray):
+                assert (
+                    len(length_mask.shape) == 1
+                ), f"Expects the shape of the length mask to be 1-dimensional, actual shape: {length_mask.shape}"
+                assert np.all(
+                    0 <= length_mask
+                ), f"Expects all values in the length_mask to be greater than zero, actual values: {length_mask}"
+                length = self.np_random.choice(length_mask)
+            else:
+                raise TypeError(
+                    f"Expects the type of length_mask to an integer or a np.ndarray, actual type: {type(length_mask)}"
+                )
         else:
+            # The choice of 0.25 is arbitrary
             length = self.np_random.geometric(0.25)
 
         return tuple(
