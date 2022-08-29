@@ -9,7 +9,10 @@ from gym.spaces import Discrete, Graph, GraphInstance
 def test_node_space_sample():
     space = Graph(node_space=Discrete(3), edge_space=None)
 
-    sample = space.sample((np.array([0, 1, 0], dtype=np.int8), None))
+    sample = space.sample(
+        mask=(tuple(np.array([0, 1, 0], dtype=np.int8) for _ in range(5)), None),
+        num_nodes=5,
+    )
     assert sample in space
     assert np.all(sample.nodes == 1)
 
