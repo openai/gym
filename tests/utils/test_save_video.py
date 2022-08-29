@@ -29,10 +29,10 @@ def test_record_video_using_default_trigger():
     env.close()
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
+    shutil.rmtree("videos")
     assert len(mp4_files) == sum(
         capped_cubic_video_schedule(i) for i in range(episode_index)
     )
-    shutil.rmtree("videos")
 
 
 def modulo_step_trigger(mod: int):
@@ -68,8 +68,8 @@ def test_record_video_step_trigger():
 
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
-    assert len(mp4_files) == 2
     shutil.rmtree("videos")
+    assert len(mp4_files) == 2
 
 
 def test_record_video_within_vector():
@@ -100,5 +100,5 @@ def test_record_video_within_vector():
 
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
-    assert len(mp4_files) == 2
     shutil.rmtree("videos")
+    assert len(mp4_files) == 2
