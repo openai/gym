@@ -221,8 +221,8 @@ SAMPLE_MASK_RNG, _ = seeding.np_random(1)
                 (np.array([1, 1, 0], dtype=np.int8), np.array([0, 1], dtype=np.int8)),
             ),
             # Multi-binary
-            np.array([0, 1, 1, 1, 0, 0, 1, 1], dtype=np.int8),
-            np.array([[0, 1, 1], [0, 0, 1]], dtype=np.int8),
+            np.array([0, 1, 0, 1, 0, 2, 1, 1], dtype=np.int8),
+            np.array([[0, 1, 2], [0, 2, 1]], dtype=np.int8),
             # Text
             (None, SAMPLE_MASK_RNG.integers(low=0, high=2, size=62, dtype=np.int8)),
             (4, SAMPLE_MASK_RNG.integers(low=0, high=2, size=62, dtype=np.int8)),
@@ -265,7 +265,10 @@ def test_space_sample_mask(space: Space, mask, n_trials: int = 100):
         )
         assert variance < CHI_SQUARED[degrees_of_freedom]
     elif isinstance(space, MultiBinary):
-        expected_frequency = np.ones(space.shape) * mask * (n_trials / 2)
+        expected_frequency = (
+            np.ones(space.shape) * np.where(mask == 2, 0.5, mask) * n_trials
+        )
+        print(expected_frequency)
         observed_frequency = np.sum(samples, axis=0)
         assert space.shape == expected_frequency.shape == observed_frequency.shape
 

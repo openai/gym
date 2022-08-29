@@ -79,10 +79,14 @@ class MultiBinary(Space[np.ndarray]):
                 mask.shape == self.shape
             ), f"The expected shape of the mask is {self.shape}, actual shape: {mask.shape}"
             assert np.all(
-                mask == 0 | mask == 1 | mask == 2
+                (mask == 0) | (mask == 1) | (mask == 2)
             ), f"All values of a mask should be 0, 1 or 2, actual values: {mask}"
 
-            return np.where(mask == 2, self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype), mask.astype(self.dtype))
+            return np.where(
+                mask == 2,
+                self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype),
+                mask.astype(self.dtype),
+            )
 
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 

@@ -60,11 +60,15 @@ def test_low_high_values(value, valid: bool):
     if valid:
         with warnings.catch_warnings(record=True) as caught_warnings:
             Box(low=value, high=value)
-        assert len(caught_warnings) == 0, tuple(warning.message for warning in caught_warnings)
+        assert len(caught_warnings) == 0, tuple(
+            warning.message for warning in caught_warnings
+        )
     else:
         with pytest.raises(
             ValueError,
-            match=r"expect their types to be np\.ndarray, an integer or a float",
+            match=re.escape(
+                "expect their types to be np.ndarray, an integer or a float"
+            ),
         ):
             Box(low=value, high=value)
 
