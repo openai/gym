@@ -39,11 +39,13 @@ class VideoRecorder:
             Error: Invalid path given that must have a particular file extension
         """
         try:
+            # check that moviepy is now installed
             import moviepy  # noqa: F401
         except ImportError:
             raise error.DependencyNotInstalled(
                 "MoviePy is not installed, run `pip install moviepy`"
             )
+
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
@@ -151,7 +153,7 @@ class VideoRecorder:
                     "MoviePy is not installed, run `pip install moviepy`"
                 )
 
-            logger.debug("Closing video encoder: path=%s", self.path)
+            logger.debug(f"Closing video encoder: path={self.path}")
             clip = ImageSequenceClip(self.recorded_frames, fps=self.frames_per_sec)
             clip.write_videofile(self.path)
         else:
