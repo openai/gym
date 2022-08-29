@@ -170,6 +170,8 @@ class Graph(Space):
                     if isinstance(x.edges, np.ndarray) and isinstance(
                         x.edge_links, np.ndarray
                     ):
+                        assert x.edges is not None
+                        assert x.edge_links is not None
                         if self.edge_space is not None:
                             if all(edge in self.edge_space for edge in x.edges):
                                 if np.issubdtype(x.edge_links.dtype, np.integer):
