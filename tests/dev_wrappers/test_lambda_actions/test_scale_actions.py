@@ -33,7 +33,7 @@ except ImportError:
     [
         (
             # BipedalWalker action space: Box(-1.0, 1.0, (4,), float32)
-            gym.make("BipedalWalker-v3", new_step_api=True),
+            gym.make("BipedalWalker-v3"),
             (-0.5, 0.5),
             np.array([1, 1, 1, 1]),
             np.array([0.5, 0.5, 0.5, 0.5]),
@@ -66,7 +66,7 @@ def test_scale_actions_v0_box(env, args, action, scaled_action):
     ("env", "args", "action", "scaled_action"),
     [
         (
-            gym.vector.make("BipedalWalker-v3", num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make("BipedalWalker-v3", num_envs=NUM_ENVS),
             (-0.5, 0.5),
             np.tile(np.array([1, 1, 1, 1]), (NUM_ENVS, 1)),
             np.tile(np.array([0.5, 0.5, 0.5, 0.5]), (NUM_ENVS, 1)),

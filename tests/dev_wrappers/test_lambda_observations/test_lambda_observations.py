@@ -14,7 +14,7 @@ except ImportError:
 
 @pytest.mark.parametrize(
     ("env", "func", "args"),
-    [(gym.make("CartPole-v1", new_step_api=True), lambda obs, arg: obs * arg, 2)],
+    [(gym.make("CartPole-v1"), lambda obs, arg: obs * arg, 2)],
 )
 def test_lambda_observation_v0(env, func, args):
     """Test correct function is applied to observation."""
@@ -32,12 +32,12 @@ def test_lambda_observation_v0(env, func, args):
     ("env", "func", "args"),
     [
         (
-            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS),
             lambda obs, arg: obs * arg,
             2,
         ),
         (
-            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS),
             lambda obs, arg: obs * arg,
             np.array([[1], [-1], [0]]),  # shape (3,1) because NUM_ENVS = 3
         ),

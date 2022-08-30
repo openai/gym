@@ -25,8 +25,8 @@ except ImportError:
 @pytest.mark.parametrize(
     ("env", "args"),
     [
-        (gym.make("CartPole-v1", new_step_api=True), np.dtype("int32")),
-        (gym.make("CartPole-v1", new_step_api=True), np.dtype("float32")),
+        (gym.make("CartPole-v1"), np.dtype("int32")),
+        (gym.make("CartPole-v1"), np.dtype("float32")),
     ],
 )
 def test_observation_dtype_v0(env, args):
@@ -42,11 +42,11 @@ def test_observation_dtype_v0(env, args):
     ("env", "args"),
     [
         (
-            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS),
             np.dtype("int32"),
         ),
         (
-            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS, new_step_api=True),
+            gym.vector.make("CartPole-v1", num_envs=NUM_ENVS),
             np.dtype("float32"),
         ),
     ],
