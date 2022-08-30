@@ -120,7 +120,6 @@ def test_time_aware_observation_step_within_vector(env, flatten, normalize_time)
             assert np.all(observation[-wrapped_env.num_envs :] == expected_time_obs)
         else:
             assert np.all(observation["time"] == expected_time_obs)
-
         if any(terminated):
             break
 
