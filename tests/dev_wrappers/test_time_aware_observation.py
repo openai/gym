@@ -20,18 +20,16 @@ SEED = 0
 @pytest.mark.parametrize(
     "env",
     [
-        gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
-        gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
+        gym.make("CartPole-v1", disable_env_checker=True),
+        gym.make("CarRacing-v2", disable_env_checker=True),
         gym.vector.make(
             "CartPole-v1",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
         gym.vector.make(
             "CarRacing-v2",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
     ],
@@ -43,7 +41,7 @@ def test_time_aware_observation_creation(env):
     is correctly created.
     """
     wrapped_env = TimeAwareObservationV0(env)
-    obs = wrapped_env.reset()
+    obs, _ = wrapped_env.reset()
 
     assert isinstance(wrapped_env.observation_space, Dict)
     assert isinstance(obs, OrderedDict)
@@ -56,11 +54,10 @@ def test_time_aware_observation_creation(env):
 @pytest.mark.parametrize(
     "env",
     [
-        gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
+        gym.make("CartPole-v1", disable_env_checker=True),
         gym.make(
             "CarRacing-v2",
             disable_env_checker=True,
-            new_step_api=True,
             continuous=False,
         ),
     ],
@@ -104,13 +101,11 @@ def test_time_aware_observation_step(env, flatten, normalize_time):
         gym.vector.make(
             "CartPole-v1",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
         gym.vector.make(
             "CarRacing-v2",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
     ],
@@ -177,18 +172,16 @@ def test_time_aware_observation_step_within_vector(env, flatten, normalize_time)
 @pytest.mark.parametrize(
     "env",
     [
-        gym.make("CartPole-v1", disable_env_checker=True, new_step_api=True),
-        gym.make("CarRacing-v2", disable_env_checker=True, new_step_api=True),
+        gym.make("CartPole-v1", disable_env_checker=True),
+        gym.make("CarRacing-v2", disable_env_checker=True),
         gym.vector.make(
             "CartPole-v1",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
         gym.vector.make(
             "CarRacing-v2",
             disable_env_checker=True,
-            new_step_api=True,
             num_envs=NUM_ENVS,
         ),
     ],
@@ -205,7 +198,7 @@ def test_time_aware_observation_creation_flatten(env):
     the end, where `n` is the number of environments.
     """
     wrapped_env = TimeAwareObservationV0(env, flatten=True)
-    obs = wrapped_env.reset()
+    obs, _ = wrapped_env.reset()
 
     assert isinstance(wrapped_env.observation_space, Box)
     assert isinstance(obs, np.ndarray)
