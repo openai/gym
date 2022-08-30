@@ -1,4 +1,5 @@
 import pickle
+import warnings
 
 import pytest
 
@@ -41,13 +42,13 @@ CHECK_ENV_IGNORE_WARNINGS = [
 )
 def test_envs_pass_env_checker(spec):
     """Check that all environments pass the environment checker with no warnings other than the expected."""
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = spec.make(disable_env_checker=True).unwrapped
         check_env(env)
 
         env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
             print()
             print(warning.message.args[0])

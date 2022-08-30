@@ -47,10 +47,10 @@ from tests.testing_env import GenericTestEnv
 )
 def test_no_error_warnings(env):
     """A full version of this test with all gym envs is run in tests/envs/test_envs.py."""
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         check_env(env)
 
-    assert len(warnings) == 0, [warning.message for warning in warnings]
+    assert len(caught_warnings) == 0, [warning.message for warning in caught_warnings]
 
 
 def _no_super_reset(self, seed=None, options=None):

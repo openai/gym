@@ -1,5 +1,4 @@
 """Tests the gym.wrapper.AutoResetWrapper operates as expected."""
-
 from typing import Generator, Optional
 from unittest.mock import MagicMock
 
@@ -63,8 +62,7 @@ def test_make_autoreset_true(spec):
     Note: This test assumes that all first-party environments will terminate in a finite
      amount of time with random actions, which is true as of the time of adding this test.
     """
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
+    env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
     assert AutoResetWrapper in unwrap_env(env)
 
     env.reset(seed=0)
@@ -83,18 +81,15 @@ def test_make_autoreset_true(spec):
 )
 def test_gym_make_autoreset(spec):
     """Tests that `gym.make` autoreset wrapper is applied only when `gym.make(..., autoreset=True)`."""
-    with pytest.warns(None):
-        env = gym.make(spec.id, disable_env_checker=True)
+    env = gym.make(spec.id, disable_env_checker=True)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=False, disable_env_checker=True)
+    env = gym.make(spec.id, autoreset=False, disable_env_checker=True)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
+    env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
     assert AutoResetWrapper in unwrap_env(env)
     env.close()
 
