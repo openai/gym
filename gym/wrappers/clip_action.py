@@ -26,7 +26,7 @@ class ClipAction(ActionWrapper):
             env: The environment to apply the wrapper
         """
         assert isinstance(env.action_space, Box)
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
 
     def action(self, action):
         """Clips the action within the valid bounds.

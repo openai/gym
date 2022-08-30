@@ -26,7 +26,7 @@ class OrderEnforcing(gym.Wrapper):
             env: The environment to wrap
             disable_render_order_enforcing: If to disable render order enforcing
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         self._has_reset: bool = False
         self._disable_render_order_enforcing: bool = disable_render_order_enforcing
 

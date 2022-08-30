@@ -6,7 +6,6 @@ from typing import Optional
 import numpy as np
 
 import gym
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 def add_vector_episode_statistics(
@@ -77,15 +76,14 @@ class RecordEpisodeStatistics(gym.Wrapper):
         length_queue: The lengths of the last ``deque_size``-many episodes
     """
 
-    def __init__(self, env: gym.Env, deque_size: int = 100, new_step_api: bool = False):
+    def __init__(self, env: gym.Env, deque_size: int = 100):
         """This wrapper will keep track of cumulative rewards and episode lengths.
 
         Args:
             env (Env): The environment to apply the wrapper
             deque_size: The size of the buffers :attr:`return_queue` and :attr:`length_queue`
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
         self.episode_count = 0
@@ -110,7 +108,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
             terminateds,
             truncateds,
             infos,
-        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
+        ) = self.env.step(action)
         assert isinstance(
             infos, dict
         ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
@@ -144,14 +142,10 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
-        return step_api_compatibility(
-            (
-                observations,
-                rewards,
-                terminateds if self.is_vector_env else terminateds[0],
-                truncateds if self.is_vector_env else truncateds[0],
-                infos,
-            ),
-            self.new_step_api,
-            self.is_vector_env,
+        return (
+            observations,
+            rewards,
+            terminateds if self.is_vector_env else terminateds[0],
+            truncateds if self.is_vector_env else truncateds[0],
+            infos,
         )
