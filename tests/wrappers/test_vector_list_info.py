@@ -29,9 +29,9 @@ def test_info_to_list():
 
     for _ in range(ENV_STEPS):
         action = wrapped_env.action_space.sample()
-        _, _, dones, list_info = wrapped_env.step(action)
-        for i, done in enumerate(dones):
-            if done:
+        _, _, terminateds, truncateds, list_info = wrapped_env.step(action)
+        for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
+            if terminated or truncated:
                 assert "final_observation" in list_info[i]
             else:
                 assert "final_observation" not in list_info[i]
@@ -47,9 +47,9 @@ def test_info_to_list_statistics():
 
     for _ in range(ENV_STEPS):
         action = wrapped_env.action_space.sample()
-        _, _, dones, list_info = wrapped_env.step(action)
-        for i, done in enumerate(dones):
-            if done:
+        _, _, terminateds, truncateds, list_info = wrapped_env.step(action)
+        for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
+            if terminated or truncated:
                 assert "episode" in list_info[i]
                 for stats in ["r", "l", "t"]:
                     assert stats in list_info[i]["episode"]

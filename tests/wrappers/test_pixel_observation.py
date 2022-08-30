@@ -10,7 +10,7 @@ from gym.wrappers.pixel_observation import STATE_KEY, PixelObservationWrapper
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode="single_rgb_array"):
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
         self.render_mode = render_mode
 

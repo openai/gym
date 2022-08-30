@@ -1,18 +1,18 @@
-"""Contains methods for step compatibility, from old-to-new and new-to-old API, to be removed in 1.0."""
+"""Contains methods for step compatibility, from old-to-new and new-to-old API."""
 from typing import Tuple, Union
 
 import numpy as np
 
 from gym.core import ObsType
 
-OldStepType = Tuple[
+DoneStepType = Tuple[
     Union[ObsType, np.ndarray],
     Union[float, np.ndarray],
     Union[bool, np.ndarray],
     Union[dict, list],
 ]
 
-NewStepType = Tuple[
+TerminatedTruncatedStepType = Tuple[
     Union[ObsType, np.ndarray],
     Union[float, np.ndarray],
     Union[bool, np.ndarray],
@@ -21,9 +21,9 @@ NewStepType = Tuple[
 ]
 
 
-def step_to_new_api(
-    step_returns: Union[OldStepType, NewStepType], is_vector_env=False
-) -> NewStepType:
+def convert_to_terminated_truncated_step_api(
+    step_returns: Union[DoneStepType, TerminatedTruncatedStepType], is_vector_env=False
+) -> TerminatedTruncatedStepType:
     """Function to transform step returns to new step API irrespective of input API.
 
     Args:
@@ -73,9 +73,10 @@ def step_to_new_api(
             )
 
 
-def step_to_old_api(
-    step_returns: Union[NewStepType, OldStepType], is_vector_env: bool = False
-) -> OldStepType:
+def convert_to_done_step_api(
+    step_returns: Union[TerminatedTruncatedStepType, DoneStepType],
+    is_vector_env: bool = False,
+) -> DoneStepType:
     """Function to transform step returns to old step API irrespective of input API.
 
     Args:
@@ -128,33 +129,33 @@ def step_to_old_api(
 
 
 def step_api_compatibility(
-    step_returns: Union[NewStepType, OldStepType],
-    new_step_api: bool = False,
+    step_returns: Union[TerminatedTruncatedStepType, DoneStepType],
+    output_truncation_bool: bool = True,
     is_vector_env: bool = False,
-) -> Union[NewStepType, OldStepType]:
-    """Function to transform step returns to the API specified by `new_step_api` bool.
+) -> Union[TerminatedTruncatedStepType, DoneStepType]:
+    """Function to transform step returns to the API specified by `output_truncation_bool` bool.
 
-    Old step API refers to step() method returning (observation, reward, done, info)
-    New step API refers to step() method returning (observation, reward, terminated, truncated, info)
+    Done (old) step API refers to step() method returning (observation, reward, done, info)
+    Terminated Truncated (new) step API refers to step() method returning (observation, reward, terminated, truncated, info)
     (Refer to docs for details on the API change)
 
     Args:
         step_returns (tuple): Items returned by step(). Can be (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
-        new_step_api (bool): Whether the output should be in new step API or old (False by default)
+        output_truncation_bool (bool): Whether the output should return two booleans (new API) or one (old) (True by default)
         is_vector_env (bool): Whether the step_returns are from a vector environment
 
     Returns:
-        step_returns (tuple): Depending on `new_step_api` bool, it can return (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
+        step_returns (tuple): Depending on `output_truncation_bool` bool, it can return (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
 
     Examples:
         This function can be used to ensure compatibility in step interfaces with conflicting API. Eg. if env is written in old API,
          wrapper is written in new API, and the final step output is desired to be in old API.
 
-        >>> obs, rew, done, info = step_api_compatibility(env.step(action))
-        >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), new_step_api=True)
+        >>> obs, rew, done, info = step_api_compatibility(env.step(action), output_truncation_bool=False)
+        >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), output_truncation_bool=True)
         >>> observations, rewards, dones, infos = step_api_compatibility(vec_env.step(action), is_vector_env=True)
     """
-    if new_step_api:
-        return step_to_new_api(step_returns, is_vector_env)
+    if output_truncation_bool:
+        return convert_to_terminated_truncated_step_api(step_returns, is_vector_env)
     else:
-        return step_to_old_api(step_returns, is_vector_env)
+        return convert_to_done_step_api(step_returns, is_vector_env)

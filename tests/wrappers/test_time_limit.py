@@ -22,31 +22,28 @@ def test_time_limit_wrapper(double_wrap):
     max_episode_length = 20
     env = TimeLimit(env, max_episode_length)
     if double_wrap:
-        # TimeLimit wrapper should not overwrite
-        # the TimeLimit.truncated key
-        # if it was already set
         env = TimeLimit(env, max_episode_length)
     env.reset()
-    done = False
+    terminated, truncated = False, False
     n_steps = 0
     info = {}
-    while not done:
+    while not (terminated or truncated):
         n_steps += 1
-        _, _, done, info = env.step(env.action_space.sample())
+        _, _, terminated, truncated, info = env.step(env.action_space.sample())
 
     assert n_steps == max_episode_length
-    assert "TimeLimit.truncated" in info
-    assert info["TimeLimit.truncated"] is True
+    assert truncated
 
 
 @pytest.mark.parametrize("double_wrap", [False, True])
 def test_termination_on_last_step(double_wrap):
     # Special case: termination at the last timestep
-    # but not due to timeout
+    # Truncation due to timeout also happens at the same step
+
     env = PendulumEnv()
 
     def patched_step(_action):
-        return env.observation_space.sample(), 0.0, True, {}
+        return env.observation_space.sample(), 0.0, True, False, {}
 
     env.step = patched_step
 
@@ -55,7 +52,6 @@ def test_termination_on_last_step(double_wrap):
     if double_wrap:
         env = TimeLimit(env, max_episode_length)
     env.reset()
-    _, _, done, info = env.step(env.action_space.sample())
-    assert done is True
-    assert "TimeLimit.truncated" in info
-    assert info["TimeLimit.truncated"] is False
+    _, _, terminated, truncated, _ = env.step(env.action_space.sample())
+    assert terminated is True
+    assert truncated is True

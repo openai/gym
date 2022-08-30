@@ -3,7 +3,6 @@ import numpy as np
 
 import gym
 from gym.spaces import Box
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import cv2
@@ -38,7 +37,6 @@ class AtariPreprocessing(gym.Wrapper):
         grayscale_obs: bool = True,
         grayscale_newaxis: bool = False,
         scale_obs: bool = False,
-        new_step_api: bool = False,
     ):
         """Wrapper for Atari 2600 preprocessing.
 
@@ -60,7 +58,7 @@ class AtariPreprocessing(gym.Wrapper):
             DependencyNotInstalled: opencv-python package not installed
             ValueError: Disable frame-skipping in the original env
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
         if cv2 is None:
             raise gym.error.DependencyNotInstalled(
                 "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
@@ -119,9 +117,7 @@ class AtariPreprocessing(gym.Wrapper):
         total_reward, terminated, truncated, info = 0.0, False, False, {}
 
         for t in range(self.frame_skip):
-            _, reward, terminated, truncated, info = step_api_compatibility(
-                self.env.step(action), True
-            )
+            _, reward, terminated, truncated, info = self.env.step(action)
             total_reward += reward
             self.game_over = terminated
 
@@ -143,10 +139,7 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
-        return step_api_compatibility(
-            (self._get_obs(), total_reward, terminated, truncated, info),
-            self.new_step_api,
-        )
+        return self._get_obs(), total_reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         """Resets the environment using preprocessing."""
@@ -159,9 +152,7 @@ class AtariPreprocessing(gym.Wrapper):
             else 0
         )
         for _ in range(noops):
-            _, _, terminated, truncated, step_info = step_api_compatibility(
-                self.env.step(0), True
-            )
+            _, _, terminated, truncated, step_info = self.env.step(0)
             reset_info.update(step_info)
             if terminated or truncated:
                 _, reset_info = self.env.reset(**kwargs)

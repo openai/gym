@@ -32,7 +32,7 @@ class ResizeObservation(gym.ObservationWrapper):
             env: The environment to apply the wrapper
             shape: The shape of the resized observations
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         if isinstance(shape, int):
             shape = (shape, shape)
         assert all(x > 0 for x in shape), shape
