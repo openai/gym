@@ -13,8 +13,8 @@ def test_record_video_using_default_trigger():
     episode_index = 0
     for step_index in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             save_video(
                 env.render(),
                 "videos",
@@ -51,8 +51,8 @@ def test_record_video_step_trigger():
     episode_index = 0
     for step_index in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             save_video(
                 env.render(),
                 "videos",
@@ -82,7 +82,7 @@ def test_record_video_within_vector():
     step_starting_index = 0
     episode_index = 0
     for step_index in range(199):
-        _, _, _, infos = envs.step(envs.action_space.sample())
+        _, _, _, _, infos = envs.step(envs.action_space.sample())
         episode_frames.extend(envs.call("render")[0])
 
         if "episode" in infos and infos["_episode"][0]:
