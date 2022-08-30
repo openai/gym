@@ -217,67 +217,64 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
-    try:
-        env.reset(seed=seed)
+    env.reset(seed=seed)
 
-        if keys_to_action is None:
-            if hasattr(env, "get_keys_to_action"):
-                keys_to_action = env.get_keys_to_action()
-            elif hasattr(env.unwrapped, "get_keys_to_action"):
-                keys_to_action = env.unwrapped.get_keys_to_action()
-            else:
-                raise MissingKeysToAction(
-                    f"{env.spec.id} does not have explicit key to action mapping, "
-                    "please specify one manually"
-                )
-        assert keys_to_action is not None
-
-        key_code_to_action = {}
-        for key_combination, action in keys_to_action.items():
-            key_code = tuple(
-                sorted(
-                    ord(key) if isinstance(key, str) else key for key in key_combination
-                )
+    if keys_to_action is None:
+        if hasattr(env, "get_keys_to_action"):
+            keys_to_action = env.get_keys_to_action()
+        elif hasattr(env.unwrapped, "get_keys_to_action"):
+            keys_to_action = env.unwrapped.get_keys_to_action()
+        else:
+            raise MissingKeysToAction(
+                f"{env.spec.id} does not have explicit key to action mapping, "
+                "please specify one manually"
             )
-            key_code_to_action[key_code] = action
+    assert keys_to_action is not None
 
-        game = PlayableGame(env, key_code_to_action, zoom)
+    key_code_to_action = {}
+    for key_combination, action in keys_to_action.items():
+        key_code = tuple(
+            sorted(
+                ord(key) if isinstance(key, str) else key for key in key_combination
+            )
+        )
+        key_code_to_action[key_code] = action
 
-        if fps is None:
-            fps = env.metadata.get("render_fps", 30)
+    game = PlayableGame(env, key_code_to_action, zoom)
 
-        done, obs = True, None
-        clock = pygame.time.Clock()
+    if fps is None:
+        fps = env.metadata.get("render_fps", 30)
 
-        while game.running:
-            if done:
-                done = False
-                obs = env.reset(seed=seed)
-            else:
-                action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
-                prev_obs = obs
-                obs, rew, terminated, truncated, info = env.step(action)
-                done = terminated or truncated
-                if callback is not None:
-                    callback(prev_obs, obs, action, rew, terminated, truncated, info)
-            if obs is not None:
-                rendered = env.render()
-                if isinstance(rendered, List):
-                    rendered = rendered[-1]
-                assert rendered is not None and isinstance(rendered, np.ndarray)
-                display_arr(
-                    game.screen, rendered, transpose=transpose, video_size=game.video_size
-                )
+    done, obs = True, None
+    clock = pygame.time.Clock()
 
-                # process pygame events
-                for event in pygame.event.get():
-                    game.process_event(event)
+    while game.running:
+        if done:
+            done = False
+            obs = env.reset(seed=seed)
+        else:
+            action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
+            prev_obs = obs
+            obs, rew, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+            if callback is not None:
+                callback(prev_obs, obs, action, rew, terminated, truncated, info)
+        if obs is not None:
+            rendered = env.render()
+            if isinstance(rendered, List):
+                rendered = rendered[-1]
+            assert rendered is not None and isinstance(rendered, np.ndarray)
+            display_arr(
+                game.screen, rendered, transpose=transpose, video_size=game.video_size
+            )
 
-                pygame.display.flip()
-                clock.tick(fps)
-            pygame.quit()
-    finally:
-        env.close()
+            # process pygame events
+            for event in pygame.event.get():
+                game.process_event(event)
+
+            pygame.display.flip()
+            clock.tick(fps)
+        pygame.quit()
 
 
 class PlayPlot:
