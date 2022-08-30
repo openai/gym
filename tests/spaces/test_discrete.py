@@ -30,3 +30,11 @@ def test_space_legacy_pickling():
 
     space.__setstate__(legacy_state)
     assert space.start == 0
+
+
+def test_sample_mask():
+    space = Discrete(4, start=2)
+    assert 2 <= space.sample() < 6
+    assert space.sample(mask=np.array([0, 1, 0, 0], dtype=np.int8)) == 3
+    assert space.sample(mask=np.array([0, 0, 0, 0], dtype=np.int8)) == 2
+    assert space.sample(mask=np.array([0, 1, 0, 1], dtype=np.int8)) in [3, 5]

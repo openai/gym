@@ -1,3 +1,5 @@
+import pytest
+
 from gym.spaces import Discrete, MultiDiscrete
 from gym.utils.env_checker import data_equivalence
 
@@ -50,3 +52,12 @@ def test_multidiscrete_subspace_reproducibility():
     assert data_equivalence(space[:].sample(), space[:].sample())
     assert data_equivalence(space[:, :].sample(), space[:, :].sample())
     assert data_equivalence(space[:, :].sample(), space.sample())
+
+
+def test_multidiscrete_length():
+    space = MultiDiscrete(nvec=[3, 2, 4])
+    assert len(space) == 3
+
+    space = MultiDiscrete(nvec=[[2, 3], [3, 2]])
+    with pytest.warns(UserWarning, match="Getting the length of a multi-dimensional MultiDiscrete space."):
+        assert len(space) == 2

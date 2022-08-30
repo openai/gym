@@ -89,6 +89,7 @@ class Text(Space[str]):
                 len(mask) == 2
             ), f"Expects the mask length to be two, actual length: {len(mask)}"
             length, charlist_mask = mask
+
             if length is not None:
                 assert np.issubdtype(
                     type(length), np.integer
@@ -122,7 +123,11 @@ class Text(Space[str]):
             valid_mask = charlist_mask == 1
             valid_indexes = np.where(valid_mask)[0]
             if len(valid_indexes) == 0:
-                string = ""
+                if self.min_length == 0:
+                    string = ""
+                else:
+                    # Otherwise the string will not be contained in the space
+                    raise ValueError(f"Trying to sample with a minimum length > 0 ({self.min_length}) but the character mask is all zero meaning that no character could be sampled.")
             else:
                 string = "".join(
                     self.character_list[index]

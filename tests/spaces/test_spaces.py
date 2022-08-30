@@ -207,7 +207,7 @@ SAMPLE_MASK_RNG, _ = seeding.np_random(1)
         [
             # Discrete
             np.array([1, 1, 0], dtype=np.int8),
-            np.array([0, 1, 0], dtype=np.int8),
+            np.array([0, 0, 0], dtype=np.int8),
             # Box
             None,
             None,
