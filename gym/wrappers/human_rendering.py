@@ -45,7 +45,7 @@ class HumanRendering(gym.Wrapper):
         Args:
             env: The environment that is being wrapped
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         assert env.render_mode in [
             "rgb_array",
             "rgb_array_list",

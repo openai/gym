@@ -1,5 +1,6 @@
 import gc
 import os
+import re
 import time
 
 import pytest
@@ -78,20 +79,29 @@ def test_no_frames():
 
 
 def test_record_unrecordable_method():
-    env = UnrecordableEnv()
-    rec = VideoRecorder(env)
-    assert not rec.enabled
-    rec.close()
+    with pytest.warns(
+        UserWarning,
+        match="Disabling video recorder because environment <UnrecordableEnv instance> was not initialized with any compatible video mode between `single_rgb_array` and `rgb_array`",
+    ):
+        env = UnrecordableEnv()
+        rec = VideoRecorder(env)
+        assert not rec.enabled
+        rec.close()
 
 
-@pytest.mark.filterwarnings("ignore:.*Env returned None on render.*")
 def test_record_breaking_render_method():
-    env = BrokenRecordableEnv()
-    rec = VideoRecorder(env)
-    rec.capture_frame()
-    rec.close()
-    assert rec.broken
-    assert not os.path.exists(rec.path)
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "Env returned None on `render()`. Disabling further rendering for video recorder by marking as disabled:"
+        ),
+    ):
+        env = BrokenRecordableEnv()
+        rec = VideoRecorder(env)
+        rec.capture_frame()
+        rec.close()
+        assert rec.broken
+        assert not os.path.exists(rec.path)
 
 
 def test_text_envs():

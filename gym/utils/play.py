@@ -170,7 +170,7 @@ def play(
     :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
     for last 150 steps.
 
-        >>> def callback(obs_t, obs_tp1, action, rew, done, info):
+        >>> def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         ...        return [rew,]
         >>> plotter = PlayPlot(callback, 150, ["reward"])
         >>> play(gym.make("ALE/AirRaid-v5"), callback=plotter.callback)
@@ -187,7 +187,8 @@ def play(
                 obs_tp1: observation after performing action
                 action: action that was executed
                 rew: reward that was received
-                done: whether the environment is done or not
+                terminated: whether the environment is terminated or not
+                truncated: whether the environment is truncated or not
                 info: debug info
         keys_to_action:  Mapping from keys pressed to action performed.
             Different formats are supported: Key combinations can either be expressed as a tuple of unicode code
@@ -216,15 +217,6 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
-    deprecation(
-        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
-    )
-    if env.render_mode not in {"rgb_array", "rgb_array_list"}:
-        logger.error(
-            "play method works only with rgb_array and rgb_array_list render modes, "
-            f"but your environment render_mode = {env.render_mode}."
-        )
-
     try:
         env.reset(seed=seed)
 
@@ -264,28 +256,26 @@ def play(
             else:
                 action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
                 prev_obs = obs
-                obs, rew, done, info = env.step(action)
+                obs, rew, terminated, truncated, info = env.step(action)
+                done = terminated or truncated
                 if callback is not None:
-                    callback(prev_obs, obs, action, rew, done, info)
+                    callback(prev_obs, obs, action, rew, terminated, truncated, info)
             if obs is not None:
                 rendered = env.render()
-                if isinstance(rendered, list):
+                if isinstance(rendered, List):
                     rendered = rendered[-1]
                 assert rendered is not None and isinstance(rendered, np.ndarray)
                 display_arr(
-                    game.screen,
-                    rendered,
-                    transpose=transpose,
-                    video_size=game.video_size,
+                    game.screen, rendered, transpose=transpose, video_size=game.video_size
                 )
 
-            # process pygame events
-            for event in pygame.event.get():
-                game.process_event(event)
+                # process pygame events
+                for event in pygame.event.get():
+                    game.process_event(event)
 
-            pygame.display.flip()
-            clock.tick(fps)
-        pygame.quit()
+                pygame.display.flip()
+                clock.tick(fps)
+            pygame.quit()
     finally:
         env.close()
 
@@ -298,13 +288,14 @@ class PlayPlot:
         - obs_tp1: observation after performing action
         - action: action that was executed
         - rew: reward that was received
-        - done: whether the environment is done or not
+        - terminated: whether the environment is terminated or not
+        - truncated: whether the environment is truncated or not
         - info: debug info
 
     It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
 
-        >>> def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+        >>> def compute_metrics(obs_t, obs_tp, action, reward, terminated, truncated, info):
         ...     return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function
@@ -361,7 +352,8 @@ class PlayPlot:
         obs_tp1: ObsType,
         action: ActType,
         rew: float,
-        done: bool,
+        terminated: bool,
+        truncated: bool,
         info: dict,
     ):
         """The callback that calls the provided data callback and adds the data to the plots.
@@ -371,10 +363,13 @@ class PlayPlot:
             obs_tp1: The observation at time step t+1
             action: The action
             rew: The reward
-            done: If the environment is done
+            terminated: If the environment is terminated
+            truncated: If the environment is truncated
             info: The information from the environment
         """
-        points = self.data_callback(obs_t, obs_tp1, action, rew, done, info)
+        points = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
+        )
         for point, data_series in zip(points, self.data):
             data_series.append(point)
         self.t += 1

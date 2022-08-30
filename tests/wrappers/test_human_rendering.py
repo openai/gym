@@ -15,8 +15,8 @@ def test_human_rendering():
         env.reset()
 
         for _ in range(75):
-            _, _, done, _ = env.step(env.action_space.sample())
-            if done:
+            _, _, terminated, truncated, _ = env.step(env.action_space.sample())
+            if terminated or truncated:
                 env.reset()
 
         env.close()

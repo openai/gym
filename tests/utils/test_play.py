@@ -39,9 +39,9 @@ class PlayStatus:
         self.cumulative_reward = 0
         self.last_observation = None
 
-    def callback(self, obs_t, obs_tp1, action, rew, done, info):
-        _, obs_tp1, _, rew, _, _ = self.data_callback(
-            obs_t, obs_tp1, action, rew, done, info
+    def callback(self, obs_t, obs_tp1, action, rew, terminated, truncated, info):
+        _, obs_tp1, _, rew, _, _, _ = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
         )
         self.cumulative_reward += rew
         self.last_observation = obs_tp1
@@ -163,7 +163,7 @@ def test_play_loop_real_env():
         ]
         keydown_events = [k for k in callback_events if k.type == KEYDOWN]
 
-        def callback(obs_t, obs_tp1, action, rew, done, info):
+        def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
             pygame_event = callback_events.pop(0)
             event.post(pygame_event)
 
@@ -173,7 +173,7 @@ def test_play_loop_real_env():
                 pygame_event = callback_events.pop(0)
                 event.post(pygame_event)
 
-            return obs_t, obs_tp1, action, rew, done, info
+            return obs_t, obs_tp1, action, rew, terminated, truncated, info
 
         env = gym.make(ENV, render_mode="rgb_array", disable_env_checker=True)
         env.reset(seed=SEED)
@@ -183,10 +183,10 @@ def test_play_loop_real_env():
 
         # first action is 0 because at the first iteration
         # we can not inject a callback event into play()
-        obs, _, _, _ = env.step(0)
+        obs, _, _, _, _ = env.step(0)
         for e in keydown_events:
             action = keys_to_action[chr(e.key) if str_keys else (e.key,)]
-            obs, _, _, _ = env.step(action)
+            obs, _, _, _, _ = env.step(action)
 
         env_play = gym.make(ENV, render_mode="rgb_array", disable_env_checker=True)
         if apply_wrapper:

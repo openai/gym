@@ -25,7 +25,7 @@ class FlattenObservation(gym.ObservationWrapper):
         Args:
             env: The environment to apply the wrapper
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         self.observation_space = spaces.flatten_space(env.observation_space)
 
     def observation(self, observation):

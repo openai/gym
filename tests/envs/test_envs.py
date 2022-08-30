@@ -1,4 +1,5 @@
 import pickle
+import warnings
 
 import numpy as np
 import pytest
@@ -18,8 +19,7 @@ PASSIVE_CHECK_IGNORE_WARNING = [
     f"\x1b[33mWARN: {message}\x1b[0m"
     for message in [
         "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works).",
-        "Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.",
-        "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.",
+        "Initializing environment in done (old) step API which returns one bool instead of two.",
     ]
 ]
 
@@ -30,8 +30,7 @@ CHECK_ENV_IGNORE_WARNINGS = [
         "A Box observation space minimum value is -infinity. This is probably too low.",
         "A Box observation space maximum value is -infinity. This is probably too high.",
         "For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information.",
-        "Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.",
-        "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.",
+        "Initializing environment in done (old) step API which returns one bool instead of two.",
     ]
 ]
 
@@ -41,13 +40,13 @@ CHECK_ENV_IGNORE_WARNINGS = [
 )
 def test_envs_pass_env_checker(spec):
     """Check that all environments pass the environment checker with no warnings other than the expected."""
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = spec.make(disable_env_checker=True).unwrapped
         check_env(env)
 
         env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
             print()
             print(warning.message.args[0])
@@ -92,8 +91,8 @@ def test_env_determinism_rollout(env_spec: EnvSpec):
         # We don't evaluate the determinism of actions
         action = env_1.action_space.sample()
 
-        obs_1, rew_1, done_1, info_1 = env_1.step(action)
-        obs_2, rew_2, done_2, info_2 = env_2.step(action)
+        obs_1, rew_1, terminated_1, truncated_1, info_1 = env_1.step(action)
+        obs_2, rew_2, terminated_2, truncated_2, info_2 = env_2.step(action)
 
         assert_equals(obs_1, obs_2, f"[{time_step}] ")
         assert env_1.observation_space.contains(
@@ -101,10 +100,17 @@ def test_env_determinism_rollout(env_spec: EnvSpec):
         )  # obs_2 verified by previous assertion
 
         assert rew_1 == rew_2, f"[{time_step}] reward 1={rew_1}, reward 2={rew_2}"
-        assert done_1 == done_2, f"[{time_step}] done 1={done_1}, done 2={done_2}"
+        assert (
+            terminated_1 == terminated_2
+        ), f"[{time_step}] done 1={terminated_1}, done 2={terminated_2}"
+        assert (
+            truncated_1 == truncated_2
+        ), f"[{time_step}] done 1={truncated_1}, done 2={truncated_2}"
         assert_equals(info_1, info_2, f"[{time_step}] ")
 
-        if done_1:  # done_2 verified by previous assertion
+        if (
+            terminated_1 or truncated_1
+        ):  # terminated_2, truncated_2 verified by previous assertion
             env_1.reset(seed=SEED)
             env_2.reset(seed=SEED)
 
