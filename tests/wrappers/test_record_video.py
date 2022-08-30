@@ -11,8 +11,8 @@ def test_record_video_using_default_trigger():
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -42,8 +42,8 @@ def test_record_video_step_trigger():
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, done, _ = env.step(action)
-        if done:
+        _, _, terminated, truncated, _ = env.step(action)
+        if terminated or truncated:
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -72,7 +72,7 @@ def test_record_video_within_vector():
     envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()
     for i in range(199):
-        _, _, _, infos = envs.step(envs.action_space.sample())
+        _, _, _, _, infos = envs.step(envs.action_space.sample())
 
         # break when every env is done
         if "episode" in infos and all(infos["_episode"]):

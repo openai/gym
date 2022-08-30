@@ -20,16 +20,16 @@ def test_vector_env_info(asynchronous):
     for _ in range(ENV_STEPS):
         env.action_space.seed(SEED)
         action = env.action_space.sample()
-        _, _, dones, infos = env.step(action)
-        if any(dones):
+        _, _, terminateds, truncateds, infos = env.step(action)
+        if any(terminateds) or any(truncateds):
             assert len(infos["final_observation"]) == NUM_ENVS
             assert len(infos["_final_observation"]) == NUM_ENVS
 
             assert isinstance(infos["final_observation"], np.ndarray)
             assert isinstance(infos["_final_observation"], np.ndarray)
 
-            for i, done in enumerate(dones):
-                if done:
+            for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
+                if terminated or truncated:
                     assert infos["_final_observation"][i]
                 else:
                     assert not infos["_final_observation"][i]
@@ -44,11 +44,11 @@ def test_vector_env_info_concurrent_termination(concurrent_ends):
     envs = SyncVectorEnv(envs)
 
     for _ in range(ENV_STEPS):
-        _, _, dones, infos = envs.step(actions)
-        if any(dones):
-            for i, done in enumerate(dones):
+        _, _, terminateds, truncateds, infos = envs.step(actions)
+        if any(terminateds) or any(truncateds):
+            for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
                 if i < concurrent_ends:
-                    assert done
+                    assert terminated or truncated
                     assert infos["_final_observation"][i]
                 else:
                     assert not infos["_final_observation"][i]
