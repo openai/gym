@@ -1,7 +1,7 @@
 """Lambda action wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
 
-from typing import Any, Callable
-from typing import Tuple as TypingTuple
+import typing
+from typing import Any, Callable, Optional
 
 import jumpy as jp
 
@@ -54,7 +54,7 @@ class LambdaActionV0(gym.ActionWrapper):
         env: gym.Env,
         func: Callable,
         args: FuncArgType[Any],
-        action_space: gym.Space = None,
+        action_space: Optional[gym.Space] = None,
     ):
         """Initialize LambdaAction.
 
@@ -112,7 +112,7 @@ class ClipActionsV0(LambdaActionV0):
         Dict(body: Dict(head: Box(0.0, 3.0, (1,), float32)), left_arm: Discrete(4), right_arm: Box(0.0, 2.0, (1,), float32))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[float, float]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[typing.Tuple[float, float]]):
         """Constructor for the clip action wrapper.
 
         Args:
@@ -147,7 +147,7 @@ class ScaleActionsV0(LambdaActionV0):
         Dict(left_arm: Box(-1, 1, (1,), float32), right_arm: Box(-1, 1, (1,), float32))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[float, float]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[typing.Tuple[float, float]]):
         """Constructor for the scale action wrapper.
 
         Args:

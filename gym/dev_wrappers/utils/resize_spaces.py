@@ -1,7 +1,7 @@
 """A set of utility functions for lambda wrappers."""
+import typing
 from functools import singledispatch
 from typing import Any, Callable
-from typing import Tuple as TypingTuple
 
 import numpy as np
 import tinyscaler
@@ -13,7 +13,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 @singledispatch
 def resize_space(
-    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Space, args: FuncArgType[typing.Tuple[int, int]], fn: Callable
 ) -> Any:
     """Resize space with the provided args."""
     raise NotImplementedError
@@ -23,7 +23,7 @@ def resize_space(
 @resize_space.register(MultiBinary)
 @resize_space.register(MultiDiscrete)
 def _resize_space_not_reshapable(
-    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space, args: FuncArgType[typing.Tuple[int, int]], fn: Callable
 ):
     """Return original space shape for not reshable space.
 
@@ -36,7 +36,7 @@ def _resize_space_not_reshapable(
 
 
 @resize_space.register(Box)
-def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _resize_space_box(space, args: FuncArgType[typing.Tuple[int, int]], fn: Callable):
     if args is not None:
         if len(space.shape) == 4:  # vectorized environment
             num_envs = space.low.shape[0]

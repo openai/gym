@@ -1,7 +1,7 @@
 """A set of utility functions for lambda wrappers."""
+import typing
 from functools import singledispatch
 from typing import Any, Callable
-from typing import Tuple as TypingTuple
 
 import jumpy as jp
 
@@ -31,7 +31,7 @@ def _reshape_space_not_reshapable(space, args: FuncArgType, fn: Callable):
 
 
 @reshape_space.register(Box)
-def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _reshape_space_box(space, args: FuncArgType[typing.Tuple[int, int]], fn: Callable):
     """Reshape `Box` space."""
     if not args:
         return space

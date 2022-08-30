@@ -1,16 +1,15 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
+import typing
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
-from typing import Any
-from typing import Dict as TypingDict
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 
 from gym.spaces.space import Space
 
 
-class Dict(Space[TypingDict[str, Space]], Mapping):
+class Dict(Space[typing.Dict[str, Space]], Mapping):
     """A dictionary of :class:`Space` instances.
 
     Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
@@ -51,7 +50,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __init__(
         self,
-        spaces: Optional[TypingDict[str, Space]] = None,
+        spaces: Optional[typing.Dict[str, Space]] = None,
         seed: Optional[Union[dict, int, np.random.Generator]] = None,
         **spaces_kwargs: Space,
     ):
@@ -144,7 +143,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         return seeds
 
-    def sample(self, mask: Optional[TypingDict[str, Any]] = None) -> dict:
+    def sample(self, mask: Optional[typing.Dict[str, Any]] = None) -> dict:
         """Generates a single random sample from this space.
 
         The sample is an ordered dictionary of independent samples from the constituent spaces.
@@ -217,9 +216,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             for key, space in self.spaces.items()
         }
 
-    def from_jsonable(self, sample_n: TypingDict[str, list]) -> list:
+    def from_jsonable(self, sample_n: typing.Dict[str, list]) -> list:
         """Convert a JSONable data type to a batch of samples from this space."""
-        dict_of_list: TypingDict[str, list] = {}
+        dict_of_list: typing.Dict[str, list] = {}
         for key, space in self.spaces.items():
             dict_of_list[key] = space.from_jsonable(sample_n[key])
         ret = []

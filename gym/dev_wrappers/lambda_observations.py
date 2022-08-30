@@ -1,6 +1,6 @@
 """Lambda observation wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
+import typing
 from typing import Any, Callable, Optional, OrderedDict
-from typing import Tuple as TypingTuple
 
 import jumpy as jp
 import tinyscaler
@@ -291,7 +291,7 @@ class ResizeObservationsV0(LambdaObservationsV0):
        Dict(obs=Box(0, 1, (64, 64, 3)), time=Discrete(10))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[typing.Tuple[int, ...]]):
         """Constructor for resize observation wrapper.
 
         Args:
@@ -321,7 +321,7 @@ class ResizeObservationsV0(LambdaObservationsV0):
             observation_space,
         )
 
-    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
+    def _resize_space(self, env: gym.Env, args: FuncArgType[typing.Tuple[int, ...]]):
         """Resize space to args dimension."""
         return resize_space(env.observation_space, args, resize_space)
 
@@ -356,7 +356,7 @@ class ReshapeObservationsV0(LambdaObservationsV0):
         Dict(obs: Box(0.0, 1.0, (96, 36, 8), float32), time: Discrete(10))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[typing.Tuple[int, ...]]):
         """Constructor for reshape observation wrapper.
 
         Args:
@@ -372,7 +372,7 @@ class ReshapeObservationsV0(LambdaObservationsV0):
             observation_space,
         )
 
-    def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _reshape_space(self, env: gym.Env, args: FuncArgType[typing.Tuple[int, int]]):
         """Process the space and apply the transformation."""
         return reshape_space(env.observation_space, args, reshape_space)
 

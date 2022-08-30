@@ -1,10 +1,8 @@
 """A set of utility functions for lambda wrappers."""
+import typing
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable
-from typing import Dict as TypingDict
-from typing import Sequence
-from typing import Tuple as TypingTuple
+from typing import Callable, Sequence
 
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
@@ -44,7 +42,7 @@ def _make_scale_args_box(space: Box, args: Sequence, fn: Callable):
 
 @make_scale_args.register(Dict)
 def _make_scale_args_dict(
-    space: Dict, args: FuncArgType[TypingDict[str, ArgType]], fn: Callable
+    space: Dict, args: FuncArgType[typing.Dict[str, ArgType]], fn: Callable
 ):
     extended_args = deepcopy(args)
 
@@ -56,7 +54,7 @@ def _make_scale_args_dict(
 
 @make_scale_args.register(Tuple)
 def _make_scale_args_tuple(
-    space: Tuple, args: FuncArgType[TypingTuple[float, float]], fn: Callable
+    space: Tuple, args: FuncArgType[typing.Tuple[float, float]], fn: Callable
 ):
     assert isinstance(args, Sequence)
     assert len(space) == len(args)

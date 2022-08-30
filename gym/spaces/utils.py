@@ -4,13 +4,10 @@ These functions mostly take care of flattening and unflattening elements of spac
  to facilitate their usage in learning code.
 """
 import operator as op
+import typing
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import Any, Callable
-from typing import Dict as TypingDict
-from typing import List, Optional
-from typing import Sequence as TypingSequence
-from typing import TypeVar, Union, cast
+from typing import Any, Callable, List, Optional, TypeVar, Union, cast
 
 import numpy as np
 
@@ -94,7 +91,7 @@ def _flatdim_dict(space: Dict) -> int:
 
 
 T = TypeVar("T")
-FlatType = Union[np.ndarray, TypingDict, tuple, GraphInstance]
+FlatType = Union[np.ndarray, typing.Dict, tuple, GraphInstance]
 
 
 @singledispatch
@@ -158,7 +155,7 @@ def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
 
 
 @flatten.register(Dict)
-def _flatten_dict(space, x) -> Union[TypingDict, np.ndarray]:
+def _flatten_dict(space, x) -> Union[typing.Dict, np.ndarray]:
     if space.is_np_flattenable:
         return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
     return OrderedDict((key, flatten(s, x[key])) for key, s in space.spaces.items())
@@ -250,7 +247,7 @@ def _unflatten_tuple(space: Tuple, x: Union[np.ndarray, tuple]) -> tuple:
 
 
 @unflatten.register(Dict)
-def _unflatten_dict(space: Dict, x: Union[np.ndarray, TypingDict]) -> dict:
+def _unflatten_dict(space: Dict, x: Union[np.ndarray, typing.Dict]) -> dict:
     if space.is_np_flattenable:
         dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
         list_flattened = np.split(x, np.cumsum(dims[:-1]))
@@ -490,7 +487,7 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
             apply_function(subspace, val, func, None)
             for subspace, val in zip(space.spaces, x)
         )
-    elif isinstance(args, TypingSequence):
+    elif isinstance(args, typing.Sequence):
         assert len(args) == len(space)
         return tuple(
             apply_function(subspace, val, func, arg) if arg is not None else val

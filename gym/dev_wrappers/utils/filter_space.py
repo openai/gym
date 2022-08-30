@@ -1,8 +1,7 @@
 """A set of utility functions for lambda wrappers."""
+import typing
 from functools import singledispatch
 from typing import Any
-from typing import Dict as TypingDict
-from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
@@ -23,7 +22,7 @@ def _filter_space_box(space: Space, args: FuncArgType):
 
 
 @filter_space.register(Dict)
-def _filter_space_dict(space: Space, args: FuncArgType[TypingDict[str, bool]]):
+def _filter_space_dict(space: Space, args: FuncArgType[typing.Dict[str, bool]]):
     """Filter `Dict` observation space by args."""
     return Dict(
         [
@@ -35,6 +34,6 @@ def _filter_space_dict(space: Space, args: FuncArgType[TypingDict[str, bool]]):
 
 
 @filter_space.register(Tuple)
-def _filter_space_tuple(space: Space, args: FuncArgType[TypingTuple[bool]]):
+def _filter_space_tuple(space: Space, args: FuncArgType[typing.Tuple[bool]]):
     """Filter `Tuple` observation space by args."""
     return Tuple([filter_space(value, arg) for value, arg in zip(space, args) if arg])

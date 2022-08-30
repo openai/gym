@@ -1,6 +1,5 @@
-from typing import Optional
-from typing import Tuple as TypingTuple
-from typing import Union
+import typing
+from typing import Optional, Union
 
 import numpy as np
 
@@ -61,12 +60,12 @@ class TestingEnv(gym.Env):
         seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None
-    ) -> Union[ObsType, TypingTuple[ObsType, dict]]:
+    ) -> Union[ObsType, typing.Tuple[ObsType, dict]]:
         """Reset the environment."""
         self.steps_left = self.env_length
         return self.observation_space.sample(), {}
 
-    def step(self, action: ActType) -> TypingTuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> typing.Tuple[ObsType, float, bool, dict]:
         """Step through the environment."""
         if self.env_length is not None:
             self.steps_left -= 1
