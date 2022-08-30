@@ -59,5 +59,8 @@ def test_multidiscrete_length():
     assert len(space) == 3
 
     space = MultiDiscrete(nvec=[[2, 3], [3, 2]])
-    with pytest.warns(UserWarning, match="Getting the length of a multi-dimensional MultiDiscrete space."):
+    with pytest.warns(
+        UserWarning,
+        match="Getting the length of a multi-dimensional MultiDiscrete space.",
+    ):
         assert len(space) == 2

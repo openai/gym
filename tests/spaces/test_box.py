@@ -285,22 +285,32 @@ def test_legacy_state_pickling():
 
 def test_get_inf():
     """Tests that get inf function works as expected, primarily for coverage."""
-    assert get_inf(np.float32, '+') == np.inf
+    assert get_inf(np.float32, "+") == np.inf
     assert get_inf(np.float16, "-") == -np.inf
-    with pytest.raises(TypeError, match=re.escape("Unknown sign *, use either '+' or '-'")):
+    with pytest.raises(
+        TypeError, match=re.escape("Unknown sign *, use either '+' or '-'")
+    ):
         get_inf(np.float32, "*")
 
     assert get_inf(np.int16, "+") == 32765
     assert get_inf(np.int8, "-") == -126
-    with pytest.raises(TypeError, match=re.escape("Unknown sign *, use either '+' or '-'")):
-        get_inf(np.int32, '*')
+    with pytest.raises(
+        TypeError, match=re.escape("Unknown sign *, use either '+' or '-'")
+    ):
+        get_inf(np.int32, "*")
 
-    with pytest.raises(ValueError, match=re.escape("Unknown dtype <class 'numpy.complex128'> for infinite bounds")):
-        get_inf(np.complex_, '+')
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Unknown dtype <class 'numpy.complex128'> for infinite bounds"),
+    ):
+        get_inf(np.complex_, "+")
 
 
 def test_sample_mask():
-    """Boxs cannot have a mask applied."""
+    """Box cannot have a mask applied."""
     space = Box(0, 1)
-    with pytest.raises(gym.error.Error, match=re.escape("Box.sample cannot be provided a mask, actual value: ")):
+    with pytest.raises(
+        gym.error.Error,
+        match=re.escape("Box.sample cannot be provided a mask, actual value: "),
+    ):
         space.sample(mask=np.array([0, 1, 0], dtype=np.int8))

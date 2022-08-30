@@ -18,11 +18,18 @@ def test_sample_mask():
     assert sample in space
     assert 1 <= len(sample) <= 5
 
-    with pytest.raises(ValueError, match=re.escape("Trying to sample with a minimum length > 0 (1) but the character mask is all zero meaning that no character could be sampled.")):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Trying to sample with a minimum length > 0 (1) but the character mask is all zero meaning that no character could be sampled."
+        ),
+    ):
         space.sample(mask=(3, np.zeros(len(space.character_set), dtype=np.int8)))
 
     space = Text(min_length=0, max_length=5)
-    sample = space.sample(mask=(None, np.zeros(len(space.character_set), dtype=np.int8)))
+    sample = space.sample(
+        mask=(None, np.zeros(len(space.character_set), dtype=np.int8))
+    )
     assert sample in space
     assert sample == ""
 

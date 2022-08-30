@@ -127,7 +127,9 @@ class Text(Space[str]):
                     string = ""
                 else:
                     # Otherwise the string will not be contained in the space
-                    raise ValueError(f"Trying to sample with a minimum length > 0 ({self.min_length}) but the character mask is all zero meaning that no character could be sampled.")
+                    raise ValueError(
+                        f"Trying to sample with a minimum length > 0 ({self.min_length}) but the character mask is all zero meaning that no character could be sampled."
+                    )
             else:
                 string = "".join(
                     self.character_list[index]
