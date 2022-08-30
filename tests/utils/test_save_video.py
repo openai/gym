@@ -1,6 +1,8 @@
 import os
 import shutil
 
+import numpy as np
+
 import gym
 from gym.utils.save_video import capped_cubic_video_schedule, save_video
 
@@ -76,16 +78,15 @@ def test_record_video_within_vector():
     envs = gym.vector.make(
         "CartPole-v1", num_envs=2, asynchronous=True, render_mode="rgb_array"
     )
-    envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()
     episode_frames = []
     step_starting_index = 0
     episode_index = 0
     for step_index in range(199):
-        _, _, _, _, infos = envs.step(envs.action_space.sample())
+        _, _, terminated, truncated, _ = envs.step(envs.action_space.sample())
         episode_frames.extend(envs.call("render")[0])
 
-        if "episode" in infos and infos["_episode"][0]:
+        if np.any(np.logical_or(terminated, truncated)):
             save_video(
                 episode_frames,
                 "videos",
@@ -97,6 +98,7 @@ def test_record_video_within_vector():
             episode_frames = []
             step_starting_index = step_index + 1
             episode_index += 1
+    envs.close()
 
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
