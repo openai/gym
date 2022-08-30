@@ -15,7 +15,7 @@ class PassiveEnvChecker(gym.Wrapper):
 
     def __init__(self, env):
         """Initialises the wrapper with the environments, run the observation and action space tests."""
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
 
         assert hasattr(
             env, "action_space"

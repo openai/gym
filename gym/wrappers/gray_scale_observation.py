@@ -28,7 +28,7 @@ class GrayScaleObservation(gym.ObservationWrapper):
             keep_dim (bool): If `True`, a singleton dimension will be added, i.e. observations are of the shape AxBx1.
                 Otherwise, they are of shape AxB.
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         self.keep_dim = keep_dim
 
         assert (

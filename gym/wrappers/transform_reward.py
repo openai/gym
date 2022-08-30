@@ -28,7 +28,7 @@ class TransformReward(RewardWrapper):
             env: The environment to apply the wrapper
             f: A function that transforms the reward
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
         assert callable(f)
         self.f = f
 

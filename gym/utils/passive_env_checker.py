@@ -195,12 +195,16 @@ def env_reset_passive_checker(env, **kwargs):
         logger.warn(
             f"The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `{type(result)}`"
         )
-
-    obs, info = result
-    check_obs(obs, env.observation_space, "reset")
-    assert isinstance(
-        info, dict
-    ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
+    elif len(result) != 2:
+        logger.warn(
+            "The result returned by `env.reset()` should be `(obs, info)` by default, , where `obs` is a observation and `info` is a dictionary containing additional information."
+        )
+    else:
+        obs, info = result
+        check_obs(obs, env.observation_space, "reset")
+        assert isinstance(
+            info, dict
+        ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
     return result
 
 
