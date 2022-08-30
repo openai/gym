@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import numpy as np
 import pytest
@@ -57,9 +58,11 @@ def test_box_shape_inference(box, expected_shape):
 )
 def test_box_values(value, valid):
     if valid:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             Box(low=value, high=value)
-        assert len(warnings.list) == 0, tuple(warning.message for warning in warnings)
+        assert len(caught_warnings) == 0, tuple(
+            warning.message for warning in caught_warnings
+        )
     else:
         with pytest.raises(
             ValueError,
