@@ -54,7 +54,6 @@ def test_make():
 
 def test_make_deprecated():
     with warnings.catch_warnings(record=True):
-        warnings.simplefilter("always")
         with pytest.raises(
             gym.error.Error,
             match=re.escape(
