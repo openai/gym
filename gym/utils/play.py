@@ -266,13 +266,13 @@ def play(
                 game.screen, rendered, transpose=transpose, video_size=game.video_size
             )
 
-            # process pygame events
-            for event in pygame.event.get():
-                game.process_event(event)
+        # process pygame events
+        for event in pygame.event.get():
+            game.process_event(event)
 
-            pygame.display.flip()
-            clock.tick(fps)
-        pygame.quit()
+        pygame.display.flip()
+        clock.tick(fps)
+    pygame.quit()
 
 
 class PlayPlot:
