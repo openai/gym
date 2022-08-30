@@ -33,19 +33,20 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
 
     dup = gym.make(env_id, disable_env_checker=True)
 
-    obs = env.reset(seed=0)
-    dup_obs = dup.reset(seed=0)
+    obs, _ = env.reset(seed=0)
+    dup_obs, _ = dup.reset(seed=0)
     assert np.allclose(obs[-1], dup_obs)
 
     for _ in range(num_stack**2):
         action = env.action_space.sample()
-        dup_obs, _, dup_done, _ = dup.step(action)
-        obs, _, done, _ = env.step(action)
+        dup_obs, _, dup_terminated, dup_truncated, _ = dup.step(action)
+        obs, _, terminated, truncated, _ = env.step(action)
 
-        assert dup_done == done
+        assert dup_terminated == terminated
+        assert dup_truncated == truncated
         assert np.allclose(obs[-1], dup_obs)
 
-        if done:
+        if terminated or truncated:
             break
 
     assert len(obs) == num_stack

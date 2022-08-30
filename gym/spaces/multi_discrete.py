@@ -6,7 +6,6 @@ import numpy as np
 from gym import logger
 from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
 
@@ -42,7 +41,7 @@ class MultiDiscrete(Space[np.ndarray]):
         self,
         nvec: Union[np.ndarray, List[int]],
         dtype=np.int64,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of :class:`MultiDiscrete` space.
 
@@ -63,6 +62,11 @@ class MultiDiscrete(Space[np.ndarray]):
     def shape(self) -> Tuple[int, ...]:
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
+
+    @property
+    def is_np_flattenable(self):
+        """Checks whether this space can be flattened to a :class:`spaces.Box`."""
+        return True
 
     def sample(self, mask: Optional[SAMPLE_MASK_TYPE] = None) -> np.ndarray:
         """Generates a single random sample this space.

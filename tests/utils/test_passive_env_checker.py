@@ -1,4 +1,5 @@
 import re
+import warnings
 from typing import Dict, Union
 
 import numpy as np
@@ -112,10 +113,10 @@ def test_check_observation_space(test, space, message: str):
         ):
             check_observation_space(space)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_observation_space(space)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 @pytest.mark.parametrize(
@@ -181,10 +182,10 @@ def test_check_action_space(
         ):
             check_action_space(space)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_action_space(space)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 @pytest.mark.parametrize(
@@ -236,30 +237,26 @@ def test_check_obs(test, obs, obs_space: spaces.Space, message: str):
         ):
             check_obs(obs, obs_space, "testing")
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_obs(obs, obs_space, "testing")
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
-def _reset_no_seed(self, return_info=False, options=None):
-    return self.observation_space.sample()
+def _reset_no_seed(self, options=None):
+    return self.observation_space.sample(), {}
 
 
-def _reset_seed_default(self, seed="error", return_info=False, options=None):
-    return self.observation_space.sample()
+def _reset_seed_default(self, seed="error", options=None):
+    return self.observation_space.sample(), {}
 
 
-def _reset_no_return_info(self, seed=None, options=None):
-    return self.observation_space.sample()
-
-
-def _reset_no_option(self, seed=None, return_info=False):
-    return self.observation_space.sample()
+def _reset_no_option(self, seed=None):
+    return self.observation_space.sample(), {}
 
 
 def _make_reset_results(results):
-    def _reset_result(self, seed=None, return_info=False, options=None):
+    def _reset_result(self, seed=None, options=None):
         return results
 
     return _reset_result
@@ -282,27 +279,21 @@ def _make_reset_results(results):
         ],
         [
             UserWarning,
-            _reset_no_return_info,
-            "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting.",
-            {},
-        ],
-        [
-            UserWarning,
             _reset_no_option,
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information.",
             {},
         ],
         [
-            AssertionError,
+            UserWarning,
             _make_reset_results([0, {}]),
-            "The result returned by `env.reset(return_info=True)` was not a tuple, actual type: <class 'list'>",
-            {"return_info": True},
+            "The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `<class 'list'>`",
+            {},
         ],
         [
             AssertionError,
-            _make_reset_results((0, {1, 2})),
-            "The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: <class 'set'>",
-            {"return_info": True},
+            _make_reset_results((np.array([0], dtype=np.float32), {1, 2})),
+            "The second element returned by `env.reset()` was not a dictionary, actual type: <class 'set'>",
+            {},
         ],
     ],
 )
@@ -314,10 +305,10 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
         ):
             env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 def _modified_step(
@@ -394,10 +385,10 @@ def test_passive_env_step_checker(
         ):
             env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
-        assert len(warnings) == 0, [warning for warning in warnings.list]
+        assert len(caught_warnings) == 0, caught_warnings
 
 
 @pytest.mark.parametrize(
@@ -455,7 +446,7 @@ def test_passive_render_checker(test, env: GenericTestEnv, message: str):
         ):
             env_render_passive_checker(env)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_render_passive_checker(env)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0

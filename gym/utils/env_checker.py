@@ -45,7 +45,7 @@ def data_equivalence(data_1, data_2) -> bool:
             return data_1.keys() == data_2.keys() and all(
                 data_equivalence(data_1[k], data_2[k]) for k in data_1.keys()
             )
-        elif isinstance(data_1, tuple):
+        elif isinstance(data_1, (tuple, list)):
             return len(data_1) == len(data_2) and all(
                 data_equivalence(o_1, o_2) for o_1, o_2 in zip(data_1, data_2)
             )
@@ -73,7 +73,7 @@ def check_reset_seed(env: gym.Env):
         and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
     ):
         try:
-            obs_1 = env.reset(seed=123)
+            obs_1, info = env.reset(seed=123)
             assert (
                 obs_1 in env.observation_space
             ), "The observation returned by `env.reset(seed=123)` is not within the observation space."
@@ -85,7 +85,7 @@ def check_reset_seed(env: gym.Env):
                 env.unwrapped._np_random  # pyright: ignore [reportPrivateUsage]
             )
 
-            obs_2 = env.reset(seed=123)
+            obs_2, info = env.reset(seed=123)
             assert (
                 obs_2 in env.observation_space
             ), "The observation returned by `env.reset(seed=123)` is not within the observation space."
@@ -98,7 +98,7 @@ def check_reset_seed(env: gym.Env):
                 == seed_123_rng.bit_generator.state
             ), "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random generates are not same when the same seeds are passed to `env.reset`."
 
-            obs_3 = env.reset(seed=456)
+            obs_3, info = env.reset(seed=456)
             assert (
                 obs_3 in env.observation_space
             ), "The observation returned by `env.reset(seed=456)` is not within the observation space."
@@ -123,53 +123,6 @@ def check_reset_seed(env: gym.Env):
     else:
         raise gym.error.Error(
             "The `reset` method does not provide a `seed` or `**kwargs` keyword argument."
-        )
-
-
-def check_reset_info(env: gym.Env):
-    """Checks that :meth:`reset` supports the ``return_info`` keyword.
-
-    Args:
-        env: The environment to check
-
-    Raises:
-        AssertionError: The environment cannot be reset with `return_info=True`,
-            even though `return_info` or `kwargs` appear in the signature.
-    """
-    signature = inspect.signature(env.reset)
-    if "return_info" in signature.parameters or (
-        "kwargs" in signature.parameters
-        and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
-    ):
-        try:
-            obs = env.reset(return_info=False)
-            assert (
-                obs in env.observation_space
-            ), "The value returned by `env.reset(return_info=True)` is not within the observation space."
-
-            result = env.reset(return_info=True)
-            assert isinstance(
-                result, tuple
-            ), f"Calling the reset method with `return_info=True` did not return a tuple, actual type: {type(result)}"
-            assert (
-                len(result) == 2
-            ), f"Calling the reset method with `return_info=True` did not return a 2-tuple, actual length: {len(result)}"
-
-            obs, info = result
-            assert (
-                obs in env.observation_space
-            ), "The first element returned by `env.reset(return_info=True)` is not within the observation space."
-            assert isinstance(
-                info, dict
-            ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: {type(info)}"
-        except TypeError as e:
-            raise AssertionError(
-                "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` appear in the signature. "
-                f"This should never happen, please report this issue. The error was: {e}"
-            )
-    else:
-        raise gym.error.Error(
-            "The `reset` method does not provide a `return_info` or `**kwargs` keyword argument."
         )
 
 
@@ -199,6 +152,64 @@ def check_reset_options(env: gym.Env):
         raise gym.error.Error(
             "The `reset` method does not provide an `options` or `**kwargs` keyword argument."
         )
+
+
+def check_reset_return_info_deprecation(env: gym.Env):
+    """Makes sure support for deprecated `return_info` argument is dropped.
+
+    Args:
+        env: The environment to check
+    Raises:
+        UserWarning
+    """
+    signature = inspect.signature(env.reset)
+    if "return_info" in signature.parameters:
+        logger.warn(
+            "`return_info` is deprecated as an optional argument to `reset`. `reset`"
+            "should now always return `obs, info` where `obs` is an observation, and `info` is a dictionary"
+            "containing additional information."
+        )
+
+
+def check_seed_deprecation(env: gym.Env):
+    """Makes sure support for deprecated function `seed` is dropped.
+
+    Args:
+        env: The environment to check
+    Raises:
+        UserWarning
+    """
+    seed_fn = getattr(env, "seed", None)
+    if callable(seed_fn):
+        logger.warn(
+            "Official support for the `seed` function is dropped. "
+            "Standard practice is to reset gym environments using `env.reset(seed=<desired seed>)`"
+        )
+
+
+def check_reset_return_type(env: gym.Env):
+    """Checks that :meth:`reset` correctly returns a tuple of the form `(obs , info)`.
+
+    Args:
+        env: The environment to check
+    Raises:
+        AssertionError depending on spec violation
+    """
+    result = env.reset()
+    assert isinstance(
+        result, tuple
+    ), f"The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `{type(result)}`"
+    assert (
+        len(result) == 2
+    ), f"Calling the reset method did not return a 2-tuple, actual length: {len(result)}"
+
+    obs, info = result
+    assert (
+        obs in env.observation_space
+    ), "The first element returned by `env.reset()` is not within the observation space."
+    assert isinstance(
+        info, dict
+    ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
 
 
 def check_space_limit(space, space_type: str):
@@ -279,9 +290,11 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     check_space_limit(env.observation_space, "observation")
 
     # ==== Check the reset method ====
+    check_seed_deprecation(env)
+    check_reset_return_info_deprecation(env)
+    check_reset_return_type(env)
     check_reset_seed(env)
     check_reset_options(env)
-    check_reset_info(env)
 
     # ============ Check the returned values ===============
     env_reset_passive_checker(env)

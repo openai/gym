@@ -17,7 +17,6 @@ from gym.error import (
     CustomSpaceError,
     NoAsyncCallError,
 )
-from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,
@@ -67,7 +66,6 @@ class AsyncVectorEnv(VectorEnv):
         context: Optional[str] = None,
         daemon: bool = True,
         worker: Optional[callable] = None,
-        new_step_api: bool = False,
     ):
         """Vectorized environment that runs multiple environments in parallel.
 
@@ -87,7 +85,6 @@ class AsyncVectorEnv(VectorEnv):
                 so for some environments you may want to have it set to ``False``.
             worker: If set, then use that worker in a subprocess instead of a default one.
                 Can be useful to override some inner vector env logic, for instance, how resets on termination or truncation are handled.
-            new_step_api: If True, step method returns 2 bools - terminated, truncated, instead of 1 bool - done
 
         Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance
             to shoot yourself in the foot; thus, if you are writing your own worker, it is recommended to start
@@ -115,7 +112,6 @@ class AsyncVectorEnv(VectorEnv):
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
-            new_step_api=new_step_api,
         )
 
         if self.shared_memory:
@@ -171,38 +167,9 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.DEFAULT
         self._check_spaces()
 
-    def seed(self, seed=None):
-        """Seeds the vector environments.
-
-        Args:
-            seed: The seeds use with the environments
-
-        Raises:
-            AlreadyPendingCallError: Calling `seed` while waiting for a pending call to complete
-        """
-        super().seed(seed=seed)
-        self._assert_is_running()
-        if seed is None:
-            seed = [None for _ in range(self.num_envs)]
-        if isinstance(seed, int):
-            seed = [seed + i for i in range(self.num_envs)]
-        assert len(seed) == self.num_envs
-
-        if self._state != AsyncState.DEFAULT:
-            raise AlreadyPendingCallError(
-                f"Calling `seed` while waiting for a pending call to `{self._state.value}` to complete.",
-                self._state.value,
-            )
-
-        for pipe, seed in zip(self.parent_pipes, seed):
-            pipe.send(("seed", seed))
-        _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
-        self._raise_if_errors(successes)
-
     def reset_async(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Send calls to the :obj:`reset` methods of the sub-environments.
@@ -211,7 +178,6 @@ class AsyncVectorEnv(VectorEnv):
 
         Args:
             seed: List of seeds for each environment
-            return_info: If to return information
             options: The reset option
 
         Raises:
@@ -238,8 +204,6 @@ class AsyncVectorEnv(VectorEnv):
             single_kwargs = {}
             if single_seed is not None:
                 single_kwargs["seed"] = single_seed
-            if return_info:
-                single_kwargs["return_info"] = return_info
             if options is not None:
                 single_kwargs["options"] = options
 
@@ -250,7 +214,6 @@ class AsyncVectorEnv(VectorEnv):
         self,
         timeout: Optional[Union[int, float]] = None,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ) -> Union[ObsType, Tuple[ObsType, List[dict]]]:
         """Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
@@ -258,7 +221,6 @@ class AsyncVectorEnv(VectorEnv):
         Args:
             timeout: Number of seconds before the call to `reset_wait` times out. If `None`, the call to `reset_wait` never times out.
             seed: ignored
-            return_info: If to return information
             options: ignored
 
         Returns:
@@ -286,27 +248,17 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
-        if return_info:
-            infos = {}
-            results, info_data = zip(*results)
-            for i, info in enumerate(info_data):
-                infos = self._add_info(infos, info, i)
+        infos = {}
+        results, info_data = zip(*results)
+        for i, info in enumerate(info_data):
+            infos = self._add_info(infos, info, i)
 
-            if not self.shared_memory:
-                self.observations = concatenate(
-                    self.single_observation_space, results, self.observations
-                )
+        if not self.shared_memory:
+            self.observations = concatenate(
+                self.single_observation_space, results, self.observations
+            )
 
-            return (
-                deepcopy(self.observations) if self.copy else self.observations
-            ), infos
-        else:
-            if not self.shared_memory:
-                self.observations = concatenate(
-                    self.single_observation_space, results, self.observations
-                )
-
-            return deepcopy(self.observations) if self.copy else self.observations
+        return (deepcopy(self.observations) if self.copy else self.observations), infos
 
     def step_async(self, actions: np.ndarray):
         """Send the calls to :obj:`step` to each sub-environment.
@@ -335,14 +287,14 @@ class AsyncVectorEnv(VectorEnv):
 
     def step_wait(
         self, timeout: Optional[Union[int, float]] = None
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[dict]]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, List[dict]]:
         """Wait for the calls to :obj:`step` in each sub-environment to finish.
 
         Args:
             timeout: Number of seconds before the call to :meth:`step_wait` times out. If ``None``, the call to :meth:`step_wait` never times out.
 
         Returns:
-             The batched environment step information, (obs, reward, terminated, truncated, info) or (obs, reward, done, info) depending on new_step_api
+             The batched environment step information, (obs, reward, terminated, truncated, info)
 
         Raises:
             ClosedEnvironmentError: If the environment was closed (if :meth:`close` was previously called).
@@ -366,7 +318,7 @@ class AsyncVectorEnv(VectorEnv):
         successes = []
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
-            obs, rew, terminated, truncated, info = step_api_compatibility(result, True)
+            obs, rew, terminated, truncated, info = result
 
             successes.append(success)
             observations_list.append(obs)
@@ -385,16 +337,12 @@ class AsyncVectorEnv(VectorEnv):
                 self.observations,
             )
 
-        return step_api_compatibility(
-            (
-                deepcopy(self.observations) if self.copy else self.observations,
-                np.array(rewards),
-                np.array(terminateds, dtype=np.bool_),
-                np.array(truncateds, dtype=np.bool_),
-                infos,
-            ),
-            self.new_step_api,
-            True,
+        return (
+            deepcopy(self.observations) if self.copy else self.observations,
+            np.array(rewards),
+            np.array(terminateds, dtype=np.bool_),
+            np.array(truncateds, dtype=np.bool_),
+            infos,
         )
 
     def call_async(self, name: str, *args, **kwargs):
@@ -606,12 +554,8 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                if "return_info" in data and data["return_info"] is True:
-                    observation, info = env.reset(**data)
-                    pipe.send(((observation, info), True))
-                else:
-                    observation = env.reset(**data)
-                    pipe.send((observation, True))
+                observation, info = env.reset(**data)
+                pipe.send(((observation, info), True))
 
             elif command == "step":
                 (
@@ -620,10 +564,11 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     terminated,
                     truncated,
                     info,
-                ) = step_api_compatibility(env.step(data), True)
+                ) = env.step(data)
                 if terminated or truncated:
-                    info["final_observation"] = observation
-                    observation = env.reset()
+                    old_observation = observation
+                    observation, info = env.reset()
+                    info["final_observation"] = old_observation
                 pipe.send(((observation, reward, terminated, truncated, info), True))
             elif command == "seed":
                 env.seed(data)
@@ -676,18 +621,12 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                if "return_info" in data and data["return_info"] is True:
-                    observation, info = env.reset(**data)
-                    write_to_shared_memory(
-                        observation_space, index, observation, shared_memory
-                    )
-                    pipe.send(((None, info), True))
-                else:
-                    observation = env.reset(**data)
-                    write_to_shared_memory(
-                        observation_space, index, observation, shared_memory
-                    )
-                    pipe.send((None, True))
+                observation, info = env.reset(**data)
+                write_to_shared_memory(
+                    observation_space, index, observation, shared_memory
+                )
+                pipe.send(((None, info), True))
+
             elif command == "step":
                 (
                     observation,
@@ -695,10 +634,12 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     terminated,
                     truncated,
                     info,
-                ) = step_api_compatibility(env.step(data), True)
+                ) = env.step(data)
                 if terminated or truncated:
-                    info["final_observation"] = observation
-                    observation = env.reset()
+                    old_observation = observation
+                    observation, info = env.reset()
+                    info["final_observation"] = old_observation
+
                 write_to_shared_memory(
                     observation_space, index, observation, shared_memory
                 )

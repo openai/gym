@@ -1,7 +1,6 @@
 from typing import Optional
 
 import numpy as np
-import pytest
 from numpy.testing import assert_almost_equal
 
 import gym
@@ -22,21 +21,18 @@ class DummyRewardEnv(gym.Env):
 
     def step(self, action):
         self.t += 1
-        return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
+        return (
+            np.array([self.t]),
+            self.t,
+            self.t == len(self.returned_rewards),
+            False,
+            {},
+        )
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: Optional[bool] = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
-        if not return_info:
-            return np.array([self.t])
-        else:
-            return np.array([self.t]), {}
+        return np.array([self.t]), {}
 
 
 def make_env(return_reward_idx):
@@ -47,11 +43,10 @@ def make_env(return_reward_idx):
     return thunk
 
 
-@pytest.mark.parametrize("return_info", [False, True])
-def test_normalize_observation(return_info: bool):
+def test_normalize_observation():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    env.reset(return_info=return_info)
+    env.reset()
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 0.5, decimal=4)
     env.step(env.action_space.sample())
@@ -61,13 +56,7 @@ def test_normalize_observation(return_info: bool):
 def test_normalize_reset_info():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    obs = env.reset()
-    assert isinstance(obs, np.ndarray)
-    del obs
-    obs = env.reset(return_info=False)
-    assert isinstance(obs, np.ndarray)
-    del obs
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     assert isinstance(obs, np.ndarray)
     assert isinstance(info, dict)
 
@@ -94,7 +83,7 @@ def test_normalize_observation_vector_env():
     env_fns = [make_env(0), make_env(1)]
     envs = gym.vector.SyncVectorEnv(env_fns)
     envs.reset()
-    obs, reward, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
     np.testing.assert_almost_equal(obs, np.array([[1], [2]]), decimal=4)
     np.testing.assert_almost_equal(reward, np.array([1, 2]), decimal=4)
 
@@ -107,7 +96,7 @@ def test_normalize_observation_vector_env():
         np.mean([0.5]),  # the mean of first observations [[0, 1]]
         decimal=4,
     )
-    obs, reward, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.obs_rms.mean,
         np.mean([1.0]),  # the mean of first and second observations [[0, 1], [1, 2]]
@@ -120,13 +109,13 @@ def test_normalize_return_vector_env():
     envs = gym.vector.SyncVectorEnv(env_fns)
     envs = NormalizeReward(envs)
     obs = envs.reset()
-    obs, reward, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.return_rms.mean,
         np.mean([1.5]),  # the mean of first returns [[1, 2]]
         decimal=4,
     )
-    obs, reward, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.return_rms.mean,
         np.mean(

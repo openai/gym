@@ -24,7 +24,7 @@ def test_create_sync_vector_env():
 def test_reset_sync_vector_env():
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     env = SyncVectorEnv(env_fns)
-    observations = env.reset()
+    observations, infos = env.reset()
     env.close()
 
     assert isinstance(env.observation_space, Box)
@@ -34,32 +34,6 @@ def test_reset_sync_vector_env():
     assert observations.shape == env.observation_space.shape
 
     del observations
-
-    env = SyncVectorEnv(env_fns)
-    observations = env.reset(return_info=False)
-    env.close()
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert observations.shape == (8,) + env.single_observation_space.shape
-    assert observations.shape == env.observation_space.shape
-
-    del observations
-
-    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-
-    env = SyncVectorEnv(env_fns)
-    observations, infos = env.reset(return_info=True)
-    env.close()
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert observations.shape == (8,) + env.single_observation_space.shape
-    assert observations.shape == env.observation_space.shape
-    assert isinstance(infos, dict)
-    assert all([isinstance(info, dict) for info in infos])
 
 
 @pytest.mark.parametrize("use_single_action_space", [True, False])
@@ -76,7 +50,7 @@ def test_step_sync_vector_env(use_single_action_space):
         actions = [env.single_action_space.sample() for _ in range(8)]
     else:
         actions = env.action_space.sample()
-    observations, rewards, dones, _ = env.step(actions)
+    observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 
@@ -91,10 +65,15 @@ def test_step_sync_vector_env(use_single_action_space):
     assert rewards.ndim == 1
     assert rewards.size == 8
 
-    assert isinstance(dones, np.ndarray)
-    assert dones.dtype == np.bool_
-    assert dones.ndim == 1
-    assert dones.size == 8
+    assert isinstance(terminateds, np.ndarray)
+    assert terminateds.dtype == np.bool_
+    assert terminateds.ndim == 1
+    assert terminateds.size == 8
+
+    assert isinstance(truncateds, np.ndarray)
+    assert truncateds.dtype == np.bool_
+    assert truncateds.ndim == 1
+    assert truncateds.size == 8
 
 
 def test_call_sync_vector_env():
@@ -145,13 +124,13 @@ def test_custom_space_sync_vector_env():
     env_fns = [make_custom_space_env(i) for i in range(4)]
 
     env = SyncVectorEnv(env_fns)
-    reset_observations = env.reset()
+    reset_observations, infos = env.reset()
 
     assert isinstance(env.single_action_space, CustomSpace)
     assert isinstance(env.action_space, Tuple)
 
     actions = ("action-2", "action-3", "action-5", "action-7")
-    step_observations, rewards, dones, _ = env.step(actions)
+    step_observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 

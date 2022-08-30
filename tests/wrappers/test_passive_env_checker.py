@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import numpy as np
 import pytest
@@ -16,7 +17,7 @@ from tests.testing_env import GenericTestEnv
     ids=[env.spec.id for env in all_testing_initialised_envs],
 )
 def test_passive_checker_wrapper_warnings(env):
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         checker_env = PassiveEnvChecker(env)
         checker_env.reset()
         checker_env.step(checker_env.action_space.sample())
@@ -24,7 +25,7 @@ def test_passive_checker_wrapper_warnings(env):
 
         checker_env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
@@ -57,8 +58,8 @@ def test_initialise_failures(env, message):
     env.close()
 
 
-def _reset_failure(self, seed=None, return_info=False, options=None):
-    return np.array([-1.0], dtype=np.float32)
+def _reset_failure(self, seed=None, options=None):
+    return np.array([-1.0], dtype=np.float32), {}
 
 
 def _step_failure(self, action):

@@ -132,7 +132,7 @@ class InvertedDoublePendulumEnv(MujocoEnv, utils.EzPickle):
             observation_space=observation_space,
             **kwargs
         )
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, **kwargs)
 
     def step(self, action):
         self.do_simulation(action, self.frame_skip)

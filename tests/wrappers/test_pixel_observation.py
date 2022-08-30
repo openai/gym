@@ -10,7 +10,7 @@ from gym.wrappers.pixel_observation import STATE_KEY, PixelObservationWrapper
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode="single_rgb_array"):
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
         self.render_mode = render_mode
 
@@ -21,7 +21,7 @@ class FakeEnvironment(gym.Env):
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         observation = self.observation_space.sample()
-        return observation
+        return observation, {}
 
     def step(self, action):
         del action
@@ -82,9 +82,10 @@ def test_dict_observation(pixels_only):
         assert list(wrapped_env.observation_space.spaces.keys()) == expected_keys
 
     # Check that the added space item is consistent with the added observation.
-    observation = wrapped_env.reset()
+    observation, info = wrapped_env.reset()
     rgb_observation = observation[pixel_key]
 
+    assert isinstance(info, dict)
     assert rgb_observation.shape == (height, width, 3)
     assert rgb_observation.dtype == np.uint8
 
@@ -113,9 +114,10 @@ def test_single_array_observation(pixels_only):
             pixel_key,
         ]
 
-    observation = wrapped_env.reset()
+    observation, info = wrapped_env.reset()
     depth_observation = observation[pixel_key]
 
+    assert isinstance(info, dict)
     assert depth_observation.shape == (32, 32, 3)
     assert depth_observation.dtype == np.uint8
 

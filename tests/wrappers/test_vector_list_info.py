@@ -23,15 +23,15 @@ def test_info_to_list():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS, disable_env_checker=True)
     wrapped_env = VectorListInfo(env_to_wrap)
     wrapped_env.action_space.seed(SEED)
-    _, info = wrapped_env.reset(seed=SEED, return_info=True)
+    _, info = wrapped_env.reset(seed=SEED)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
 
     for _ in range(ENV_STEPS):
         action = wrapped_env.action_space.sample()
-        _, _, dones, list_info = wrapped_env.step(action)
-        for i, done in enumerate(dones):
-            if done:
+        _, _, terminateds, truncateds, list_info = wrapped_env.step(action)
+        for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
+            if terminated or truncated:
                 assert "final_observation" in list_info[i]
             else:
                 assert "final_observation" not in list_info[i]
@@ -40,16 +40,16 @@ def test_info_to_list():
 def test_info_to_list_statistics():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS, disable_env_checker=True)
     wrapped_env = VectorListInfo(RecordEpisodeStatistics(env_to_wrap))
-    _, info = wrapped_env.reset(seed=SEED, return_info=True)
+    _, info = wrapped_env.reset(seed=SEED)
     wrapped_env.action_space.seed(SEED)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
 
     for _ in range(ENV_STEPS):
         action = wrapped_env.action_space.sample()
-        _, _, dones, list_info = wrapped_env.step(action)
-        for i, done in enumerate(dones):
-            if done:
+        _, _, terminateds, truncateds, list_info = wrapped_env.step(action)
+        for i, (terminated, truncated) in enumerate(zip(terminateds, truncateds)):
+            if terminated or truncated:
                 assert "episode" in list_info[i]
                 for stats in ["r", "l", "t"]:
                     assert stats in list_info[i]["episode"]

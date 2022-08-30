@@ -6,7 +6,6 @@ import numpy as np
 
 from gym import Env
 from gym.spaces import Space
-from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
@@ -34,7 +33,6 @@ class SyncVectorEnv(VectorEnv):
         observation_space: Space = None,
         action_space: Space = None,
         copy: bool = True,
-        new_step_api: bool = False,
     ):
         """Vectorized environment that serially runs multiple environments.
 
@@ -62,7 +60,6 @@ class SyncVectorEnv(VectorEnv):
             num_envs=len(self.envs),
             observation_space=observation_space,
             action_space=action_space,
-            new_step_api=new_step_api,
         )
 
         self._check_spaces()
@@ -93,14 +90,12 @@ class SyncVectorEnv(VectorEnv):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
             seed: The reset environment seed
-            return_info: If to return information
             options: Option information for the environment reset
 
         Returns:
@@ -123,26 +118,15 @@ class SyncVectorEnv(VectorEnv):
                 kwargs["seed"] = single_seed
             if options is not None:
                 kwargs["options"] = options
-            if return_info is True:
-                kwargs["return_info"] = return_info
 
-            if not return_info:
-                observation = env.reset(**kwargs)
-                observations.append(observation)
-            else:
-                observation, info = env.reset(**kwargs)
-                observations.append(observation)
-                infos = self._add_info(infos, info, i)
+            observation, info = env.reset(**kwargs)
+            observations.append(observation)
+            infos = self._add_info(infos, info, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
-        if not return_info:
-            return deepcopy(self.observations) if self.copy else self.observations
-        else:
-            return (
-                deepcopy(self.observations) if self.copy else self.observations
-            ), infos
+        return (deepcopy(self.observations) if self.copy else self.observations), infos
 
     def step_async(self, actions):
         """Sets :attr:`_actions` for use by the :meth:`step_wait` by converting the ``actions`` to an iterable version."""
@@ -156,32 +140,31 @@ class SyncVectorEnv(VectorEnv):
         """
         observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
+
             (
                 observation,
                 self._rewards[i],
                 self._terminateds[i],
                 self._truncateds[i],
                 info,
-            ) = step_api_compatibility(env.step(action), True)
+            ) = env.step(action)
+
             if self._terminateds[i] or self._truncateds[i]:
-                info["final_observation"] = observation
-                observation = env.reset()
+                old_observation = observation
+                observation, info = env.reset()
+                info["final_observation"] = old_observation
             observations.append(observation)
             infos = self._add_info(infos, info, i)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
 
-        return step_api_compatibility(
-            (
-                deepcopy(self.observations) if self.copy else self.observations,
-                np.copy(self._rewards),
-                np.copy(self._terminateds),
-                np.copy(self._truncateds),
-                infos,
-            ),
-            new_step_api=self.new_step_api,
-            is_vector_env=True,
+        return (
+            deepcopy(self.observations) if self.copy else self.observations,
+            np.copy(self._rewards),
+            np.copy(self._terminateds),
+            np.copy(self._truncateds),
+            infos,
         )
 
     def call(self, name, *args, **kwargs) -> tuple:

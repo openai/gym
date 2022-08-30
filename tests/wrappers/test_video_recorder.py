@@ -1,5 +1,6 @@
 import gc
 import os
+import re
 import time
 
 import pytest
@@ -8,23 +9,23 @@ import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
-class BrokenRecordableEnv:
+class BrokenRecordableEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array"]}
 
     def __init__(self, render_mode="rgb_array"):
         self.render_mode = render_mode
 
-    def render(self, mode="human"):
+    def render(self):
         pass
 
 
-class UnrecordableEnv:
+class UnrecordableEnv(gym.Env):
     metadata = {"render_modes": [None]}
 
     def __init__(self, render_mode=None):
         self.render_mode = render_mode
 
-    def render(self, mode="human"):
+    def render(self):
         pass
 
 
@@ -33,15 +34,9 @@ def test_record_simple():
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
-    assert rec.encoder is not None
-    proc = rec.encoder.proc
-
-    assert proc is not None and proc.poll() is None  # subprocess is running
 
     rec.close()
 
-    assert proc.poll() is not None  # subprocess is terminated
-    assert not rec.empty
     assert not rec.broken
     assert os.path.exists(rec.path)
     f = open(rec.path)
@@ -56,21 +51,16 @@ def test_autoclose():
         rec.capture_frame()
 
         rec_path = rec.path
-        assert rec.encoder is not None
-        proc = rec.encoder.proc
-
-        assert proc is not None and proc.poll() is None  # subprocess is running
 
         # The function ends without an explicit `rec.close()` call
         # The Python interpreter will implicitly do `del rec` on garbage cleaning
-        return rec_path, proc
+        return rec_path
 
-    rec_path, proc = record()
+    rec_path = record()
 
     gc.collect()  # do explicit garbage collection for test
     time.sleep(5)  # wait for subprocess exiting
 
-    assert proc is not None and proc.poll() is not None  # subprocess is terminated
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
@@ -80,27 +70,34 @@ def test_no_frames():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)
     rec.close()
-    assert rec.empty
     assert rec.functional
     assert not os.path.exists(rec.path)
 
 
 def test_record_unrecordable_method():
-    env = UnrecordableEnv()
-    rec = VideoRecorder(env)
-    assert not rec.enabled
-    rec.close()
+    with pytest.warns(
+        UserWarning,
+        match="Disabling video recorder because environment <UnrecordableEnv instance> was not initialized with any compatible video mode between `single_rgb_array` and `rgb_array`",
+    ):
+        env = UnrecordableEnv()
+        rec = VideoRecorder(env)
+        assert not rec.enabled
+        rec.close()
 
 
-@pytest.mark.filterwarnings("ignore:.*Env returned None on render.*")
 def test_record_breaking_render_method():
-    env = BrokenRecordableEnv()
-    rec = VideoRecorder(env)
-    rec.capture_frame()
-    rec.close()
-    assert rec.empty
-    assert rec.broken
-    assert not os.path.exists(rec.path)
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "Env returned None on `render()`. Disabling further rendering for video recorder by marking as disabled:"
+        ),
+    ):
+        env = BrokenRecordableEnv()
+        rec = VideoRecorder(env)
+        rec.capture_frame()
+        rec.close()
+        assert rec.broken
+        assert not os.path.exists(rec.path)
 
 
 def test_text_envs():

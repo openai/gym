@@ -7,7 +7,6 @@ import numpy as np
 import gym
 from gym.error import DependencyNotInstalled
 from gym.spaces import Box
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 class LazyFrames:
@@ -128,7 +127,6 @@ class FrameStack(gym.ObservationWrapper):
         env: gym.Env,
         num_stack: int,
         lz4_compress: bool = False,
-        new_step_api: bool = False,
     ):
         """Observation wrapper that stacks the observations in a rolling manner.
 
@@ -136,9 +134,8 @@ class FrameStack(gym.ObservationWrapper):
             env (Env): The environment to apply the wrapper
             num_stack (int): The number of frames to stack
             lz4_compress (bool): Use lz4 to compress the frames internally
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
         self.num_stack = num_stack
         self.lz4_compress = lz4_compress
 
@@ -173,14 +170,9 @@ class FrameStack(gym.ObservationWrapper):
         Returns:
             Stacked observations, reward, terminated, truncated, and information from the environment
         """
-        observation, reward, terminated, truncated, info = step_api_compatibility(
-            self.env.step(action), True
-        )
+        observation, reward, terminated, truncated, info = self.env.step(action)
         self.frames.append(observation)
-        return step_api_compatibility(
-            (self.observation(None), reward, terminated, truncated, info),
-            self.new_step_api,
-        )
+        return self.observation(None), reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         """Reset the environment with kwargs.
@@ -191,14 +183,8 @@ class FrameStack(gym.ObservationWrapper):
         Returns:
             The stacked observations
         """
-        if kwargs.get("return_info", False):
-            obs, info = self.env.reset(**kwargs)
-        else:
-            obs = self.env.reset(**kwargs)
-            info = None  # Unused
+        obs, info = self.env.reset(**kwargs)
+
         [self.frames.append(obs) for _ in range(self.num_stack)]
 
-        if kwargs.get("return_info", False):
-            return self.observation(None), info
-        else:
-            return self.observation(None)
+        return self.observation(None), info

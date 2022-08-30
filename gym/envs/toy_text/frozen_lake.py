@@ -256,7 +256,6 @@ class FrozenLakeEnv(Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -266,16 +265,10 @@ class FrozenLakeEnv(Env):
         self.renderer.reset()
         self.renderer.render_step()
 
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1}
+        return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode="human"):
         assert mode in self.metadata["render_modes"]
@@ -294,9 +287,10 @@ class FrozenLakeEnv(Env):
 
         if self.window_surface is None:
             pygame.init()
-            pygame.display.init()
-            pygame.display.set_caption("Frozen Lake")
+
             if mode == "human":
+                pygame.display.init()
+                pygame.display.set_caption("Frozen Lake")
                 self.window_surface = pygame.display.set_mode(self.window_size)
             elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window_surface = pygame.Surface(self.window_size)

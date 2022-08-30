@@ -4,7 +4,6 @@ from typing import Callable, Optional
 
 import gym
 from gym import logger
-from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 
@@ -46,7 +45,6 @@ class RecordVideo(gym.Wrapper):
         step_trigger: Callable[[int], bool] = None,
         video_length: int = 0,
         name_prefix: str = "rl-video",
-        new_step_api: bool = False,
     ):
         """Wrapper records videos of rollouts.
 
@@ -58,9 +56,8 @@ class RecordVideo(gym.Wrapper):
             video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
                 Otherwise, snippets of the specified length are captured
             name_prefix (str): Will be prepended to the filename of the recordings
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
+        super().__init__(env)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -122,7 +119,6 @@ class RecordVideo(gym.Wrapper):
             env=self.env,
             base_path=base_path,
             metadata={"step_id": self.step_id, "episode_id": self.episode_id},
-            internal_backend_use=True,
         )
 
         self.video_recorder.capture_frame()
@@ -143,7 +139,7 @@ class RecordVideo(gym.Wrapper):
             terminateds,
             truncateds,
             infos,
-        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
+        ) = self.env.step(action)
 
         if not (self.terminated or self.truncated):
             # increment steps and episodes
@@ -175,11 +171,7 @@ class RecordVideo(gym.Wrapper):
             elif self._video_enabled():
                 self.start_video_recorder()
 
-        return step_api_compatibility(
-            (observations, rewards, terminateds, truncateds, infos),
-            self.new_step_api,
-            self.is_vector_env,
-        )
+        return observations, rewards, terminateds, truncateds, infos
 
     def close_video_recorder(self):
         """Closes the video recorder if currently recording."""

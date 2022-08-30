@@ -152,7 +152,6 @@ class MountainCarEnv(gym.Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -162,19 +161,13 @@ class MountainCarEnv(gym.Env):
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return np.array(self.state, dtype=np.float32)
-        else:
-            return np.array(self.state, dtype=np.float32), {}
+        return np.array(self.state, dtype=np.float32), {}
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 
-    def render(self, mode="human"):
-        if self.render_mode is not None:
-            return self.renderer.get_renders()
-        else:
-            return self._render(mode)
+    def render(self):
+        return self.renderer.get_renders()
 
     def _render(self, mode="human"):
         assert mode in self.metadata["render_modes"]

@@ -18,8 +18,8 @@ def test_record_episode_statistics(env_id, deque_size):
         assert env.episode_returns[0] == 0.0
         assert env.episode_lengths[0] == 0
         for t in range(env.spec.max_episode_steps):
-            _, _, done, info = env.step(env.action_space.sample())
-            if done:
+            _, _, terminated, truncated, info = env.step(env.action_space.sample())
+            if terminated or truncated:
                 assert "episode" in info
                 assert all([item in info["episode"] for item in ["r", "l", "t"]])
                 break
@@ -31,10 +31,7 @@ def test_record_episode_statistics_reset_info():
     env = gym.make("CartPole-v1", disable_env_checker=True)
     env = RecordEpisodeStatistics(env)
     ob_space = env.observation_space
-    obs = env.reset()
-    assert ob_space.contains(obs)
-    del obs
-    obs, info = env.reset(return_info=True)
+    obs, info = env.reset()
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
@@ -58,11 +55,11 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
     )
     envs.reset()
     for _ in range(max_episode_step + 1):
-        _, _, dones, infos = envs.step(envs.action_space.sample())
-        if any(dones):
+        _, _, terminateds, truncateds, infos = envs.step(envs.action_space.sample())
+        if any(terminateds) or any(truncateds):
             assert "episode" in infos
             assert "_episode" in infos
-            assert all(infos["_episode"] == dones)
+            assert all(infos["_episode"] == np.bitwise_or(terminateds, truncateds))
             assert all([item in infos["episode"] for item in ["r", "l", "t"]])
             break
         else:

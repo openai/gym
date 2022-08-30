@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from gym.spaces import Box, Discrete
-from gym.wrappers import AtariPreprocessing
+from gym.wrappers import AtariPreprocessing, StepAPICompatibility
 from tests.testing_env import GenericTestEnv, old_step_fn
 
 
@@ -49,7 +49,7 @@ class AtariTestingEnv(GenericTestEnv):
         (AtariTestingEnv(), (210, 160, 3)),
         (
             AtariPreprocessing(
-                AtariTestingEnv(),
+                StepAPICompatibility(AtariTestingEnv(), output_truncation_bool=True),
                 screen_size=84,
                 grayscale_obs=True,
                 frame_skip=1,
@@ -59,7 +59,7 @@ class AtariTestingEnv(GenericTestEnv):
         ),
         (
             AtariPreprocessing(
-                AtariTestingEnv(),
+                StepAPICompatibility(AtariTestingEnv(), output_truncation_bool=True),
                 screen_size=84,
                 grayscale_obs=False,
                 frame_skip=1,
@@ -69,7 +69,7 @@ class AtariTestingEnv(GenericTestEnv):
         ),
         (
             AtariPreprocessing(
-                AtariTestingEnv(),
+                StepAPICompatibility(AtariTestingEnv(), output_truncation_bool=True),
                 screen_size=84,
                 grayscale_obs=True,
                 frame_skip=1,
@@ -86,12 +86,14 @@ def test_atari_preprocessing_grayscale(env, obs_shape):
     # It is not possible to test the outputs as we are not using actual observations.
     # todo: update when ale-py is compatible with the ci
 
-    obs = env.reset(seed=0)
-    assert obs in env.observation_space
-    obs, _ = env.reset(seed=0, return_info=True)
+    env = StepAPICompatibility(
+        env, output_truncation_bool=True
+    )  # using compatibility wrapper since ale-py uses old step API
+
+    obs, _ = env.reset(seed=0)
     assert obs in env.observation_space
 
-    obs, _, _, _ = env.step(env.action_space.sample())
+    obs, _, _, _, _ = env.step(env.action_space.sample())
     assert obs in env.observation_space
 
     env.close()
@@ -102,7 +104,7 @@ def test_atari_preprocessing_grayscale(env, obs_shape):
 def test_atari_preprocessing_scale(grayscale, scaled, max_test_steps=10):
     # arbitrarily chosen number for stepping into env. and ensuring all observations are in the required range
     env = AtariPreprocessing(
-        AtariTestingEnv(),
+        StepAPICompatibility(AtariTestingEnv(), output_truncation_bool=True),
         screen_size=84,
         grayscale_obs=grayscale,
         scale_obs=scaled,
@@ -110,14 +112,14 @@ def test_atari_preprocessing_scale(grayscale, scaled, max_test_steps=10):
         noop_max=0,
     )
 
-    obs = env.reset()
+    obs, _ = env.reset()
 
     max_obs = 1 if scaled else 255
     assert np.all(0 <= obs) and np.all(obs <= max_obs)
 
-    done, step_i = False, 0
-    while not done and step_i <= max_test_steps:
-        obs, _, done, _ = env.step(env.action_space.sample())
+    terminated, truncated, step_i = False, False, 0
+    while not (terminated or truncated) and step_i <= max_test_steps:
+        obs, _, terminated, truncated, _ = env.step(env.action_space.sample())
         assert np.all(0 <= obs) and np.all(obs <= max_obs)
 
         step_i += 1

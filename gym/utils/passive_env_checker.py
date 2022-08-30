@@ -183,14 +183,6 @@ def env_reset_passive_checker(env, **kwargs):
                 f"Actual default: {seed_param}"
             )
 
-    if "return_info" not in signature.parameters and not (
-        "kwargs" in signature.parameters
-        and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
-    ):
-        logger.warn(
-            "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting."
-        )
-
     if "options" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information."
@@ -198,21 +190,21 @@ def env_reset_passive_checker(env, **kwargs):
 
     # Checks the result of env.reset with kwargs
     result = env.reset(**kwargs)
-    if kwargs.get("return_info", False) is True:
-        assert isinstance(
-            result, tuple
-        ), f"The result returned by `env.reset(return_info=True)` was not a tuple, actual type: {type(result)}"
-        assert (
-            len(result) == 2
-        ), f"The length of the result returned by `env.reset(return_info=True)` is not 2, actual length: {len(result)}"
+
+    if not isinstance(result, tuple):
+        logger.warn(
+            f"The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `{type(result)}`"
+        )
+    elif len(result) != 2:
+        logger.warn(
+            "The result returned by `env.reset()` should be `(obs, info)` by default, , where `obs` is a observation and `info` is a dictionary containing additional information."
+        )
+    else:
         obs, info = result
+        check_obs(obs, env.observation_space, "reset")
         assert isinstance(
             info, dict
-        ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: {type(info)}"
-    else:
-        obs = result
-
-    check_obs(obs, env.observation_space, "reset")
+        ), f"The second element returned by `env.reset()` was not a dictionary, actual type: {type(info)}"
     return result
 
 
