@@ -6,7 +6,9 @@ from gym.utils.save_video import capped_cubic_video_schedule, save_video
 
 
 def test_record_video_using_default_trigger():
-    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+    env = gym.make(
+        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
 
     env.reset()
     step_starting_index = 0
@@ -43,7 +45,7 @@ def modulo_step_trigger(mod: int):
 
 
 def test_record_video_step_trigger():
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
+    env = gym.make("CartPole-v1", render_mode="rgb_array_list")
     env._max_episode_steps = 20
 
     env.reset()
@@ -74,7 +76,7 @@ def test_record_video_step_trigger():
 
 def test_record_video_within_vector():
     envs = gym.vector.make(
-        "CartPole-v1", num_envs=2, asynchronous=True, render_mode="rgb_array"
+        "CartPole-v1", num_envs=2, asynchronous=True, render_mode="rgb_array_list"
     )
     envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()

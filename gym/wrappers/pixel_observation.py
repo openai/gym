@@ -98,7 +98,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
             default_render_kwargs = {"mode": "rgb_array_list"}
             logger.warn(
                 "env.render_mode must be specified to use PixelObservationWrapper:"
-                "`gym.make(env_name, render_mode='single_rgb_array')`."
+                "`gym.make(env_name, render_mode='rgb_array')`."
             )
 
         for key in pixel_keys:

@@ -127,10 +127,10 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
-            "rgb_array_list",
-            "depth_array_list",
             "rgb_array",
+            "rgb_array_list",
             "depth_array",
+            "depth_array_list",
         ],
         "render_fps": 25,
     }

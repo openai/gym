@@ -25,7 +25,7 @@ def test_human_rendering():
     with pytest.raises(
         AssertionError,
         match=re.escape(
-            "Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got 'human'"
+            "Expected env.render_mode to be one of 'rgb_array' or 'rgb_array_list' but got 'human'"
         ),
     ):
         HumanRendering(env)

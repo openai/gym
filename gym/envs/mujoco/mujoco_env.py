@@ -64,10 +64,10 @@ class BaseMujocoEnv(gym.Env):
         assert self.metadata["render_modes"] == [
             "human",
             "rgb_array",
-            "depth_array",
             "rgb_array_list",
+            "depth_array",
             "depth_array_list",
-        ]
+        ], self.metadata["render_modes"]
         assert (
             int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
         ), f'Expected value: {int(np.round(1.0 / self.dt))}, Actual value: {self.metadata["render_fps"]}'

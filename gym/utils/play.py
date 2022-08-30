@@ -52,7 +52,7 @@ class PlayableGame:
         """
         if env.render_mode not in {"rgb_array", "rgb_array_list"}:
             logger.error(
-                "PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
+                "PlayableGame wrapper works only with rgb_array and rgb_array_list render modes, "
                 f"but your environment render_mode = {env.render_mode}."
             )
 
@@ -221,7 +221,7 @@ def play(
     )
     if env.render_mode not in {"rgb_array", "rgb_array_list"}:
         logger.error(
-            "play method works only with rgb_array and single_rgb_array render modes, "
+            "play method works only with rgb_array and rgb_array_list render modes, "
             f"but your environment render_mode = {env.render_mode}."
         )
 

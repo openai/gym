@@ -13,7 +13,7 @@ class HumanRendering(gym.Wrapper):
     If you want to use this wrapper with your environments, remember to specify ``"render_fps"``
     in the metadata of your environment.
 
-    The ``render_mode`` of the wrapped environment must be either ``'rgb_array'`` or ``'single_rgb_array'``.
+    The ``render_mode`` of the wrapped environment must be either ``'rgb_array'`` or ``'rgb_array_list'``.
 
     Example:
         >>> env = gym.make("LunarLander-v2", render_mode="rgb_array")
@@ -49,7 +49,7 @@ class HumanRendering(gym.Wrapper):
         assert env.render_mode in [
             "rgb_array",
             "rgb_array_list",
-        ], f"Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got '{env.render_mode}'"
+        ], f"Expected env.render_mode to be one of 'rgb_array' or 'rgb_array_list' but got '{env.render_mode}'"
         assert (
             "render_fps" in env.metadata
         ), "The base environment must specify 'render_fps' to be used with the HumanRendering wrapper"
@@ -95,7 +95,7 @@ class HumanRendering(gym.Wrapper):
             last_rgb_array = self.env.render()
         else:
             raise Exception(
-                f"Wrapped environment must have mode 'rgb_array' or 'single_rgb_array', actual render mode: {self.env.render_mode}"
+                f"Wrapped environment must have mode 'rgb_array' or 'rgb_array_list', actual render mode: {self.env.render_mode}"
             )
         assert isinstance(last_rgb_array, np.ndarray)
 
