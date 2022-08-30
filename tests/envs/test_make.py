@@ -1,6 +1,7 @@
 """Tests that gym.make works as expected."""
 
 import re
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -59,13 +60,14 @@ def test_make():
 
 
 def test_make_deprecated():
-    with pytest.raises(
-        gym.error.Error,
-        match=re.escape(
-            "Environment version v0 for `Humanoid` is deprecated. Please use `Humanoid-v4` instead."
-        ),
-    ):
-        gym.make("Humanoid-v0", disable_env_checker=True)
+    with warnings.catch_warnings(record=True):
+        with pytest.raises(
+            gym.error.Error,
+            match=re.escape(
+                "Environment version v0 for `Humanoid` is deprecated. Please use `Humanoid-v4` instead."
+            ),
+        ):
+            gym.make("Humanoid-v0", disable_env_checker=True)
 
 
 def test_make_max_episode_steps():
@@ -173,7 +175,7 @@ def test_apply_step_compatibility():
     "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
 def test_passive_checker_wrapper_warnings(spec):
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = gym.make(spec)  # disable_env_checker=False
         env.reset()
         env.step(env.action_space.sample())
@@ -181,7 +183,7 @@ def test_passive_checker_wrapper_warnings(spec):
 
         env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
@@ -229,14 +231,14 @@ def test_make_render_mode():
     env.close()
 
     assert len(valid_render_modes) > 0
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = gym.make(
             "CartPole-v1", render_mode=valid_render_modes[0], disable_env_checker=True
         )
         assert env.render_mode == valid_render_modes[0]
         env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
@@ -246,7 +248,7 @@ def test_make_render_mode():
     env.close()
 
     with pytest.warns(
-        Warning,
+        UserWarning,
         match=re.escape(
             "You are trying to use 'human' rendering for an environment that doesn't natively support it. The HumanRendering wrapper is being applied to your environment."
         ),
@@ -267,13 +269,16 @@ def test_make_render_mode():
         )
 
     # Make sure that an additional error is thrown a user tries to use the wrapper on an environment with old API
-    with pytest.raises(
-        gym.error.Error,
-        match=re.escape(
-            "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
-        ),
-    ):
-        gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
+    with warnings.catch_warnings(record=True):
+        with pytest.raises(
+            gym.error.Error,
+            match=re.escape(
+                "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
+            ),
+        ):
+            gym.make(
+                "test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True
+            )
 
     # This test ensures that the additional exception "Gym tried to apply the HumanRendering wrapper but it looks like
     # your environment is using the old rendering API" is *not* triggered by a TypeError that originate from
