@@ -22,16 +22,8 @@ SEED = 0
     [
         gym.make("CartPole-v1", disable_env_checker=True),
         gym.make("CarRacing-v2", disable_env_checker=True),
-        gym.vector.make(
-            "CartPole-v1",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
-        gym.vector.make(
-            "CarRacing-v2",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
+        gym.vector.make("CartPole-v1", disable_env_checker=True, num_envs=NUM_ENVS),
+        gym.vector.make("CarRacing-v2", disable_env_checker=True, num_envs=NUM_ENVS),
     ],
 )
 def test_time_aware_observation_creation(env):
@@ -55,11 +47,7 @@ def test_time_aware_observation_creation(env):
     "env",
     [
         gym.make("CartPole-v1", disable_env_checker=True),
-        gym.make(
-            "CarRacing-v2",
-            disable_env_checker=True,
-            continuous=False,
-        ),
+        gym.make("CarRacing-v2", disable_env_checker=True, continuous=False),
     ],
 )
 def test_time_aware_observation_step(env, flatten, normalize_time):
@@ -98,16 +86,8 @@ def test_time_aware_observation_step(env, flatten, normalize_time):
 @pytest.mark.parametrize(
     "env",
     [
-        gym.vector.make(
-            "CartPole-v1",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
-        gym.vector.make(
-            "CarRacing-v2",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
+        gym.vector.make("CartPole-v1", disable_env_checker=True, num_envs=NUM_ENVS),
+        gym.vector.make("CarRacing-v2", disable_env_checker=True, num_envs=NUM_ENVS),
     ],
 )
 def test_time_aware_observation_step_within_vector(env, flatten, normalize_time):
@@ -174,16 +154,8 @@ def test_time_aware_observation_step_within_vector(env, flatten, normalize_time)
     [
         gym.make("CartPole-v1", disable_env_checker=True),
         gym.make("CarRacing-v2", disable_env_checker=True),
-        gym.vector.make(
-            "CartPole-v1",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
-        gym.vector.make(
-            "CarRacing-v2",
-            disable_env_checker=True,
-            num_envs=NUM_ENVS,
-        ),
+        gym.vector.make("CartPole-v1", disable_env_checker=True, num_envs=NUM_ENVS),
+        gym.vector.make("CarRacing-v2", disable_env_checker=True, num_envs=NUM_ENVS),
     ],
 )
 def test_time_aware_observation_creation_flatten(env):
