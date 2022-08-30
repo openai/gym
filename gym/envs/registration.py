@@ -309,14 +309,14 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 # fmt: off
-# Classic control
-# ----------------------------------------
 @overload
 def make(id: str, **kwargs) -> Env: ...
 @overload
 def make(id: EnvSpec, **kwargs) -> Env: ...
 
 
+# Classic control
+# ----------------------------------------
 @overload
 def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
@@ -439,6 +439,7 @@ def register(
     order_enforce: bool = True,
     autoreset: bool = False,
     disable_env_checker: bool = False,
+    apply_step_compatibility: bool = False,
     **kwargs,
 ):
     """Register an environment with gym.
@@ -457,6 +458,7 @@ def register(
         order_enforce: If to enable the order enforcer wrapper to ensure users run functions in the correct order
         autoreset: If to add the autoreset wrapper such that reset does not need to be called.
         disable_env_checker: If to disable the environment checker for the environment. Recommended to False.
+        apply_step_compatibility: If to apply the `StepAPICompatibility` wrapper.
         **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
@@ -487,6 +489,7 @@ def register(
         order_enforce=order_enforce,
         autoreset=autoreset,
         disable_env_checker=disable_env_checker,
+        apply_step_compatibility=apply_step_compatibility,
         **kwargs,
     )
     _check_spec_register(new_spec)
@@ -499,7 +502,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    apply_step_compatibility: bool = False,
+    apply_step_compatibility: Optional[bool] = None,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -511,7 +514,11 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        apply_step_compatibility: Whether to use apply compatibility wrapper that converts step method to return two bools (StepAPICompatibility wrapper)
+        apply_step_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
+            converts the environment step from a done bool to return termination and truncation bools.
+            By default, the argument is None to which the environment specification `apply_step_compatibility` is used
+            which defaults to False. Otherwise, the value of `apply_step_compatibility` is used.
+            If `True`, the wrapper is applied otherwise, the wrapper is not applied.
         disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
             (which is by default False, running the environment checker),
             otherwise will run according to this parameter (`True` = not run, `False` = run)
@@ -638,6 +645,12 @@ def make(
     ):
         env = PassiveEnvChecker(env)
 
+    # Add step API wrapper
+    if apply_step_compatibility is True or (
+        apply_step_compatibility is None and spec_.apply_step_compatibility is True
+    ):
+        env = StepAPICompatibility(env, output_truncation_bool=True)
+
     # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
@@ -655,10 +668,6 @@ def make(
     # Add human rendering wrapper
     if apply_human_rendering:
         env = HumanRendering(env)
-
-    # Add step API wrapper
-    if apply_step_compatibility:
-        env = StepAPICompatibility(env, True)
 
     return env
 
