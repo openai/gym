@@ -254,11 +254,11 @@ class TaxiEnv(Env):
         return mask
 
     def step(self, a):
-        transitions = self.P[self.s][a]
+        transitions = self.P[self.s][a]  # type: ignore
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, t = transitions[i]
         self.s = s
-        self.lastaction = a
+        self.lastaction = int(a)
         self.renderer.render_step()
         return (int(s), r, t, False, {"prob": p, "action_mask": self.action_mask(s)})
 
@@ -275,7 +275,7 @@ class TaxiEnv(Env):
         self.renderer.reset()
         self.renderer.render_step()
 
-        return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
+        return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(int(self.s))}
 
     def render(self):
         return self.renderer.get_renders()
@@ -392,7 +392,7 @@ class TaxiEnv(Env):
             self.window.blit(self.passenger_img, self.get_surf_loc(self.locs[pass_idx]))
 
         if self.lastaction in [0, 1, 2, 3]:
-            self.taxi_orientation = self.lastaction
+            self.taxi_orientation = int(self.lastaction)
         dest_loc = self.get_surf_loc(self.locs[dest_idx])
         taxi_location = self.get_surf_loc((taxi_row, taxi_col))
 
