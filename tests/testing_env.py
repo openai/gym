@@ -46,14 +46,11 @@ class GenericTestEnv(gym.Env):
         reset_fn: callable = basic_reset_fn,
         step_fn: callable = new_step_fn,
         render_fn: callable = basic_render_fn,
-        render_modes: Optional[List[str]] = None,
-        render_fps: Optional[int] = None,
+        metadata: Optional[List[str]] = None,
         render_mode: Optional[str] = None,
         spec: EnvSpec = EnvSpec("TestingEnv-v0"),
     ):
-        self.metadata = {"render_modes": render_modes}
-        if render_fps:
-            self.metadata["render_fps"] = render_fps
+        self.metadata = {} if metadata is None else metadata
         self.render_mode = render_mode
         self.spec = spec
 

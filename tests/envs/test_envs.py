@@ -6,6 +6,7 @@ import pytest
 
 import gym
 from gym.envs.registration import EnvSpec
+from gym.logger import warn
 from gym.utils.env_checker import check_env, data_equivalence
 from tests.envs.utils import (
     all_testing_env_specs,
@@ -142,30 +143,30 @@ def check_rendered(rendered_frame, mode: str):
         assert isinstance(rendered_frame, np.ndarray)
         assert len(rendered_frame.shape) == 2
     else:
-        raise Exception(f"Unknown mode: {mode}")
+        warn(f"Unknown render mode: {mode}, cannot check that the rendered data is correct. Add case to `check_rendered`")
 
 
-# @pytest.mark.parametrize(
-#     "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
-# )
-# def test_render_modes(spec):
-#     env = spec.make()
-#
-#     assert len(env.metadata["render_modes"]) > 0
-#     for mode in env.metadata["render_modes"]:
-#         if mode != "human":
-#             new_env = spec.make(render_mode=mode)
-#
-#             new_env.reset()
-#             rendered = new_env.render()
-#             check_rendered(rendered, mode)
-#
-#             new_env.step(new_env.action_space.sample())
-#             rendered = new_env.render()
-#             check_rendered(rendered, mode)
-#
-#             new_env.close()
-#     env.close()
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
+def test_render_modes(spec):
+    env = spec.make()
+
+    assert len(env.metadata["render_modes"]) > 0
+    for mode in env.metadata["render_modes"]:
+        if mode != "human":
+            new_env = spec.make(render_mode=mode)
+
+            new_env.reset()
+            rendered = new_env.render()
+            check_rendered(rendered, mode)
+
+            new_env.step(new_env.action_space.sample())
+            rendered = new_env.render()
+            check_rendered(rendered, mode)
+
+            new_env.close()
+    env.close()
 
 
 @pytest.mark.parametrize(
