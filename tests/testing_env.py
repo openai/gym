@@ -1,6 +1,6 @@
 """Provides a generic testing environment for use in tests with custom reset, step and render functions."""
 import types
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gym
 from gym import spaces
@@ -46,7 +46,7 @@ class GenericTestEnv(gym.Env):
         reset_fn: callable = basic_reset_fn,
         step_fn: callable = new_step_fn,
         render_fn: callable = basic_render_fn,
-        metadata: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
         render_mode: Optional[str] = None,
         spec: EnvSpec = EnvSpec("TestingEnv-v0"),
     ):
