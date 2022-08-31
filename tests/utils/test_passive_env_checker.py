@@ -407,7 +407,7 @@ def test_passive_env_step_checker(
         [
             UserWarning,
             GenericTestEnv(
-                metadata={"render_modes": ["Testing mode", 1]}, render_fps=1
+                metadata={"render_modes": ["Testing mode", 1], "render_fps": 1},
             ),
             "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>]",
         ],
