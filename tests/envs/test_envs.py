@@ -143,7 +143,9 @@ def check_rendered(rendered_frame, mode: str):
         assert isinstance(rendered_frame, np.ndarray)
         assert len(rendered_frame.shape) == 2
     else:
-        warn(f"Unknown render mode: {mode}, cannot check that the rendered data is correct. Add case to `check_rendered`")
+        warn(
+            f"Unknown render mode: {mode}, cannot check that the rendered data is correct. Add case to `check_rendered`"
+        )
 
 
 @pytest.mark.parametrize(
