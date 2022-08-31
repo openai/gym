@@ -49,7 +49,7 @@ ENV_ID_RE = re.compile(
 )
 
 
-def load(name: str) -> callable:
+def load(name: str) -> Callable:
     """Loads an environment with name and returns an environment creation function
 
     Args:
@@ -536,7 +536,7 @@ def register(id: str, **kwargs):
 
     full_id = get_env_id(ns_id, name, version)
 
-    spec = EnvSpec(id=full_id, **kwargs)
+    spec = EnvSpec(id=full_id, **kwargs)  # type: ignore
     _check_spec_register(spec)
     if spec.id in registry:
         logger.warn(f"Overriding environment {spec.id}")
