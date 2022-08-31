@@ -62,11 +62,11 @@ def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
         A random valid map
     """
     valid = False
-    board = []  # initialize to make pyright happy
+    board: List[List[str]] = []  # initialize to make pyright happy
 
     while not valid:
         p = min(1, p)
-        board = np.random.choice(["F", "H"], (size, size), p=[p, 1 - p])
+        board = np.random.choice(["F", "H"], (size, size), p=[p, 1 - p])  # type: ignore
         board[0][0] = "S"
         board[-1][-1] = "G"
         valid = is_valid(board, size)
@@ -244,7 +244,7 @@ class FrozenLakeEnv(Env):
         self.start_img = None
 
     def step(self, a):
-        transitions = self.P[self.s][a]
+        transitions = self.P[self.s][a]  # type: ignore
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, t = transitions[i]
         self.s = s
@@ -356,7 +356,7 @@ class FrozenLakeEnv(Env):
                 pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
 
         # paint the elf
-        bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
+        bot_row, bot_col = int(self.s) // self.ncol, int(self.s) % self.ncol
         cell_rect = (bot_col * self.cell_size[0], bot_row * self.cell_size[1])
         last_action = self.lastaction if self.lastaction is not None else 1
         elf_img = self.elf_images[last_action]
