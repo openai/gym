@@ -68,7 +68,7 @@ class CliffWalkingEnv(Env):
         self.shape = (4, 12)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 
-        self.nS = np.prod(self.shape)
+        self.nS = int(np.prod(self.shape))
         self.nA = 4
 
         # Cliff Location
@@ -228,6 +228,8 @@ class CliffWalkingEnv(Env):
 
         for s in range(self.nS):
             row, col = np.unravel_index(s, self.shape)
+            row = int(row)
+            col = int(col)
             pos = (col * self.cell_size[0], row * self.cell_size[1])
             check_board_mask = row % 2 ^ col % 2
             self.window_surface.blit(self.mountain_bg_img[check_board_mask], pos)
