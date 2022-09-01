@@ -49,7 +49,7 @@ class GenericTestEnv(gym.Env):
         render_modes: Optional[List[str]] = None,
         render_fps: Optional[int] = None,
         render_mode: Optional[str] = None,
-        spec: EnvSpec = EnvSpec("TestingEnv-v0", None),
+        spec: EnvSpec = EnvSpec("TestingEnv-v0", "testing-env-no-entry-point"),
     ):
         self.metadata = {"render_modes": render_modes}
         if render_fps:
