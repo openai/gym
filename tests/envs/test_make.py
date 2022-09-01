@@ -9,11 +9,18 @@ import pytest
 
 import gym
 from gym.envs.classic_control import cartpole
-from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    HumanRendering,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
+from tests.testing_env import GenericTestEnv, old_step_fn
 from tests.wrappers.utils import has_wrapper
 
 gym.register(
@@ -131,6 +138,39 @@ def test_make_disable_env_checker():
     env.close()
 
 
+def test_apply_step_compatibility():
+    gym.register(
+        "testing-old-env",
+        lambda: GenericTestEnv(step_fn=old_step_fn),
+        apply_step_compatibility=True,
+        max_episode_steps=3,
+    )
+    env = gym.make("testing-old-env")
+    assert has_wrapper(env, StepAPICompatibility)
+
+    env.reset()
+    assert len(env.step(env.action_space.sample())) == 5
+    env.step(env.action_space.sample())
+    _, _, termination, truncation, _ = env.step(env.action_space.sample())
+    assert termination is False and truncation is True
+
+    gym.spec("testing-old-env").apply_step_compatibility = False
+    env = gym.make("testing-old-env")
+    assert has_wrapper(env, StepAPICompatibility) is False
+    # Cannot run reset and step as will not work
+
+    env = gym.make("testing-old-env", apply_step_compatibility=True)
+    assert has_wrapper(env, StepAPICompatibility)
+
+    env.reset()
+    assert len(env.step(env.action_space.sample())) == 5
+    env.step(env.action_space.sample())
+    _, _, termination, truncation, _ = env.step(env.action_space.sample())
+    assert termination is False and truncation is True
+
+    gym.envs.registry.pop("testing-old-env")
+
+
 @pytest.mark.parametrize(
     "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
@@ -201,8 +241,7 @@ def test_make_render_mode():
         env.close()
 
     for warning in caught_warnings:
-        if not re.compile(".*step API.*").match(warning.message.args[0]):
-            raise gym.error.Error(f"Unexpected warning: {warning.message}")
+        raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
     env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)
