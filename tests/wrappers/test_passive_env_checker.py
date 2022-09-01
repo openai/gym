@@ -68,7 +68,9 @@ def _step_failure(self, action):
 
 def test_api_failures():
     env = GenericTestEnv(
-        reset_fn=_reset_failure, step_fn=_step_failure, metadata={"render_modes": "error"}
+        reset_fn=_reset_failure,
+        step_fn=_step_failure,
+        metadata={"render_modes": "error"},
     )
     env = PassiveEnvChecker(env)
     assert env.checked_reset is False
