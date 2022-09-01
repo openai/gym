@@ -7,7 +7,7 @@ from gym.wrappers import HumanRendering
 
 
 def test_human_rendering():
-    for mode in ["rgb_array", "single_rgb_array"]:
+    for mode in ["rgb_array", "rgb_array_list"]:
         env = HumanRendering(
             gym.make("CartPole-v1", render_mode=mode, disable_env_checker=True)
         )
@@ -25,7 +25,7 @@ def test_human_rendering():
     with pytest.raises(
         AssertionError,
         match=re.escape(
-            "Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got 'human'"
+            "Expected env.render_mode to be one of 'rgb_array' or 'rgb_array_list' but got 'human'"
         ),
     ):
         HumanRendering(env)

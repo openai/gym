@@ -55,10 +55,10 @@ class VideoRecorder:
 
         self.render_mode = env.render_mode
 
-        if "rgb_array" != self.render_mode and "single_rgb_array" != self.render_mode:
+        if "rgb_array_list" != self.render_mode and "rgb_array" != self.render_mode:
             logger.warn(
                 f"Disabling video recorder because environment {env} was not initialized with any compatible video "
-                "mode between `single_rgb_array` and `rgb_array`"
+                "mode between `rgb_array` and `rgb_array_list`"
             )
             # Disable since the environment has not been initialized with a compatible `render_mode`
             self.enabled = False

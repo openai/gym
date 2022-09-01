@@ -216,9 +216,9 @@ class HumanoidEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
+            "rgb_array_list",
             "depth_array",
-            "single_rgb_array",
-            "single_depth_array",
+            "depth_array_list",
         ],
         "render_fps": 67,
     }

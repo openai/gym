@@ -61,7 +61,7 @@ def save_video(
     Example:
         >>> import gym
         >>> from gym.utils.save_video import save_video
-        >>> env = gym.make("FrozenLake-v1", render_mode="rgb_array")
+        >>> env = gym.make("FrozenLake-v1", render_mode="rgb_array_list")
         >>> env.reset()
         >>> step_starting_index = 0
         >>> episode_index = 0
@@ -82,9 +82,7 @@ def save_video(
         >>> env.close()
     """
     if not isinstance(frames, list):
-        logger.error(
-            f"Expected a list of frames, got a {frames.__class__.__name__} instead."
-        )
+        logger.error(f"Expected a list of frames, got a {type(frames)} instead.")
     if episode_trigger is None and step_trigger is None:
         episode_trigger = capped_cubic_video_schedule
 

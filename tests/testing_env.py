@@ -1,6 +1,6 @@
 """Provides a generic testing environment for use in tests with custom reset, step and render functions."""
 import types
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gym
 from gym import spaces
@@ -46,14 +46,11 @@ class GenericTestEnv(gym.Env):
         reset_fn: callable = basic_reset_fn,
         step_fn: callable = new_step_fn,
         render_fn: callable = basic_render_fn,
-        render_modes: Optional[List[str]] = None,
-        render_fps: Optional[int] = None,
+        metadata: Optional[Dict[str, Any]] = None,
         render_mode: Optional[str] = None,
         spec: EnvSpec = EnvSpec("TestingEnv-v0"),
     ):
-        self.metadata = {"render_modes": render_modes}
-        if render_fps:
-            self.metadata["render_fps"] = render_fps
+        self.metadata = {} if metadata is None else metadata
         self.render_mode = render_mode
         self.spec = spec
 
@@ -76,7 +73,10 @@ class GenericTestEnv(gym.Env):
         options: Optional[dict] = None,
     ) -> Union[ObsType, Tuple[ObsType, dict]]:
         # If you need a default working reset function, use `basic_reset_fn` above
-        raise NotImplementedError("TestingEnv reset_fn is not set")
+        raise NotImplementedError("TestingEnv reset_fn is not set.")
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
-        raise NotImplementedError("TestingEnv step_fn is not set")
+        raise NotImplementedError("TestingEnv step_fn is not set.")
+
+    def render(self):
+        raise NotImplementedError("testingEnv render_fn is not set.")

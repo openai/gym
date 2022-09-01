@@ -101,7 +101,7 @@ properties = [
     },
     {"action_space": spaces.Discrete(2)},
     {"reward_range": (-1.0, 1.0)},
-    {"metadata": {"render_modes": ["human", "rgb_array"]}},
+    {"metadata": {"render_modes": ["human", "rgb_array_list"]}},
     {
         "observation_space": spaces.Box(
             low=0.0, high=1.0, shape=(64, 64, 3), dtype=np.float32

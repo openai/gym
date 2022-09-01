@@ -164,7 +164,7 @@ class BipedalWalker(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "rgb_array_list"],
         "render_fps": FPS,
     }
 
@@ -742,7 +742,7 @@ class BipedalWalker(gym.Env, EzPickle):
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-        elif mode in {"rgb_array", "single_rgb_array"}:
+        elif mode in {"rgb_array", "rgb_array_list"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )[:, -VIEWPORT_W:]

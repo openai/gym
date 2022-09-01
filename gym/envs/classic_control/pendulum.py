@@ -89,7 +89,7 @@ class PendulumEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "rgb_array_list"],
         "render_fps": 30,
     }
 
@@ -182,7 +182,7 @@ class PendulumEnv(gym.Env):
                 self.screen = pygame.display.set_mode(
                     (self.screen_dim, self.screen_dim)
                 )
-            else:  # mode in {"rgb_array", "single_rgb_array"}
+            else:  # mode in {"rgb_array", "rgb_array_list"}
                 self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -249,7 +249,7 @@ class PendulumEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        else:  # mode == "rgb_array":
+        else:  # mode == "rgb_array_list":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )

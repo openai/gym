@@ -27,7 +27,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     logger.warn("Matplotlib is not installed, run `pip install gym[other]`")
-    plt = None
+    matplotlib, plt = None, None
 
 
 class MissingKeysToAction(Exception):
@@ -50,9 +50,9 @@ class PlayableGame:
             keys_to_action: The dictionary of keyboard tuples and action value
             zoom: If to zoom in on the environment render
         """
-        if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+        if env.render_mode not in {"rgb_array", "rgb_array_list"}:
             logger.error(
-                "PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
+                "PlayableGame wrapper works only with rgb_array and rgb_array_list render modes, "
                 f"but your environment render_mode = {env.render_mode}."
             )
 
@@ -85,10 +85,10 @@ class PlayableGame:
         if isinstance(rendered, List):
             rendered = rendered[-1]
         assert rendered is not None and isinstance(rendered, np.ndarray)
-        video_size = [rendered.shape[1], rendered.shape[0]]
+        video_size = (rendered.shape[1], rendered.shape[0])
 
         if zoom is not None:
-            video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+            video_size = (int(video_size[0] * zoom), int(video_size[1] * zoom))
 
         return video_size
 
@@ -150,7 +150,7 @@ def play(
 
         >>> import gym
         >>> from gym.utils.play import play
-        >>> play(gym.make("CarRacing-v1", render_mode="single_rgb_array"), keys_to_action={
+        >>> play(gym.make("CarRacing-v1", render_mode="rgb_array"), keys_to_action={
         ...                                                "w": np.array([0, 0.7, 0]),
         ...                                                "a": np.array([-1, 0, 0]),
         ...                                                "s": np.array([0, 0, 1]),
@@ -217,10 +217,6 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
-    deprecation(
-        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
-    )
-
     env.reset(seed=seed)
 
     if keys_to_action is None:
