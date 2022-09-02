@@ -1,7 +1,7 @@
 """Helper functions and wrapper class for converting between TensorFlow and Jax."""
 import functools
 from collections import abc
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Iterable, Mapping, Tuple, Union
 
 from jax._src import dlpack as jax_dlpack
 from jax.interpreters.xla import DeviceArray
@@ -20,7 +20,9 @@ except ImportError:
 @functools.singledispatch
 def tf_to_jax(value: Any) -> Any:
     """Converts values to Jax tensors."""
-    return value
+    raise Exception(
+        f"No conversion for TensorFlow to Jax registered for type: {type(value)}"
+    )
 
 
 @tf_to_jax.register(tf.Tensor)
@@ -30,17 +32,27 @@ def _tf_to_jax(value: tf.Tensor) -> DeviceArray:
 
 
 @tf_to_jax.register(abc.Mapping)
-def _tf_dict_to_jax(
-    value: Dict[str, Union[tf.Tensor, Any]]
-) -> Dict[str, Union[DeviceArray, Any]]:
-    """Converts a dictionary of TensorFlow Tensors to a dictionary of Jax DeviceArrays."""
+def _tf_mapping_to_jax(
+    value: Mapping[str, Union[tf.Tensor, Any]]
+) -> Mapping[str, Union[DeviceArray, Any]]:
+    """Converts a dictionary of TensorFlow Tensors to a mapping of Jax DeviceArrays."""
     return type(value)(**{k: tf_to_jax(v) for k, v in value.items()})
+
+
+@tf_to_jax.register(abc.Iterable)
+def _tf_iterable_to_jax(
+    value: Iterable[Union[tf.Tensor, Any]]
+) -> Iterable[Union[DeviceArray, Any]]:
+    """Converts an Iterable from TensorFlow Tensors to an iterable of Jax DeviceArrays."""
+    return type(value)(tf_to_jax(v) for v in value)
 
 
 @functools.singledispatch
 def jax_to_tf(value: Any) -> Any:
     """Converts a value to a TensorFlow tensor."""
-    return value
+    raise Exception(
+        f"No conversion for Jax to TensorFlow registered for type: {type(value)}"
+    )
 
 
 @jax_to_tf.register(DeviceArray)
@@ -50,11 +62,19 @@ def _jax_to_tf(value: DeviceArray) -> tf.Tensor:
 
 
 @jax_to_tf.register(abc.Mapping)
-def _jax_dict_to_tf(
-    value: Dict[str, Union[DeviceArray, Any]]
-) -> Dict[str, Union[tf.Tensor, Any]]:
-    """Converts a dictionary of Jax DeviceArrays to TensorFlow tensors."""
+def _jax_mapping_to_tf(
+    value: Mapping[str, Union[DeviceArray, Any]]
+) -> Mapping[str, Union[tf.Tensor, Any]]:
+    """Converts a mapping of Jax DeviceArrays to TensorFlow tensors."""
     return type(value)(**{k: jax_to_tf(v) for k, v in value.items()})
+
+
+@jax_to_tf.register(abc.Iterable)
+def _jax_iterable_to_tf(
+    value: Iterable[Union[DeviceArray, Any]]
+) -> Iterable[Union[tf.Tensor, Any]]:
+    """Converts an Iterable from Jax DeviceArrays to an iterable of TensorFlow Tensors."""
+    return type(value)(jax_to_tf(v) for v in value)
 
 
 class JaxToTFV0(Wrapper):

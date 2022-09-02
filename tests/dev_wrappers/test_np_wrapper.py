@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import gym
-from gym.dev_wrappers.numpy_wrapper import jax_to_numpy, numpy_to_jax
+from gym.dev_wrappers.to_numpy import jax_to_numpy, numpy_to_jax
 from gym.wrappers import JaxToNumpyV0
 
 

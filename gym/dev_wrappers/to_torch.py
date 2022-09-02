@@ -9,7 +9,7 @@
 """Helper functions and wrapper class for converting between PyTorch and Jax."""
 import functools
 from collections import abc
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Mapping, Optional, Tuple, Union
 
 from jax._src import dlpack as jax_dlpack
 from jax.interpreters.xla import DeviceArray
@@ -30,7 +30,9 @@ Device = Union[str, torch.device]
 @functools.singledispatch
 def torch_to_jax(value: Any) -> Any:
     """Converts a PyTorch Tensor into a Jax DeviceArray."""
-    return value
+    raise Exception(
+        f"No conversion for PyTorch to Jax registered for type: {type(value)}"
+    )
 
 
 @torch_to_jax.register(torch.Tensor)
@@ -42,17 +44,27 @@ def _torch_to_jax(value: torch.Tensor) -> DeviceArray:
 
 
 @torch_to_jax.register(abc.Mapping)
-def _torch_dict_to_jax(
-    value: Dict[str, Union[torch.Tensor, Any]]
-) -> Dict[str, Union[DeviceArray, Any]]:
-    """Converts a dictionary of PyTorch Tensors into a Dictionary of Jax DeviceArrays."""
+def _torch_mapping_to_jax(
+    value: Mapping[str, Union[torch.Tensor, Any]]
+) -> Mapping[str, Union[DeviceArray, Any]]:
+    """Converts a mapping of PyTorch Tensors into a Dictionary of Jax DeviceArrays."""
     return type(value)(**{k: torch_to_jax(v) for k, v in value.items()})
+
+
+@torch_to_jax.register(abc.Iterable)
+def _torch_iterable_to_jax(
+    value: Iterable[Union[torch.Tensor, Any]]
+) -> Iterable[Union[DeviceArray, Any]]:
+    """Converts an Iterable from PyTorch Tensors to an iterable of Jax DeviceArrays."""
+    return type(value)(torch_to_jax(v) for v in value)
 
 
 @functools.singledispatch
 def jax_to_torch(value: Any, device: Device = None) -> Any:
     """Converts a Jax DeviceArray into a PyTorch Tensor."""
-    return value
+    raise Exception(
+        f"No conversion for Jax to PyTorch registered for type: {type(value)}"
+    )
 
 
 @jax_to_torch.register(DeviceArray)
@@ -67,11 +79,19 @@ def _jax_to_torch(value: DeviceArray, device: Device = None) -> torch.Tensor:
 
 
 @jax_to_torch.register(abc.Mapping)
-def _jax_dict_to_torch(
-    value: Dict[str, Union[DeviceArray, Any]], device: Device = None
-) -> Dict[str, Union[torch.Tensor, Any]]:
-    """Converts a dictionary of Jax DeviceArrays into a Dictionary of PyTorch Tensors."""
+def _jax_mapping_to_torch(
+    value: Mapping[str, Union[DeviceArray, Any]], device: Device = None
+) -> Mapping[str, Union[torch.Tensor, Any]]:
+    """Converts a mapping of Jax DeviceArrays into a Dictionary of PyTorch Tensors."""
     return type(value)(**{k: jax_to_torch(v, device) for k, v in value.items()})
+
+
+@jax_to_torch.register(abc.Iterable)
+def _jax_iterable_to_torch(
+    value: Iterable[Union[torch.Tensor, Any]]
+) -> Iterable[Union[DeviceArray, Any]]:
+    """Converts an Iterable from Jax DeviceArrays to an iterable of PyTorch Tensors."""
+    return type(value)(jax_to_torch(v) for v in value)
 
 
 class JaxToTorchV0(Wrapper):
