@@ -1,6 +1,7 @@
 """Tests that gym.make works as expected."""
 
 import re
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -8,11 +9,18 @@ import pytest
 
 import gym
 from gym.envs.classic_control import cartpole
-from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    HumanRendering,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
+from tests.testing_env import GenericTestEnv, old_step_fn
 from tests.wrappers.utils import has_wrapper
 
 gym.register(
@@ -52,13 +60,14 @@ def test_make():
 
 
 def test_make_deprecated():
-    with pytest.raises(
-        gym.error.Error,
-        match=re.escape(
-            "Environment version v0 for `Humanoid` is deprecated. Please use `Humanoid-v4` instead."
-        ),
-    ):
-        gym.make("Humanoid-v0", disable_env_checker=True)
+    with warnings.catch_warnings(record=True):
+        with pytest.raises(
+            gym.error.Error,
+            match=re.escape(
+                "Environment version v0 for `Humanoid` is deprecated. Please use `Humanoid-v4` instead."
+            ),
+        ):
+            gym.make("Humanoid-v0", disable_env_checker=True)
 
 
 def test_make_max_episode_steps():
@@ -129,11 +138,44 @@ def test_make_disable_env_checker():
     env.close()
 
 
+def test_apply_step_compatibility():
+    gym.register(
+        "testing-old-env",
+        lambda: GenericTestEnv(step_fn=old_step_fn),
+        apply_step_compatibility=True,
+        max_episode_steps=3,
+    )
+    env = gym.make("testing-old-env")
+    assert has_wrapper(env, StepAPICompatibility)
+
+    env.reset()
+    assert len(env.step(env.action_space.sample())) == 5
+    env.step(env.action_space.sample())
+    _, _, termination, truncation, _ = env.step(env.action_space.sample())
+    assert termination is False and truncation is True
+
+    gym.spec("testing-old-env").apply_step_compatibility = False
+    env = gym.make("testing-old-env")
+    assert has_wrapper(env, StepAPICompatibility) is False
+    # Cannot run reset and step as will not work
+
+    env = gym.make("testing-old-env", apply_step_compatibility=True)
+    assert has_wrapper(env, StepAPICompatibility)
+
+    env.reset()
+    assert len(env.step(env.action_space.sample())) == 5
+    env.step(env.action_space.sample())
+    _, _, termination, truncation, _ = env.step(env.action_space.sample())
+    assert termination is False and truncation is True
+
+    gym.envs.registry.pop("testing-old-env")
+
+
 @pytest.mark.parametrize(
     "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
 def test_passive_checker_wrapper_warnings(spec):
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = gym.make(spec)  # disable_env_checker=False
         env.reset()
         env.step(env.action_space.sample())
@@ -141,7 +183,7 @@ def test_passive_checker_wrapper_warnings(spec):
 
         env.close()
 
-    for warning in warnings.list:
+    for warning in caught_warnings:
         if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
@@ -173,8 +215,10 @@ def test_make_render_mode():
     env.close()
 
     # Make sure that render_mode is applied correctly
-    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
-    assert env.render_mode == "rgb_array"
+    env = gym.make(
+        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
+    assert env.render_mode == "rgb_array_list"
     env.reset()
     renders = env.render()
     assert isinstance(
@@ -189,16 +233,15 @@ def test_make_render_mode():
     env.close()
 
     assert len(valid_render_modes) > 0
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings(record=True) as caught_warnings:
         env = gym.make(
             "CartPole-v1", render_mode=valid_render_modes[0], disable_env_checker=True
         )
         assert env.render_mode == valid_render_modes[0]
         env.close()
 
-    for warning in warnings.list:
-        if not re.compile(".*step API.*").match(warning.message.args[0]):
-            raise gym.error.Error(f"Unexpected warning: {warning.message}")
+    for warning in caught_warnings:
+        raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
     env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)
@@ -207,7 +250,7 @@ def test_make_render_mode():
     env.close()
 
     with pytest.warns(
-        Warning,
+        UserWarning,
         match=re.escape(
             "You are trying to use 'human' rendering for an environment that doesn't natively support it. The HumanRendering wrapper is being applied to your environment."
         ),
@@ -224,17 +267,22 @@ def test_make_render_mode():
         TypeError, match=re.escape("got an unexpected keyword argument 'render_mode'")
     ):
         gym.make(
-            "test/NoHumanOldAPI-v0", render_mode="rgb_array", disable_env_checker=True
+            "test/NoHumanOldAPI-v0",
+            render_mode="rgb_array_list",
+            disable_env_checker=True,
         )
 
     # Make sure that an additional error is thrown a user tries to use the wrapper on an environment with old API
-    with pytest.raises(
-        gym.error.Error,
-        match=re.escape(
-            "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
-        ),
-    ):
-        gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
+    with warnings.catch_warnings(record=True):
+        with pytest.raises(
+            gym.error.Error,
+            match=re.escape(
+                "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
+            ),
+        ):
+            gym.make(
+                "test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True
+            )
 
     # This test ensures that the additional exception "Gym tried to apply the HumanRendering wrapper but it looks like
     # your environment is using the old rendering API" is *not* triggered by a TypeError that originate from

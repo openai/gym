@@ -137,7 +137,7 @@ class AcrobotEnv(core.Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "rgb_array_list"],
         "render_fps": 15,
     }
 
@@ -297,7 +297,7 @@ class AcrobotEnv(core.Env):
                 self.screen = pygame.display.set_mode(
                     (self.SCREEN_DIM, self.SCREEN_DIM)
                 )
-            else:  # mode in {"rgb_array", "single_rgb_array"}
+            else:  # mode in {"rgb_array", "rgb_array_list"}
                 self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -358,7 +358,7 @@ class AcrobotEnv(core.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        elif mode in {"rgb_array", "single_rgb_array"}:
+        elif mode in {"rgb_array", "rgb_array_list"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )

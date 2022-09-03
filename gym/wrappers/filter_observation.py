@@ -35,7 +35,7 @@ class FilterObservation(gym.ObservationWrapper):
             ValueError: If the environment's observation space is not :class:`spaces.Dict`
             ValueError: If any of the `filter_keys` are not included in the original `env`'s observation space
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
 
         wrapped_observation_space = env.observation_space
         if not isinstance(wrapped_observation_space, spaces.Dict):

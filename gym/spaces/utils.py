@@ -21,6 +21,7 @@ from gym.spaces import (
     MultiDiscrete,
     Sequence,
     Space,
+    Text,
     Tuple,
 )
 
@@ -93,6 +94,11 @@ def _flatdim_graph(space: Graph):
     raise ValueError(
         "Cannot get flattened size as the Graph Space in Gym has a dynamic size."
     )
+
+
+@flatdim.register(Text)
+def _flatdim_text(space: Text) -> int:
+    return space.max_length
 
 
 T = TypeVar("T")
@@ -191,6 +197,16 @@ def _flatten_graph(space, x) -> GraphInstance:
     edges = _graph_unflatten(space.edge_space, x.edges)
 
     return GraphInstance(nodes, edges, x.edge_links)
+
+
+@flatten.register(Text)
+def _flatten_text(space: Text, x: str) -> np.ndarray:
+    arr = np.full(
+        shape=(space.max_length,), fill_value=len(space.character_set), dtype=np.int32
+    )
+    for i, val in enumerate(x):
+        arr[i] = space.character_index(val)
+    return arr
 
 
 @flatten.register(Sequence)
@@ -296,6 +312,13 @@ def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
     edges = _graph_unflatten(space.edge_space, x.edges)
 
     return GraphInstance(nodes, edges, x.edge_links)
+
+
+@unflatten.register(Text)
+def _unflatten_text(space: Text, x: np.ndarray) -> str:
+    return "".join(
+        [space.character_list[val] for val in x if val < len(space.character_set)]
+    )
 
 
 @unflatten.register(Sequence)
@@ -412,6 +435,13 @@ def _flatten_space_graph(space: Graph) -> Graph:
         edge_space=flatten_space(space.edge_space)
         if space.edge_space is not None
         else None,
+    )
+
+
+@flatten_space.register(Text)
+def _flatten_space_text(space: Text) -> Box:
+    return Box(
+        low=0, high=len(space.character_set), shape=(space.max_length,), dtype=np.int32
     )
 
 

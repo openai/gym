@@ -1,3 +1,4 @@
+import re
 from multiprocessing import TimeoutError
 
 import numpy as np
@@ -68,7 +69,7 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
         actions = [env.single_action_space.sample() for _ in range(8)]
     else:
         actions = env.action_space.sample()
-    observations, rewards, dones, _ = env.step(actions)
+    observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 
@@ -83,15 +84,22 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
     assert rewards.ndim == 1
     assert rewards.size == 8
 
-    assert isinstance(dones, np.ndarray)
-    assert dones.dtype == np.bool_
-    assert dones.ndim == 1
-    assert dones.size == 8
+    assert isinstance(terminateds, np.ndarray)
+    assert terminateds.dtype == np.bool_
+    assert terminateds.ndim == 1
+    assert terminateds.size == 8
+
+    assert isinstance(truncateds, np.ndarray)
+    assert truncateds.dtype == np.bool_
+    assert truncateds.ndim == 1
+    assert truncateds.size == 8
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_call_async_vector_env(shared_memory):
-    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
+    env_fns = [
+        make_env("CartPole-v1", i, render_mode="rgb_array_list") for i in range(4)
+    ]
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
     _ = env.reset()
@@ -169,67 +177,79 @@ def test_step_timeout_async_vector_env(shared_memory):
     with pytest.raises(TimeoutError):
         env.reset()
         env.step_async(np.array([0.1, 0.1, 0.3, 0.1]))
-        observations, rewards, dones, _ = env.step_wait(timeout=0.1)
+        observations, rewards, terminateds, truncateds, _ = env.step_wait(timeout=0.1)
     env.close(terminate=True)
 
 
-@pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_reset_out_of_order_async_vector_env(shared_memory):
     env_fns = [make_env("CartPole-v1", i) for i in range(4)]
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    with pytest.raises(NoAsyncCallError):
-        try:
-            env.reset_wait()
-        except NoAsyncCallError as exception:
-            assert exception.name == "reset"
-            raise
+    with pytest.raises(
+        NoAsyncCallError,
+        match=re.escape(
+            "Calling `reset_wait` without any prior call to `reset_async`."
+        ),
+    ):
+        env.reset_wait()
 
     env.close(terminate=True)
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    with pytest.raises(AlreadyPendingCallError):
-        try:
-            actions = env.action_space.sample()
-            env.reset()
-            env.step_async(actions)
-            env.reset_async()
-        except NoAsyncCallError as exception:
-            assert exception.name == "step"
-            raise
+    with pytest.raises(
+        AlreadyPendingCallError,
+        match=re.escape(
+            "Calling `reset_async` while waiting for a pending call to `step` to complete"
+        ),
+    ):
+        actions = env.action_space.sample()
+        env.reset()
+        env.step_async(actions)
+        env.reset_async()
 
-    env.close(terminate=True)
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "Calling `close` while waiting for a pending call to `step` to complete."
+        ),
+    ):
+        env.close(terminate=True)
 
 
-@pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_step_out_of_order_async_vector_env(shared_memory):
     env_fns = [make_env("CartPole-v1", i) for i in range(4)]
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    with pytest.raises(NoAsyncCallError):
-        try:
-            env.action_space.sample()
-            env.reset()
-            env.step_wait()
-        except AlreadyPendingCallError as exception:
-            assert exception.name == "step"
-            raise
+    with pytest.raises(
+        NoAsyncCallError,
+        match=re.escape("Calling `step_wait` without any prior call to `step_async`."),
+    ):
+        env.action_space.sample()
+        env.reset()
+        env.step_wait()
 
     env.close(terminate=True)
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    with pytest.raises(AlreadyPendingCallError):
-        try:
-            actions = env.action_space.sample()
-            env.reset_async()
-            env.step_async(actions)
-        except AlreadyPendingCallError as exception:
-            assert exception.name == "reset"
-            raise
+    with pytest.raises(
+        AlreadyPendingCallError,
+        match=re.escape(
+            "Calling `step_async` while waiting for a pending call to `reset` to complete"
+        ),
+    ):
+        actions = env.action_space.sample()
+        env.reset_async()
+        env.step_async(actions)
 
-    env.close(terminate=True)
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "Calling `close` while waiting for a pending call to `reset` to complete."
+        ),
+    ):
+        env.close(terminate=True)
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
@@ -262,7 +282,7 @@ def test_custom_space_async_vector_env():
     assert isinstance(env.action_space, Tuple)
 
     actions = ("action-2", "action-3", "action-5", "action-7")
-    step_observations, rewards, dones, _ = env.step(actions)
+    step_observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 

@@ -24,13 +24,13 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
     Example:
         >>> import gym
-        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="single_rgb_array"))
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="rgb_array"))
         >>> obs = env.reset()
         >>> obs.keys()
         odict_keys(['pixels'])
         >>> obs['pixels'].shape
         (400, 600, 3)
-        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="single_rgb_array"), pixels_only=False)
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="rgb_array"), pixels_only=False)
         >>> obs = env.reset()
         >>> obs.keys()
         odict_keys(['state', 'pixels'])
@@ -38,7 +38,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         (96, 96, 3)
         >>> obs['pixels'].shape
         (400, 600, 3)
-        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="single_rgb_array"), pixel_keys=('obs',))
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1', render_mode="rgb_array"), pixel_keys=('obs',))
         >>> obs = env.reset()
         >>> obs.keys()
         odict_keys(['obs'])
@@ -77,7 +77,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 specified ``pixel_keys``.
             TypeError: When an unexpected pixel type is used
         """
-        super().__init__(env, new_step_api=True)
+        super().__init__(env)
 
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)
@@ -95,10 +95,10 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         default_render_kwargs = {}
         if not env.render_mode:
-            default_render_kwargs = {"mode": "rgb_array"}
+            default_render_kwargs = {"mode": "rgb_array_list"}
             logger.warn(
                 "env.render_mode must be specified to use PixelObservationWrapper:"
-                "`gym.make(env_name, render_mode='single_rgb_array')`."
+                "`gym.make(env_name, render_mode='rgb_array')`."
             )
 
         for key in pixel_keys:

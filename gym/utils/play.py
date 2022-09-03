@@ -27,7 +27,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     logger.warn("Matplotlib is not installed, run `pip install gym[other]`")
-    plt = None
+    matplotlib, plt = None, None
 
 
 class MissingKeysToAction(Exception):
@@ -50,9 +50,9 @@ class PlayableGame:
             keys_to_action: The dictionary of keyboard tuples and action value
             zoom: If to zoom in on the environment render
         """
-        if env.render_mode not in {"rgb_array", "single_rgb_array"}:
+        if env.render_mode not in {"rgb_array", "rgb_array_list"}:
             logger.error(
-                "PlayableGame wrapper works only with rgb_array and single_rgb_array render modes, "
+                "PlayableGame wrapper works only with rgb_array and rgb_array_list render modes, "
                 f"but your environment render_mode = {env.render_mode}."
             )
 
@@ -85,10 +85,10 @@ class PlayableGame:
         if isinstance(rendered, List):
             rendered = rendered[-1]
         assert rendered is not None and isinstance(rendered, np.ndarray)
-        video_size = [rendered.shape[1], rendered.shape[0]]
+        video_size = (rendered.shape[1], rendered.shape[0])
 
         if zoom is not None:
-            video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+            video_size = (int(video_size[0] * zoom), int(video_size[1] * zoom))
 
         return video_size
 
@@ -150,7 +150,7 @@ def play(
 
         >>> import gym
         >>> from gym.utils.play import play
-        >>> play(gym.make("CarRacing-v1", render_mode="single_rgb_array"), keys_to_action={
+        >>> play(gym.make("CarRacing-v1", render_mode="rgb_array"), keys_to_action={
         ...                                                "w": np.array([0, 0.7, 0]),
         ...                                                "a": np.array([-1, 0, 0]),
         ...                                                "s": np.array([0, 0, 1]),
@@ -170,7 +170,7 @@ def play(
     :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
     for last 150 steps.
 
-        >>> def callback(obs_t, obs_tp1, action, rew, done, info):
+        >>> def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         ...        return [rew,]
         >>> plotter = PlayPlot(callback, 150, ["reward"])
         >>> play(gym.make("ALE/AirRaid-v5"), callback=plotter.callback)
@@ -187,7 +187,8 @@ def play(
                 obs_tp1: observation after performing action
                 action: action that was executed
                 rew: reward that was received
-                done: whether the environment is done or not
+                terminated: whether the environment is terminated or not
+                truncated: whether the environment is truncated or not
                 info: debug info
         keys_to_action:  Mapping from keys pressed to action performed.
             Different formats are supported: Key combinations can either be expressed as a tuple of unicode code
@@ -216,15 +217,6 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
-    deprecation(
-        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
-    )
-    if env.render_mode not in {"rgb_array", "single_rgb_array"}:
-        logger.error(
-            "play method works only with rgb_array and single_rgb_array render modes, "
-            f"but your environment render_mode = {env.render_mode}."
-        )
-
     env.reset(seed=seed)
 
     if keys_to_action is None:
@@ -261,9 +253,10 @@ def play(
         else:
             action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
-            obs, rew, done, info = env.step(action)
+            obs, rew, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
             if callback is not None:
-                callback(prev_obs, obs, action, rew, done, info)
+                callback(prev_obs, obs, action, rew, terminated, truncated, info)
         if obs is not None:
             rendered = env.render()
             if isinstance(rendered, List):
@@ -290,13 +283,14 @@ class PlayPlot:
         - obs_tp1: observation after performing action
         - action: action that was executed
         - rew: reward that was received
-        - done: whether the environment is done or not
+        - terminated: whether the environment is terminated or not
+        - truncated: whether the environment is truncated or not
         - info: debug info
 
     It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
 
-        >>> def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+        >>> def compute_metrics(obs_t, obs_tp, action, reward, terminated, truncated, info):
         ...     return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function
@@ -353,7 +347,8 @@ class PlayPlot:
         obs_tp1: ObsType,
         action: ActType,
         rew: float,
-        done: bool,
+        terminated: bool,
+        truncated: bool,
         info: dict,
     ):
         """The callback that calls the provided data callback and adds the data to the plots.
@@ -363,10 +358,13 @@ class PlayPlot:
             obs_tp1: The observation at time step t+1
             action: The action
             rew: The reward
-            done: If the environment is done
+            terminated: If the environment is terminated
+            truncated: If the environment is truncated
             info: The information from the environment
         """
-        points = self.data_callback(obs_t, obs_tp1, action, rew, done, info)
+        points = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
+        )
         for point, data_series in zip(points, self.data):
             data_series.append(point)
         self.t += 1

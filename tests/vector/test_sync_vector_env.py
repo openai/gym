@@ -50,7 +50,7 @@ def test_step_sync_vector_env(use_single_action_space):
         actions = [env.single_action_space.sample() for _ in range(8)]
     else:
         actions = env.action_space.sample()
-    observations, rewards, dones, _ = env.step(actions)
+    observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 
@@ -65,14 +65,21 @@ def test_step_sync_vector_env(use_single_action_space):
     assert rewards.ndim == 1
     assert rewards.size == 8
 
-    assert isinstance(dones, np.ndarray)
-    assert dones.dtype == np.bool_
-    assert dones.ndim == 1
-    assert dones.size == 8
+    assert isinstance(terminateds, np.ndarray)
+    assert terminateds.dtype == np.bool_
+    assert terminateds.ndim == 1
+    assert terminateds.size == 8
+
+    assert isinstance(truncateds, np.ndarray)
+    assert truncateds.dtype == np.bool_
+    assert truncateds.ndim == 1
+    assert truncateds.size == 8
 
 
 def test_call_sync_vector_env():
-    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
+    env_fns = [
+        make_env("CartPole-v1", i, render_mode="rgb_array_list") for i in range(4)
+    ]
 
     env = SyncVectorEnv(env_fns)
     _ = env.reset()
@@ -125,7 +132,7 @@ def test_custom_space_sync_vector_env():
     assert isinstance(env.action_space, Tuple)
 
     actions = ("action-2", "action-3", "action-5", "action-7")
-    step_observations, rewards, dones, _ = env.step(actions)
+    step_observations, rewards, terminateds, truncateds, _ = env.step(actions)
 
     env.close()
 

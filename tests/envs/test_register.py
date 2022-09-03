@@ -1,4 +1,4 @@
-"""Tests that gym.register works as expected."""
+"""Tests that `gym.register` works as expected."""
 import re
 from typing import Optional
 
@@ -63,7 +63,7 @@ def register_testing_envs():
 def test_register(
     env_id: str, namespace: Optional[str], name: str, version: Optional[int]
 ):
-    gym.register(env_id)
+    gym.register(env_id, "no-entry-point")
     assert gym.spec(env_id).id == env_id
 
     full_name = f"{name}"
@@ -87,7 +87,7 @@ def test_register(
 )
 def test_register_error(env_id):
     with pytest.raises(gym.error.Error, match=f"^Malformed environment ID: {env_id}"):
-        gym.register(env_id)
+        gym.register(env_id, "no-entry-point")
 
 
 @pytest.mark.parametrize(
@@ -143,7 +143,7 @@ def test_env_version_suggestions(
 def test_register_versioned_unversioned():
     # Register versioned then unversioned
     versioned_env = "Test/MyEnv-v0"
-    gym.register(versioned_env)
+    gym.register(versioned_env, "no-entry-point")
     assert gym.envs.spec(versioned_env).id == versioned_env
 
     unversioned_env = "Test/MyEnv"
@@ -153,13 +153,13 @@ def test_register_versioned_unversioned():
             "Can't register the unversioned environment `Test/MyEnv` when the versioned environment `Test/MyEnv-v0` of the same name already exists"
         ),
     ):
-        gym.register(unversioned_env)
+        gym.register(unversioned_env, "no-entry-point")
 
     # Clean everything
     del gym.envs.registry[versioned_env]
 
     # Register unversioned then versioned
-    gym.register(unversioned_env)
+    gym.register(unversioned_env, "no-entry-point")
     assert gym.envs.spec(unversioned_env).id == unversioned_env
     with pytest.raises(
         gym.error.RegistrationError,
@@ -167,7 +167,7 @@ def test_register_versioned_unversioned():
             "Can't register the versioned environment `Test/MyEnv-v0` when the unversioned environment `Test/MyEnv` of the same name already exists."
         ),
     ):
-        gym.register(versioned_env)
+        gym.register(versioned_env, "no-entry-point")
 
     # Clean everything
     del gym.envs.registry[unversioned_env]
@@ -189,8 +189,8 @@ def test_make_latest_versioned_env(register_testing_envs):
 def test_namespace():
     # Check if the namespace context manager works
     with gym.envs.registration.namespace("MyDefaultNamespace"):
-        gym.register("MyDefaultEnvironment-v0")
-    gym.register("MyDefaultEnvironment-v1")
+        gym.register("MyDefaultEnvironment-v0", "no-entry-point")
+    gym.register("MyDefaultEnvironment-v1", "no-entry-point")
     assert "MyDefaultNamespace/MyDefaultEnvironment-v0" in gym.envs.registry
     assert "MyDefaultEnvironment-v1" in gym.envs.registry
 

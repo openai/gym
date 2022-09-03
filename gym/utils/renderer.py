@@ -5,7 +5,7 @@ from typing import Any, Callable, List, Optional, Set
 NO_RETURNS_RENDER = {"human"}
 
 # list of modes with which render returns just a single frame of the current state
-SINGLE_RENDER = {"single_rgb_array", "single_depth_array", "single_state_pixels"}
+SINGLE_RENDER = {"rgb_array", "depth_array", "state_pixels", "ansi"}
 
 
 class Renderer:
@@ -36,7 +36,7 @@ class Renderer:
             no_returns_render (Optional[Set[str]]): Set of render modes that don't return any value.
                 The default value is the set {"human"}.
             single_render (Optional[Set[str]]): Set of render modes that should return a single frame.
-                The default value is the set {"single_rgb_array", "single_depth_array", "single_state_pixels"}.
+                The default value is the set {"rgb_array", "depth_array", "state_pixels", "ansi"}.
         """
         if no_returns_render is None:
             no_returns_render = NO_RETURNS_RENDER

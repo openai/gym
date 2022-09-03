@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from functools import partial
 from itertools import product
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 import pygame
@@ -10,31 +10,18 @@ from pygame.event import Event
 
 import gym
 from gym.utils.play import MissingKeysToAction, PlayableGame, play
+from tests.testing_env import GenericTestEnv
 
 RELEVANT_KEY_1 = ord("a")  # 97
 RELEVANT_KEY_2 = ord("d")  # 100
 IRRELEVANT_KEY = 1
 
 
-@dataclass
-class DummyEnvSpec:
-    id: str
-
-
-class DummyPlayEnv(gym.Env):
-    def __init__(self, render_mode: Optional[str] = None):
-        self.render_mode = render_mode
-
-    def step(self, action):
-        obs = np.zeros((1, 1))
-        rew, done, info = 1, False, {}
-        return obs, rew, done, info
-
-    def reset(self, seed=None):
-        ...
-
-    def render(self):
-        return np.zeros((1, 1))
+PlayableEnv = partial(
+    GenericTestEnv,
+    metadata={"render_modes": ["rgb_array"]},
+    render_fn=lambda self: np.ones((10, 10, 3)),
+)
 
 
 class KeysToActionWrapper(gym.Wrapper):
@@ -52,9 +39,9 @@ class PlayStatus:
         self.cumulative_reward = 0
         self.last_observation = None
 
-    def callback(self, obs_t, obs_tp1, action, rew, done, info):
-        _, obs_tp1, _, rew, _, _ = self.data_callback(
-            obs_t, obs_tp1, action, rew, done, info
+    def callback(self, obs_t, obs_tp1, action, rew, terminated, truncated, info):
+        _, obs_tp1, _, rew, _, _, _ = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
         )
         self.cumulative_reward += rew
         self.last_observation = obs_tp1
@@ -76,14 +63,13 @@ def close_pygame():
 
 
 def test_play_relevant_keys():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     assert game.relevant_keys == {RELEVANT_KEY_1, RELEVANT_KEY_2}
 
 
 def test_play_relevant_keys_no_mapping():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
-    env.spec = DummyEnvSpec("DummyPlayEnv")
+    env = PlayableEnv(render_mode="rgb_array")
 
     with pytest.raises(MissingKeysToAction):
         PlayableGame(env)
@@ -91,27 +77,27 @@ def test_play_relevant_keys_no_mapping():
 
 def test_play_relevant_keys_with_env_attribute():
     """Env has a keys_to_action attribute"""
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     env.get_keys_to_action = dummy_keys_to_action
     game = PlayableGame(env)
     assert game.relevant_keys == {RELEVANT_KEY_1, RELEVANT_KEY_2}
 
 
 def test_video_size_no_zoom():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
-    assert game.video_size == list(env.render().shape)
+    assert game.video_size == env.render().shape[:2]
 
 
 def test_video_size_zoom():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     zoom = 2.2
     game = PlayableGame(env, dummy_keys_to_action(), zoom)
-    assert game.video_size == tuple(int(shape * zoom) for shape in env.render().shape)
+    assert game.video_size == tuple(int(dim * zoom) for dim in env.render().shape[:2])
 
 
 def test_keyboard_quit_event():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.KEYDOWN, {"key": pygame.K_ESCAPE})
     assert game.running is True
@@ -120,7 +106,7 @@ def test_keyboard_quit_event():
 
 
 def test_pygame_quit_event():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.QUIT)
     assert game.running is True
@@ -129,7 +115,7 @@ def test_pygame_quit_event():
 
 
 def test_keyboard_relevant_keydown_event():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.KEYDOWN, {"key": RELEVANT_KEY_1})
     game.process_event(event)
@@ -137,7 +123,7 @@ def test_keyboard_relevant_keydown_event():
 
 
 def test_keyboard_irrelevant_keydown_event():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.KEYDOWN, {"key": IRRELEVANT_KEY})
     game.process_event(event)
@@ -145,7 +131,7 @@ def test_keyboard_irrelevant_keydown_event():
 
 
 def test_keyboard_keyup_event():
-    env = DummyPlayEnv(render_mode="single_rgb_array")
+    env = PlayableEnv(render_mode="rgb_array")
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.KEYDOWN, {"key": RELEVANT_KEY_1})
     game.process_event(event)
@@ -177,7 +163,7 @@ def test_play_loop_real_env():
         ]
         keydown_events = [k for k in callback_events if k.type == KEYDOWN]
 
-        def callback(obs_t, obs_tp1, action, rew, done, info):
+        def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
             pygame_event = callback_events.pop(0)
             event.post(pygame_event)
 
@@ -187,9 +173,9 @@ def test_play_loop_real_env():
                 pygame_event = callback_events.pop(0)
                 event.post(pygame_event)
 
-            return obs_t, obs_tp1, action, rew, done, info
+            return obs_t, obs_tp1, action, rew, terminated, truncated, info
 
-        env = gym.make(ENV, render_mode="single_rgb_array", disable_env_checker=True)
+        env = gym.make(ENV, render_mode="rgb_array", disable_env_checker=True)
         env.reset(seed=SEED)
         keys_to_action = (
             dummy_keys_to_action_str() if str_keys else dummy_keys_to_action()
@@ -197,14 +183,12 @@ def test_play_loop_real_env():
 
         # first action is 0 because at the first iteration
         # we can not inject a callback event into play()
-        obs, _, _, _ = env.step(0)
+        obs, _, _, _, _ = env.step(0)
         for e in keydown_events:
             action = keys_to_action[chr(e.key) if str_keys else (e.key,)]
-            obs, _, _, _ = env.step(action)
+            obs, _, _, _, _ = env.step(action)
 
-        env_play = gym.make(
-            ENV, render_mode="single_rgb_array", disable_env_checker=True
-        )
+        env_play = gym.make(ENV, render_mode="rgb_array", disable_env_checker=True)
         if apply_wrapper:
             env_play = KeysToActionWrapper(env, keys_to_action=keys_to_action)
             assert hasattr(env_play, "get_keys_to_action")

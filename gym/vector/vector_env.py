@@ -4,7 +4,6 @@ from typing import Any, List, Optional, Tuple, Union
 import numpy as np
 
 import gym
-from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
 
 __all__ = ["VectorEnv"]
@@ -28,7 +27,6 @@ class VectorEnv(gym.Env):
         num_envs: int,
         observation_space: gym.Space,
         action_space: gym.Space,
-        new_step_api: bool = False,
     ):
         """Base class for vectorized environments.
 
@@ -36,7 +34,6 @@ class VectorEnv(gym.Env):
             num_envs: Number of environments in the vectorized environment.
             observation_space: Observation space of a single environment.
             action_space: Action space of a single environment.
-            new_step_api (bool): Whether the vector environment's step method outputs two boolean arrays (new API) or one boolean array (old API)
         """
         self.num_envs = num_envs
         self.is_vector_env = True
@@ -50,12 +47,6 @@ class VectorEnv(gym.Env):
         # kept in separate properties
         self.single_observation_space = observation_space
         self.single_action_space = action_space
-
-        self.new_step_api = new_step_api
-        if not self.new_step_api:
-            deprecation(
-                "Initializing vector env in old step API which returns one bool array instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
-            )
 
     def reset_async(
         self,

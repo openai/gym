@@ -1,7 +1,10 @@
 """Implementation of StepAPICompatibility wrapper class for transforming envs between new and old step API."""
 import gym
 from gym.logger import deprecation
-from gym.utils.step_api_compatibility import step_to_new_api, step_to_old_api
+from gym.utils.step_api_compatibility import (
+    convert_to_done_step_api,
+    convert_to_terminated_truncated_step_api,
+)
 
 
 class StepAPICompatibility(gym.Wrapper):
@@ -11,37 +14,36 @@ class StepAPICompatibility(gym.Wrapper):
     New step API refers to step() method returning (observation, reward, terminated, truncated, info)
     (Refer to docs for details on the API change)
 
-    This wrapper is to be used to ease transition to new API and for backward compatibility.
-
     Args:
         env (gym.Env): the env to wrap. Can be in old or new API
-        new_step_api (bool): True to use env with new step API, False to use env with old step API. (False by default)
+        apply_step_compatibility (bool): Apply to convert environment to use new step API that returns two bools. (False by default)
 
     Examples:
         >>> env = gym.make("CartPole-v1")
-        >>> env # wrapper applied by default, set to old API
-        <TimeLimit<OrderEnforcing<StepAPICompatibility<CartPoleEnv<CartPole-v1>>>>>
-        >>> env = gym.make("CartPole-v1", new_step_api=True) # set to new API
-        >>> env = StepAPICompatibility(CustomEnv(), new_step_api=True) # manually using wrapper on unregistered envs
+        >>> env # wrapper not applied by default, set to new API
+        <TimeLimit<OrderEnforcing<PassiveEnvChecker<CartPoleEnv<CartPole-v1>>>>>
+        >>> env = gym.make("CartPole-v1", apply_step_compatibility=True) # set to old API
+        <StepAPICompatibility<TimeLimit<OrderEnforcing<PassiveEnvChecker<CartPoleEnv<CartPole-v1>>>>>>
+        >>> env = StepAPICompatibility(CustomEnv(), apply_step_compatibility=False) # manually using wrapper on unregistered envs
 
     """
 
-    def __init__(self, env: gym.Env, new_step_api=False):
+    def __init__(self, env: gym.Env, output_truncation_bool: bool = True):
         """A wrapper which can transform an environment from new step API to old and vice-versa.
 
         Args:
             env (gym.Env): the env to wrap. Can be in old or new API
-            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
+            output_truncation_bool (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env, new_step_api)
-        self.new_step_api = new_step_api
-        if not self.new_step_api:
+        super().__init__(env)
+        self.output_truncation_bool = output_truncation_bool
+        if not self.output_truncation_bool:
             deprecation(
-                "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
+                "Initializing environment in old step API which returns one bool instead of two."
             )
 
     def step(self, action):
-        """Steps through the environment, returning 5 or 4 items depending on `new_step_api`.
+        """Steps through the environment, returning 5 or 4 items depending on `apply_step_compatibility`.
 
         Args:
             action: action to step through the environment with
@@ -50,7 +52,7 @@ class StepAPICompatibility(gym.Wrapper):
             (observation, reward, terminated, truncated, info) or (observation, reward, done, info)
         """
         step_returns = self.env.step(action)
-        if self.new_step_api:
-            return step_to_new_api(step_returns)
+        if self.output_truncation_bool:
+            return convert_to_terminated_truncated_step_api(step_returns)
         else:
-            return step_to_old_api(step_returns)
+            return convert_to_done_step_api(step_returns)

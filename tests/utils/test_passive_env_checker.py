@@ -1,4 +1,5 @@
 import re
+import warnings
 from typing import Dict, Union
 
 import numpy as np
@@ -112,10 +113,10 @@ def test_check_observation_space(test, space, message: str):
         ):
             check_observation_space(space)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_observation_space(space)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 @pytest.mark.parametrize(
@@ -181,10 +182,10 @@ def test_check_action_space(
         ):
             check_action_space(space)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_action_space(space)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 @pytest.mark.parametrize(
@@ -236,10 +237,10 @@ def test_check_obs(test, obs, obs_space: spaces.Space, message: str):
         ):
             check_obs(obs, obs_space, "testing")
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 check_obs(obs, obs_space, "testing")
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 def _reset_no_seed(self, options=None):
@@ -304,12 +305,10 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
         ):
             env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
-        for warning in warnings:
-            print(warning)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0
 
 
 def _modified_step(
@@ -386,10 +385,10 @@ def test_passive_env_step_checker(
         ):
             env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
-        assert len(warnings) == 0, [warning for warning in warnings.list]
+        assert len(caught_warnings) == 0, caught_warnings
 
 
 @pytest.mark.parametrize(
@@ -397,24 +396,25 @@ def test_passive_env_step_checker(
     [
         [
             UserWarning,
-            GenericTestEnv(render_modes=None),
+            GenericTestEnv(metadata={"render_modes": None}),
             "No render modes was declared in the environment (env.metadata['render_modes'] is None or not defined), you may have trouble when calling `.render()`.",
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes="Testing mode"),
+            GenericTestEnv(metadata={"render_modes": "Testing mode"}),
             "Expects the render_modes to be a sequence (i.e. list, tuple), actual type: <class 'str'>",
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes=["Testing mode", 1], render_fps=1),
+            GenericTestEnv(
+                metadata={"render_modes": ["Testing mode", 1], "render_fps": 1},
+            ),
             "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>]",
         ],
         [
             UserWarning,
             GenericTestEnv(
-                render_modes=["Testing mode"],
-                render_fps=None,
+                metadata={"render_modes": ["Testing mode"], "render_fps": None},
                 render_mode="Testing mode",
                 render_fn=lambda self: 0,
             ),
@@ -422,18 +422,23 @@ def test_passive_env_step_checker(
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes=["Testing mode"], render_fps="fps"),
+            GenericTestEnv(
+                metadata={"render_modes": ["Testing mode"], "render_fps": "fps"}
+            ),
             "Expects the `env.metadata['render_fps']` to be an integer or a float, actual type: <class 'str'>",
         ],
         [
             AssertionError,
-            GenericTestEnv(render_modes=[], render_fps=30, render_mode="Test"),
+            GenericTestEnv(
+                metadata={"render_modes": [], "render_fps": 30}, render_mode="Test"
+            ),
             "With no render_modes, expects the Env.render_mode to be None, actual value: Test",
         ],
         [
             AssertionError,
             GenericTestEnv(
-                render_modes=["Testing mode"], render_fps=30, render_mode="Non mode"
+                metadata={"render_modes": ["Testing mode"], "render_fps": 30},
+                render_mode="Non mode",
             ),
             "The environment was initialized successfully however with an unsupported render mode. Render mode: Non mode, modes: ['Testing mode']",
         ],
@@ -447,7 +452,7 @@ def test_passive_render_checker(test, env: GenericTestEnv, message: str):
         ):
             env_render_passive_checker(env)
     else:
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
                 env_render_passive_checker(env)
-        assert len(warnings) == 0
+        assert len(caught_warnings) == 0

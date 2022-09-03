@@ -20,10 +20,10 @@ def test_spec_kwargs():
 
 
 def test_spec_missing_lookup():
-    gym.register(id="Test1-v0", entry_point=None)
-    gym.register(id="Test1-v15", entry_point=None)
-    gym.register(id="Test1-v9", entry_point=None)
-    gym.register(id="Other1-v100", entry_point=None)
+    gym.register(id="Test1-v0", entry_point="no-entry-point")
+    gym.register(id="Test1-v15", entry_point="no-entry-point")
+    gym.register(id="Test1-v9", entry_point="no-entry-point")
+    gym.register(id="Other1-v100", entry_point="no-entry-point")
 
     with pytest.raises(
         gym.error.DeprecatedEnv,
@@ -57,7 +57,7 @@ def test_spec_malformed_lookup():
 
 
 def test_spec_versioned_lookups():
-    gym.register("test/Test2-v5")
+    gym.register("test/Test2-v5", "no-entry-point")
 
     with pytest.raises(
         gym.error.VersionNotFound,
@@ -79,7 +79,7 @@ def test_spec_versioned_lookups():
 
 
 def test_spec_default_lookups():
-    gym.register("test/Test3")
+    gym.register("test/Test3", "no-entry-point")
 
     with pytest.raises(
         gym.error.DeprecatedEnv,
