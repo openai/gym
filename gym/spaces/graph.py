@@ -1,30 +1,26 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
-from collections import namedtuple
 from typing import NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
+from gym.logger import warn
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.space import Space
 
 
-class GraphInstance(namedtuple("GraphInstance", ["nodes", "edges", "edge_links"])):
-    r"""Returns a NamedTuple representing a graph object.
+class GraphInstance(NamedTuple):
+    """A Graph space instance.
 
-    Args:
-        nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
-        (...) must adhere to the shape of the node space.
-
-        edges (np.ndarray): an (m x ...) sized array representing the features for m edges.
-        (...) must adhere to the shape of the edge space.
-
-        edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
-
-    Returns:
-        A NamedTuple representing a graph with `.nodes`, `.edges`, and `.edge_links`.
+    * nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes, (...) must adhere to the shape of the node space.
+    * edges (Optional[np.ndarray]): an (m x ...) sized array representing the features for m nodes, (...) must adhere to the shape of the edge space.
+    * edge_links (Optional[np.ndarray]): an (m x 2) sized array of ints representing the two nodes that each edge connects.
     """
+
+    nodes: np.ndarray
+    edges: Optional[np.ndarray]
+    edge_links: Optional[np.ndarray]
 
 
 class Graph(Space):
@@ -89,7 +85,7 @@ class Graph(Space):
         elif isinstance(base_space, Discrete):
             return MultiDiscrete(nvec=[base_space.n] * num, seed=self.np_random)
         else:
-            raise AssertionError(
+            raise TypeError(
                 f"Expects base space to be Box and Discrete, actual space: {type(base_space)}."
             )
 
@@ -103,7 +99,7 @@ class Graph(Space):
         ] = None,
         num_nodes: int = 10,
         num_edges: Optional[int] = None,
-    ) -> NamedTuple:
+    ) -> GraphInstance:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Args:
@@ -132,12 +128,17 @@ class Graph(Space):
                 num_edges = self.np_random.integers(num_nodes * (num_nodes - 1))
             else:
                 num_edges = 0
+
             if edge_space_mask is not None:
                 edge_space_mask = tuple(edge_space_mask for _ in range(num_edges))
         else:
+            if self.edge_space is None:
+                warn(
+                    f"The number of edges is set ({num_edges}) but the edge space is None."
+                )
             assert (
                 num_edges >= 0
-            ), f"The number of edges is expected to be greater than 0, actual mask: {num_edges}"
+            ), f"Expects the number of edges to be greater than 0, actual value: {num_edges}"
         assert num_edges is not None
 
         sampled_node_space = self._generate_sample_space(self.node_space, num_nodes)
@@ -160,38 +161,31 @@ class Graph(Space):
         return GraphInstance(sampled_nodes, sampled_edges, sampled_edge_links)
 
     def contains(self, x: GraphInstance) -> bool:
-        """Return boolean specifying if x is a valid member of this space.
-
-        Returns False when:
-        - any node in nodes is not contained in Graph.node_space
-        - edge_links is not of dtype int
-        - len(edge_links) != len(edges)
-        - has edges but Graph.edge_space is None
-        - edge_links has index less than 0
-        - edge_links has index more than number of nodes
-        - any edge in edges is not contained in Graph.edge_space
-        """
-        if not isinstance(x, GraphInstance):
-            return False
-        if x.edges is not None:
-            if not np.issubdtype(x.edge_links.dtype, np.integer):
-                return False
-            if x.edge_links.shape[-1] != 2:
-                return False
-            if self.edge_space is None:
-                return False
-            if x.edge_links.min() < 0:
-                return False
-            if x.edge_links.max() >= len(x.nodes):
-                return False
-            if len(x.edges) != len(x.edge_links):
-                return False
-            if any(edge not in self.edge_space for edge in x.edges):
-                return False
-        if any(node not in self.node_space for node in x.nodes):
-            return False
-
-        return True
+        """Return boolean specifying if x is a valid member of this space."""
+        if isinstance(x, GraphInstance):
+            # Checks the nodes
+            if isinstance(x.nodes, np.ndarray):
+                if all(node in self.node_space for node in x.nodes):
+                    # Check the edges and edge links which are optional
+                    if isinstance(x.edges, np.ndarray) and isinstance(
+                        x.edge_links, np.ndarray
+                    ):
+                        assert x.edges is not None
+                        assert x.edge_links is not None
+                        if self.edge_space is not None:
+                            if all(edge in self.edge_space for edge in x.edges):
+                                if np.issubdtype(x.edge_links.dtype, np.integer):
+                                    if x.edge_links.shape == (len(x.edges), 2):
+                                        if np.all(
+                                            np.logical_and(
+                                                x.edge_links >= 0,
+                                                x.edge_links < len(x.nodes),
+                                            )
+                                        ):
+                                            return True
+                    else:
+                        return x.edges is None and x.edge_links is None
+        return False
 
     def __repr__(self) -> str:
         """A string representation of this space.

@@ -29,25 +29,25 @@ TESTING_SPACES_EXPECTED_FLATDIMS = [
     6,
     6,
     6,
-    # # Tuple
-    # 9,
-    # 7,
-    # 10,
-    # 6,
-    # None,
-    # # Dict
-    # 7,
-    # 8,
-    # 17,
-    # None,
-    # # Graph
-    # None,
-    # None,
-    # None,
-    # # Sequence
-    # None,
-    # None,
-    # None,
+    # Tuple
+    9,
+    7,
+    10,
+    6,
+    None,
+    # Dict
+    7,
+    8,
+    17,
+    None,
+    # Graph
+    None,
+    None,
+    None,
+    # Sequence
+    None,
+    None,
+    None,
 ]
 
 

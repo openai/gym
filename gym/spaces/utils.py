@@ -89,6 +89,13 @@ def _flatdim_dict(space: Dict) -> int:
     )
 
 
+@flatdim.register(Graph)
+def _flatdim_graph(space: Graph):
+    raise ValueError(
+        "Cannot get flattened size as the Graph Space in Gym has a dynamic size."
+    )
+
+
 @flatdim.register(Text)
 def _flatdim_text(space: Text) -> int:
     return space.max_length
@@ -157,11 +164,11 @@ def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
         return np.concatenate(
             [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
         )
-    return tuple((flatten(s, x_part) for x_part, s in zip(x, space.spaces)))
+    return tuple(flatten(s, x_part) for x_part, s in zip(x, space.spaces))
 
 
 @flatten.register(Dict)
-def _flatten_dict(space, x) -> Union[TypingDict, np.ndarray]:
+def _flatten_dict(space, x) -> Union[dict, np.ndarray]:
     if space.is_np_flattenable:
         return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
     return OrderedDict((key, flatten(s, x[key])) for key, s in space.spaces.items())
@@ -171,14 +178,19 @@ def _flatten_dict(space, x) -> Union[TypingDict, np.ndarray]:
 def _flatten_graph(space, x) -> GraphInstance:
     """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space, see `.flatten` docstring."""
 
-    def _graph_unflatten(space, x):
+    def _graph_unflatten(unflatten_space, unflatten_x):
         ret = None
-        if space is not None and x is not None:
-            if isinstance(space, Box):
-                ret = x.reshape(x.shape[0], -1)
-            elif isinstance(space, Discrete):
-                ret = np.zeros((x.shape[0], space.n - space.start), dtype=space.dtype)
-                ret[np.arange(x.shape[0]), x - space.start] = 1
+        if unflatten_space is not None and unflatten_x is not None:
+            if isinstance(unflatten_space, Box):
+                ret = unflatten_x.reshape(unflatten_x.shape[0], -1)
+            elif isinstance(unflatten_space, Discrete):
+                ret = np.zeros(
+                    (unflatten_x.shape[0], unflatten_space.n - unflatten_space.start),
+                    dtype=unflatten_space.dtype,
+                )
+                ret[
+                    np.arange(unflatten_x.shape[0]), unflatten_x - unflatten_space.start
+                ] = 1
         return ret
 
     nodes = _graph_unflatten(space.node_space, x.nodes)

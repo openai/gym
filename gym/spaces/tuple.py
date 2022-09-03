@@ -1,12 +1,16 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence as CollectionSequence
+from typing import Iterable, Optional
+from typing import Sequence as TypingSequence
+from typing import Tuple as TypingTuple
+from typing import Union
 
 import numpy as np
 
 from gym.spaces.space import Space
 
 
-class Tuple(Space[tuple], Sequence):
+class Tuple(Space[tuple], CollectionSequence):
     """A tuple (more precisely: the cartesian product) of :class:`Space` instances.
 
     Elements of this space are tuples of elements of the constituent spaces.
@@ -22,7 +26,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[Union[int, List[int], np.random.Generator]] = None,
+        seed: Optional[Union[int, TypingSequence[int], np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Tuple` space.
 
@@ -44,7 +48,9 @@ class Tuple(Space[tuple], Sequence):
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return all(space.is_np_flattenable for space in self.spaces)
 
-    def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
+    def seed(
+        self, seed: Optional[Union[int, TypingSequence[int]]] = None
+    ) -> TypingSequence[int]:
         """Seed the PRNG of this space and all subspaces.
 
         Depending on the type of seed, the subspaces will be seeded differently
@@ -57,25 +63,32 @@ class Tuple(Space[tuple], Sequence):
         """
         seeds = []
 
-        if isinstance(seed, list):
-            for i, space in enumerate(self.spaces):
-                seeds += space.seed(seed[i])
+        if isinstance(seed, CollectionSequence):
+            assert len(seed) == len(
+                self.spaces
+            ), f"Expects that the subspaces of seeds equals the number of subspaces. Actual length of seeds: {len(seeds)}, length of subspaces: {len(self.spaces)}"
+            for subseed, space in zip(seed, self.spaces):
+                seeds += space.seed(subseed)
         elif isinstance(seed, int):
             seeds = super().seed(seed)
             subseeds = self.np_random.integers(
                 np.iinfo(np.int32).max, size=len(self.spaces)
             )
             for subspace, subseed in zip(self.spaces, subseeds):
-                seeds.append(subspace.seed(int(subseed))[0])
+                seeds += subspace.seed(int(subseed))
         elif seed is None:
             for space in self.spaces:
                 seeds += space.seed(seed)
         else:
-            raise TypeError("Passed seed not of an expected type: list or int or None")
+            raise TypeError(
+                f"Expected seed type: list, tuple, int or None, actual type: {type(seed)}"
+            )
 
         return seeds
 
-    def sample(self, mask: Optional[Tuple[Optional[np.ndarray]]] = None) -> tuple:
+    def sample(
+        self, mask: Optional[TypingTuple[Optional[np.ndarray], ...]] = None
+    ) -> tuple:
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
@@ -116,7 +129,7 @@ class Tuple(Space[tuple], Sequence):
         """Gives a string representation of this space."""
         return "Tuple(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
-    def to_jsonable(self, sample_n: Sequence) -> list:
+    def to_jsonable(self, sample_n: CollectionSequence) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as list-repr of tuple of vectors
         return [
