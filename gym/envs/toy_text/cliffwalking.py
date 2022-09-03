@@ -62,7 +62,10 @@ class CliffWalkingEnv(Env):
     - v0: Initial version release
     """
 
-    metadata = {"render_modes": ["human", "rgb_array_list", "ansi"], "render_fps": 4}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "rgb_array_list", "ansi"],
+        "render_fps": 4,
+    }
 
     def __init__(self, render_mode: Optional[str] = None):
         self.shape = (4, 12)
