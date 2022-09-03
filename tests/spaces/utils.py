@@ -2,9 +2,18 @@ from typing import List
 
 import numpy as np
 
-from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space, Text
-from gym.spaces import Box, Dict, Discrete, Graph, Sequence, Space, Tuple
-
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    MultiBinary,
+    MultiDiscrete,
+    Sequence,
+    Space,
+    Text,
+    Tuple,
+)
 
 TESTING_FUNDAMENTAL_SPACES = [
     Discrete(3),
@@ -89,7 +98,6 @@ TESTING_COMPOSITE_SPACES = [
     Sequence(Graph(node_space=Box(-100, 100, shape=(2, 2)), edge_space=Discrete(4))),
 ]
 TESTING_COMPOSITE_SPACES_IDS = [f"{space}" for space in TESTING_COMPOSITE_SPACES]
-
 
 TESTING_SPACES: List[Space] = TESTING_FUNDAMENTAL_SPACES + TESTING_COMPOSITE_SPACES
 TESTING_SPACES_IDS = TESTING_FUNDAMENTAL_SPACES_IDS + TESTING_COMPOSITE_SPACES_IDS
