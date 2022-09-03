@@ -19,7 +19,7 @@ def test_sample():
     with pytest.raises(
         AssertionError,
         match=re.escape(
-            "Expects the length mask to be greater than zero, actual value: -1"
+            "Expects the length mask to be greater than or equal to zero, actual value: -1"
         ),
     ):
         space.sample(mask=(-1, None))
@@ -44,7 +44,7 @@ def test_sample():
     with pytest.raises(
         AssertionError,
         match=re.escape(
-            "Expects all values in the length_mask to be greater than zero, actual values: [ 1  2 -1]"
+            "Expects all values in the length_mask to be greater than or equal to zero, actual values: [ 1  2 -1]"
         ),
     ):
         space.sample(mask=(np.array([1, 2, -1]), None))

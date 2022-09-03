@@ -88,7 +88,7 @@ class Sequence(Space[Tuple]):
                 ), f"Expects the shape of the length mask to be 1-dimensional, actual shape: {length_mask.shape}"
                 assert np.all(
                     0 <= length_mask
-                ), f"Expects all values in the length_mask to be greater than or equal zero, actual values: {length_mask}"
+                ), f"Expects all values in the length_mask to be greater than or equal to zero, actual values: {length_mask}"
                 length = self.np_random.choice(length_mask)
             else:
                 raise TypeError(
