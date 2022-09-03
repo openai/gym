@@ -6,7 +6,6 @@ import numpy as np
 
 import gym
 from gym.spaces.space import Space
-from gym.utils import seeding
 
 
 class Sequence(Space[Tuple]):
@@ -26,7 +25,7 @@ class Sequence(Space[Tuple]):
     def __init__(
         self,
         space: Space,
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         """Constructor of the :class:`Sequence` space.
 
@@ -63,7 +62,7 @@ class Sequence(Space[Tuple]):
             mask: An optional mask for (optionally) the length of the sequence and (optionally) the values in the sequence.
                 If you specify `mask`, it is expected to be a tuple of the form `(length_mask, sample_mask)` where `length_mask`
                 is
-                - `None` The length will be randomly drawn from a geometric distribution)
+                - `None` The length will be randomly drawn from a geometric distribution
                 - `np.ndarray` of integers, in which case the length of the sampled sequence is randomly drawn from this array.
                 - `int` for a fixed length sample
                 The second element of the mask tuple `sample` mask specifies a mask that is applied when
@@ -81,7 +80,7 @@ class Sequence(Space[Tuple]):
             if np.issubdtype(type(length_mask), np.integer):
                 assert (
                     0 <= length_mask
-                ), f"Expects the length mask to be greater than zero, actual value: {length_mask}"
+                ), f"Expects the length mask to be greater than or equal to zero, actual value: {length_mask}"
                 length = length_mask
             elif isinstance(length_mask, np.ndarray):
                 assert (
@@ -89,7 +88,7 @@ class Sequence(Space[Tuple]):
                 ), f"Expects the shape of the length mask to be 1-dimensional, actual shape: {length_mask.shape}"
                 assert np.all(
                     0 <= length_mask
-                ), f"Expects all values in the length_mask to be greater than zero, actual values: {length_mask}"
+                ), f"Expects all values in the length_mask to be greater than or equal zero, actual values: {length_mask}"
                 length = self.np_random.choice(length_mask)
             else:
                 raise TypeError(

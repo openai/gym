@@ -3,6 +3,7 @@ import pytest
 
 import gym.spaces
 from gym.spaces import Box, Dict, Discrete, MultiBinary, Tuple
+from gym.utils.env_checker import data_equivalence
 
 
 def test_sequence_inheritance():
@@ -21,6 +22,7 @@ def test_sequence_inheritance():
 
     # Test count
     assert tuple_space.count(Discrete(5)) == 2
+    assert tuple_space.count(Discrete(6)) == 0
     assert tuple_space.count(MultiBinary(2)) == 0
 
     # Test index
@@ -64,6 +66,14 @@ def test_seeds(space, seed, expected_len):
     assert isinstance(seeds, list) and all(isinstance(elem, int) for elem in seeds)
     assert len(seeds) == expected_len
 
+    sample1 = space.sample()
+
+    seeds2 = space.seed(seed)
+    sample2 = space.sample()
+
+    data_equivalence(seeds, seeds2)
+    data_equivalence(sample1, sample2)
+
 
 @pytest.mark.parametrize(
     "space_fn",
@@ -85,10 +95,6 @@ def test_contains_promotion():
         np.array([0.0], dtype=np.float32),
         np.array([0.0, 0.0], dtype=np.float32),
     ) in space
-    assert [
-        np.array([0.0], dtype=np.float32),
-        np.array([0.0, 0.0], dtype=np.float32),
-    ] in space
 
     space = gym.spaces.Tuple((gym.spaces.Box(0, 1), gym.spaces.Box(-1, 0, (1,))))
     assert np.array([[0.0], [0.0]], dtype=np.float32) in space

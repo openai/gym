@@ -1,5 +1,5 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from collections.abc import Sequence
+from collections.abc import Sequence as CollectionSequence
 from typing import Iterable, Optional
 from typing import Sequence as TypingSequence
 from typing import Tuple as TypingTuple
@@ -10,7 +10,7 @@ import numpy as np
 from gym.spaces.space import Space
 
 
-class Tuple(Space[tuple], Sequence):
+class Tuple(Space[tuple], CollectionSequence):
     """A tuple (more precisely: the cartesian product) of :class:`Space` instances.
 
     Elements of this space are tuples of elements of the constituent spaces.
@@ -63,7 +63,7 @@ class Tuple(Space[tuple], Sequence):
         """
         seeds = []
 
-        if isinstance(seed, Sequence):
+        if isinstance(seed, CollectionSequence):
             assert len(seed) == len(
                 self.spaces
             ), f"Expects that the subspaces of seeds equals the number of subspaces. Actual length of seeds: {len(seeds)}, length of subspaces: {len(self.spaces)}"
@@ -129,7 +129,7 @@ class Tuple(Space[tuple], Sequence):
         """Gives a string representation of this space."""
         return "Tuple(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
-    def to_jsonable(self, sample_n: Sequence) -> list:
+    def to_jsonable(self, sample_n: CollectionSequence) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as list-repr of tuple of vectors
         return [
