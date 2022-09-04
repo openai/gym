@@ -68,9 +68,9 @@ class PlayableGame:
     ) -> set:
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
-                keys_to_action = self.env.get_keys_to_action()
+                keys_to_action = self.env.get_keys_to_action()  # type: ignore
             elif hasattr(self.env.unwrapped, "get_keys_to_action"):
-                keys_to_action = self.env.unwrapped.get_keys_to_action()
+                keys_to_action = self.env.unwrapped.get_keys_to_action()  # type: ignore
             else:
                 raise MissingKeysToAction(
                     f"{self.env.spec.id} does not have explicit key to action mapping, "
@@ -136,7 +136,7 @@ def display_arr(
 
 def play(
     env: Env,
-    transpose: Optional[bool] = True,
+    transpose: bool = True,
     fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
@@ -221,9 +221,9 @@ def play(
 
     if keys_to_action is None:
         if hasattr(env, "get_keys_to_action"):
-            keys_to_action = env.get_keys_to_action()
+            keys_to_action = env.get_keys_to_action()  # type: ignore
         elif hasattr(env.unwrapped, "get_keys_to_action"):
-            keys_to_action = env.unwrapped.get_keys_to_action()
+            keys_to_action = env.unwrapped.get_keys_to_action()  # type: ignore
         else:
             raise MissingKeysToAction(
                 f"{env.spec.id} does not have explicit key to action mapping, "
@@ -262,8 +262,12 @@ def play(
             if isinstance(rendered, List):
                 rendered = rendered[-1]
             assert rendered is not None and isinstance(rendered, np.ndarray)
+            game.screen
             display_arr(
-                game.screen, rendered, transpose=transpose, video_size=game.video_size
+                game.screen,  # type: ignore
+                rendered,
+                transpose=transpose,
+                video_size=game.video_size,
             )
 
         # process pygame events
@@ -271,7 +275,7 @@ def play(
             game.process_event(event)
 
         pygame.display.flip()
-        clock.tick(fps)
+        clock.tick(fps)  # type: ignore
     pygame.quit()
 
 
@@ -304,7 +308,7 @@ class PlayPlot:
     """
 
     def __init__(
-        self, callback: callable, horizon_timesteps: int, plot_names: List[str]
+        self, callback: Callable, horizon_timesteps: int, plot_names: List[str]
     ):
         """Constructor of :class:`PlayPlot`.
 
