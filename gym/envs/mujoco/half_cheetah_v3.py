@@ -16,9 +16,7 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -78,8 +76,6 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         ctrl_cost = self.control_cost(action)
 
         forward_reward = self._forward_reward_weight * x_velocity
-
-        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost

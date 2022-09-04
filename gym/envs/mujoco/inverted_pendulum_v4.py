@@ -87,9 +87,7 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 25,
     }
@@ -110,7 +108,6 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         terminated = bool(not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2))
-        self.renderer.render_step()
         return ob, reward, terminated, False, {}
 
     def reset_model(self):

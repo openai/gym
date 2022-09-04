@@ -17,9 +17,7 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 125,
     }
@@ -123,8 +121,6 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         x_position_after = self.sim.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
-
-        self.renderer.render_step()
 
         ctrl_cost = self.control_cost(action)
         forward_reward = self._forward_reward_weight * x_velocity

@@ -176,9 +176,7 @@ class AntEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -315,7 +313,6 @@ class AntEnv(MujocoEnv, utils.EzPickle):
 
         reward = rewards - costs
 
-        self.renderer.render_step()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):

@@ -128,9 +128,7 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 25,
     }
@@ -201,7 +199,6 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        self.renderer.render_step()
         return observation, reward, False, False, info
 
     def _get_obs(self):

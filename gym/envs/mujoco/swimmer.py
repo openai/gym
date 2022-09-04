@@ -10,9 +10,7 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 25,
     }
@@ -29,8 +27,6 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
         xposbefore = self.sim.data.qpos[0]
         self.do_simulation(a, self.frame_skip)
         xposafter = self.sim.data.qpos[0]
-
-        self.renderer.render_step()
 
         reward_fwd = (xposafter - xposbefore) / self.dt
         reward_ctrl = -ctrl_cost_coeff * np.square(a).sum()

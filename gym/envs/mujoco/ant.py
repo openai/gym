@@ -10,9 +10,7 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -30,8 +28,6 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         xposbefore = self.get_body_com("torso")[0]
         self.do_simulation(a, self.frame_skip)
         xposafter = self.get_body_com("torso")[0]
-
-        self.renderer.render_step()
 
         forward_reward = (xposafter - xposbefore) / self.dt
         ctrl_cost = 0.5 * np.square(a).sum()

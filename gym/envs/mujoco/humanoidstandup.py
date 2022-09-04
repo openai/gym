@@ -10,9 +10,7 @@ class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 67,
     }
@@ -53,8 +51,6 @@ class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
         quad_impact_cost = 0.5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
-
-        self.renderer.render_step()
 
         return (
             self._get_obs(),

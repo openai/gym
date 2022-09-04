@@ -25,6 +25,7 @@ from gym.wrappers import (
     AutoResetWrapper,
     HumanRendering,
     OrderEnforcing,
+    RenderCollection,
     StepAPICompatibility,
     TimeLimit,
 )
@@ -581,6 +582,7 @@ def make(
 
     mode = _kwargs.get("render_mode")
     apply_human_rendering = False
+    apply_render_collection = False
 
     # If we have access to metadata we check that "render_mode" is valid and see if the HumanRendering wrapper needs to be applied
     if mode is not None and hasattr(env_creator, "metadata"):
@@ -610,6 +612,13 @@ def make(
                     _kwargs["render_mode"] = "rgb_array"
                 else:
                     _kwargs["render_mode"] = "rgb_array_list"
+            elif (
+                mode not in render_modes
+                and mode.endswith("_list")
+                and mode[: -len("_list")] in render_modes
+            ):
+                _kwargs["render_mode"] = mode[: -len("_list")]
+                apply_render_collection = True
             elif mode not in render_modes:
                 logger.warn(
                     f"The environment is being initialised with mode ({mode}) that is not in the possible render_modes ({render_modes})."
@@ -668,6 +677,8 @@ def make(
     # Add human rendering wrapper
     if apply_human_rendering:
         env = HumanRendering(env)
+    elif apply_render_collection:
+        env = RenderCollection(env)
 
     return env
 

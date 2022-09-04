@@ -10,9 +10,7 @@ class InvertedDoublePendulumEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -30,8 +28,6 @@ class InvertedDoublePendulumEnv(MuJocoPyEnv, utils.EzPickle):
 
     def step(self, action):
         self.do_simulation(action, self.frame_skip)
-
-        self.renderer.render_step()
 
         ob = self._get_obs()
         x, _, y = self.sim.data.site_xpos[0]
