@@ -147,8 +147,8 @@ class PendulumEnv(gym.Env):
             # state/observations.
             x = options.get("x_init") if "x_init" in options else DEFAULT_X
             y = options.get("y_init") if "y_init" in options else DEFAULT_Y
-            x = utils.verify_number_and_cast(x)
-            y = utils.verify_number_and_cast(y)
+            x = utils.verify_number_and_cast(x)  # type: ignore
+            y = utils.verify_number_and_cast(y)  # type: ignore
             high = np.array([x, y])
         low = -high  # We enforce symmetric limits.
         self.state = self.np_random.uniform(low=low, high=high)

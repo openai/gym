@@ -32,7 +32,7 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         self.renderer.render_step()
 
         ob = self._get_obs()
-        reward_ctrl = -0.1 * np.square(action).sum()
+        reward_ctrl = -0.1 * np.square(action).sum()  # type: ignore
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
         terminated = False

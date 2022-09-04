@@ -378,7 +378,7 @@ class BipedalWalker(gym.Env, EzPickle):
             self.terrain_y.append(y)
             counter -= 1
             if counter == 0:
-                counter = self.np_random.integers(TERRAIN_GRASS / 2, TERRAIN_GRASS)
+                counter = self.np_random.integers(TERRAIN_GRASS // 2, TERRAIN_GRASS)
                 if state == GRASS and hardcore:
                     state = self.np_random.integers(1, _STATES_)
                     oneshot = True
@@ -620,7 +620,7 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
-            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))  # type: ignore
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -796,10 +796,10 @@ if __name__ == "__main__":
         moving_s_base = 4 + 5 * moving_leg
         supporting_s_base = 4 + 5 * supporting_leg
 
-        hip_targ = [None, None]  # -0.8 .. +1.1
-        knee_targ = [None, None]  # -0.6 .. +0.9
-        hip_todo = [0.0, 0.0]
-        knee_todo = [0.0, 0.0]
+        hip_targ: List[Optional[float]] = [None, None]  # -0.8 .. +1.1
+        knee_targ: List[Optional[float]] = [None, None]  # -0.6 .. +0.9
+        hip_todo: List[float] = [0.0, 0.0]
+        knee_todo: List[float] = [0.0, 0.0]
 
         if state == STAY_ON_ONE_LEG:
             hip_targ[moving_leg] = 1.1

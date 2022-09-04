@@ -2,7 +2,7 @@ __credits__ = ["Andrea PIERRÉ"]
 
 import math
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
@@ -229,12 +229,12 @@ class LunarLander(gym.Env, EzPickle):
         self.wind_idx = np.random.randint(-9999, 9999)
         self.torque_idx = np.random.randint(-9999, 9999)
 
-        self.screen: pygame.Surface = None
+        self.screen: Optional[pygame.Surface] = None
         self.clock = None
         self.isopen = True
         self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
-        self.lander: Optional[Box2D.b2Body] = None
+        self.lander: Optional[Box2D.b2Body] = None  # type: ignore
         self.particles = []
 
         self.prev_reward = None
@@ -412,7 +412,7 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         self.renderer.reset()
-        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
+        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}  # type: ignore
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -436,7 +436,8 @@ class LunarLander(gym.Env, EzPickle):
         while self.particles and (all or self.particles[0].ttl < 0):
             self.world.DestroyBody(self.particles.pop(0))
 
-    def step(self, action):
+    def step(self, action: Union[np.ndarray, int]):
+        # Todo: remove duplicate assert
         assert self.lander is not None
 
         # Update wind
@@ -472,7 +473,7 @@ class LunarLander(gym.Env, EzPickle):
             )
 
         if self.continuous:
-            action = np.clip(action, -1, +1).astype(np.float32)
+            action = np.clip(action, -1, +1).astype(np.float32)  # type: ignore
         else:
             assert self.action_space.contains(
                 action
@@ -484,11 +485,13 @@ class LunarLander(gym.Env, EzPickle):
         dispersion = [self.np_random.uniform(-1.0, +1.0) / SCALE for _ in range(2)]
 
         m_power = 0.0
-        if (self.continuous and action[0] > 0.0) or (
+
+        if (self.continuous and action[0] > 0.0) or (  # type: ignore
             not self.continuous and action == 2
         ):
             # Main engine
             if self.continuous:
+                assert isinstance(action, np.ndarray)
                 m_power = (np.clip(action[0], 0.0, 1.0) + 1.0) * 0.5  # 0.5..1.0
                 assert m_power >= 0.5 and m_power <= 1.0
             else:
@@ -515,11 +518,12 @@ class LunarLander(gym.Env, EzPickle):
             )
 
         s_power = 0.0
-        if (self.continuous and np.abs(action[1]) > 0.5) or (
+        if (self.continuous and np.abs(action[1]) > 0.5) or (  # type: ignore
             not self.continuous and action in [1, 3]
         ):
             # Orientation engines
             if self.continuous:
+                assert isinstance(action, np.ndarray)
                 direction = np.sign(action[1])
                 s_power = np.clip(np.abs(action[1]), 0.5, 1.0)
                 assert s_power >= 0.5 and s_power <= 1.0
@@ -608,7 +612,7 @@ class LunarLander(gym.Env, EzPickle):
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
-            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))  # type: ignore
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -773,7 +777,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
     s, info = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
-        s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)
+        s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)  # type: ignore
         total_reward += r
 
         if render:

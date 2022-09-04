@@ -2,6 +2,7 @@ import collections
 import os
 import time
 from threading import Lock
+from typing import Callable, Dict
 
 import glfw
 import imageio
@@ -27,7 +28,7 @@ def _import_osmesa(width, height):
     return GLContext(width, height)
 
 
-_ALL_RENDERERS = collections.OrderedDict(
+_ALL_RENDERERS: Dict[str, Callable] = collections.OrderedDict(
     [
         ("glfw", _import_glfw),
         ("egl", _import_egl),
@@ -197,8 +198,10 @@ class RenderContext:
                 attr[:] = np.asarray(value).reshape(attr.shape)
             elif isinstance(value, str):
                 assert key == "label", "Only label is a string in mjtGeom."
+                # Todo: we may consider removing this condition as 'value' cannot be
+                # None in this scope.
                 if value is None:
-                    g.label[0] = 0
+                    g.label[0] = 0  # type: ignore
                 else:
                     g.label = value
             elif hasattr(g, key):

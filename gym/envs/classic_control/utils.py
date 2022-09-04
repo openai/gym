@@ -36,8 +36,8 @@ def maybe_parse_reset_bounds(
     high = options.get("high") if "high" in options else default_high
 
     # We expect only numerical inputs.
-    low = verify_number_and_cast(low)
-    high = verify_number_and_cast(high)
+    low = verify_number_and_cast(low)  # type: ignore
+    high = verify_number_and_cast(high)  # type: ignore
     if low > high:
         raise ValueError(
             f"Lower bound ({low}) must be lower than higher bound ({high})."

@@ -1,11 +1,12 @@
 from functools import partial
 from os import path
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
 import gym
 from gym import error, logger, spaces
+from gym.envs.mujoco import RenderContextOffscreen, Viewer
 from gym.spaces import Space
 from gym.utils.renderer import Renderer
 
@@ -51,11 +52,15 @@ class BaseMujocoEnv(gym.Env):
 
         self.width = width
         self.height = height
+        self.data: Any  # to be set in _initilize_simulation
+        self.model: Any  # to be set in _initilize_simulation
         self._initialize_simulation()  # may use width and height
 
         self.init_qpos = self.data.qpos.ravel().copy()
         self.init_qvel = self.data.qvel.ravel().copy()
-        self._viewers = {}
+        self._viewers: Dict[
+            str, Union["mujoco_py.MjViewer", "mujoco_py.MjRenderContextOffscreen"]
+        ] = {}
 
         self.frame_skip = frame_skip
 
@@ -272,14 +277,14 @@ class MuJocoPyEnv(BaseMujocoEnv):
                 if camera_name in self.model._camera_name2id:
                     camera_id = self.model.camera_name2id(camera_name)
 
-                self._get_viewer(mode).render(width, height, camera_id=camera_id)
+                self._get_viewer(mode).render(width, height, camera_id=camera_id)  # type: ignore
 
         if mode in {"rgb_array", "single_rgb_array"}:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode in {"depth_array", "single_depth_array"}:
-            self._get_viewer(mode).render(width, height)
+            self._get_viewer(mode).render(width, height)  # type: ignore
             # Extract depth part of the read_pixels() tuple
             data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
             # original image is upside-down, so flip it
@@ -404,12 +409,12 @@ class MujocoEnv(BaseMujocoEnv):
                     camera_name,
                 )
 
-                self._get_viewer(mode).render(camera_id=camera_id)
+                self._get_viewer(mode).render(camera_id=camera_id)  # type: ignore
 
         if mode in {"rgb_array", "single_rgb_array"}:
             data = self._get_viewer(mode).read_pixels(depth=False)
             # original image is upside-down, so flip it
-            return data[::-1, :, :]
+            return data[::-1, :, :]  # type: ignore
         elif mode in {"depth_array", "single_depth_array"}:
             self._get_viewer(mode).render()
             # Extract depth part of the read_pixels() tuple
@@ -424,9 +429,7 @@ class MujocoEnv(BaseMujocoEnv):
             self.viewer.close()
         super().close()
 
-    def _get_viewer(
-        self, mode
-    ) -> Union["gym.envs.mujoco.Viewer", "gym.envs.mujoco.RenderContextOffscreen"]:
+    def _get_viewer(self, mode) -> Union[Viewer, RenderContextOffscreen]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":

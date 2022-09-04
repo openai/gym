@@ -261,7 +261,7 @@ class Car:
             )
 
     def draw(self, surface, zoom, translation, angle, draw_particles=True):
-        import pygame.draw
+        import pygame
 
         if draw_particles:
             for p in self.particles:
@@ -334,10 +334,10 @@ class Car:
             pass
 
         p = Particle()
-        p.color = WHEEL_COLOR if not grass else MUD_COLOR
-        p.ttl = 1
-        p.poly = [(point1[0], point1[1]), (point2[0], point2[1])]
-        p.grass = grass
+        p.color = WHEEL_COLOR if not grass else MUD_COLOR  # type: ignore
+        p.ttl = 1  # type: ignore
+        p.poly = [(point1[0], point1[1]), (point2[0], point2[1])]  # type: ignore
+        p.grass = grass  # type: ignore
         self.particles.append(p)
         while len(self.particles) > 30:
             self.particles.pop(0)

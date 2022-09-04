@@ -520,10 +520,11 @@ class CarRacing(gym.Env, EzPickle):
         self.renderer.reset()
         return self.step(None)[0], {}
 
-    def step(self, action: Union[np.ndarray, int]):
+    def step(self, action: Optional[Union[np.ndarray, int]]):
         assert self.car is not None
         if action is not None:
             if self.continuous:
+                assert isinstance(action, np.ndarray)
                 self.car.steer(-action[0])
                 self.car.gas(action[1])
                 self.car.brake(action[2])
@@ -576,7 +577,7 @@ class CarRacing(gym.Env, EzPickle):
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
-            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))  # type: ignore
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -612,14 +613,14 @@ class CarRacing(gym.Env, EzPickle):
         font = pygame.font.Font(pygame.font.get_default_font(), 42)
         text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
         text_rect = text.get_rect()
-        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
+        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)  # type: ignore
         self.surf.blit(text, text_rect)
 
         if mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             assert self.screen is not None
-            self.screen.fill(0)
+            self.screen.fill((0, 0, 0))  # black - (0,0,0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
@@ -673,6 +674,7 @@ class CarRacing(gym.Env, EzPickle):
         h = H / 40.0
         color = (0, 0, 0)
         polygon = [(W, H), (W, H - 5 * h), (0, H - 5 * h), (0, H)]
+        assert self.surf is not None, "No valid pygame surface"
         pygame.draw.polygon(self.surf, color=color, points=polygon)
 
         def vertical_ind(place, val):
@@ -700,6 +702,7 @@ class CarRacing(gym.Env, EzPickle):
         # simple wrapper to render if the indicator value is above a threshold
         def render_if_min(value, points, color):
             if abs(value) > 1e-4:
+                assert self.surf is not None, "No valid pygame surface"
                 pygame.draw.polygon(self.surf, points=points, color=color)
 
         render_if_min(true_speed, vertical_ind(5, 0.02 * true_speed), (255, 255, 255))
@@ -753,6 +756,7 @@ class CarRacing(gym.Env, EzPickle):
             and (-MAX_SHAPE_DIM <= coord[1] <= WINDOW_H + MAX_SHAPE_DIM)
             for coord in poly
         ):
+            assert self.surf is not None, "No valid pygame surface"
             gfxdraw.aapolygon(self.surf, poly, color)
             gfxdraw.filled_polygon(self.surf, poly, color)
 
