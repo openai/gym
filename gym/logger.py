@@ -14,7 +14,8 @@ DISABLED = 50
 min_level = 30
 
 
-warnings.simplefilter("once", DeprecationWarning)
+# Ensure DeprecationWarning to be displayed (#2685, #3059)
+warnings.filterwarnings("once", "", DeprecationWarning, module=r"^gym\.")
 
 
 def set_level(level: int):
