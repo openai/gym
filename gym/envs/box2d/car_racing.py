@@ -10,7 +10,6 @@ from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.error import DependencyNotInstalled, InvalidAction
 from gym.utils import EzPickle
-from gym.utils.renderer import Renderer
 
 try:
     import Box2D
@@ -184,8 +183,6 @@ class CarRacing(gym.Env, EzPickle):
     metadata = {
         "render_modes": [
             "human",
-            "rgb_array_list",
-            "state_pixels_list",
             "rgb_array",
             "state_pixels",
         ],
@@ -247,7 +244,6 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
 
     def _destroy(self):
         if not self.road:
@@ -517,7 +513,6 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
-        self.renderer.reset()
         return self.step(None)[0], {}
 
     def step(self, action: Union[np.ndarray, int]):
@@ -563,13 +558,12 @@ class CarRacing(gym.Env, EzPickle):
                 terminated = True
                 step_reward = -100
 
-        self.renderer.render_step()
         return self.state, step_reward, terminated, truncated, {}
 
     def render(self):
-        return self.renderer.get_renders()
+        return self._render(self.render_mode)
 
-    def _render(self, mode: str = "human"):
+    def _render(self, mode: str):
         assert mode in self.metadata["render_modes"]
 
         pygame.font.init()
@@ -623,9 +617,9 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if mode in {"rgb_array", "rgb_array_list"}:
+        if mode == "rgb_array":
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif mode in {"state_pixels_list", "state_pixels"}:
+        elif mode == "state_pixels":
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen

@@ -216,9 +216,7 @@ class HumanoidEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 67,
     }
@@ -348,7 +346,6 @@ class HumanoidEnv(MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        self.renderer.render_step()
         return observation, reward, terminated, False, info
 
     def reset_model(self):

@@ -11,7 +11,6 @@ import gym
 from gym import spaces
 from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
-from gym.utils.renderer import Renderer
 
 
 class MountainCarEnv(gym.Env):
@@ -97,7 +96,7 @@ class MountainCarEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "rgb_array_list"],
+        "render_modes": ["human", "rgb_array"],
         "render_fps": 30,
     }
 
@@ -115,7 +114,6 @@ class MountainCarEnv(gym.Env):
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
 
         self.screen_width = 600
         self.screen_height = 400
@@ -145,7 +143,6 @@ class MountainCarEnv(gym.Env):
         reward = -1.0
 
         self.state = (position, velocity)
-        self.renderer.render_step()
         return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
@@ -159,18 +156,12 @@ class MountainCarEnv(gym.Env):
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
-        self.renderer.reset()
-        self.renderer.render_step()
         return np.array(self.state, dtype=np.float32), {}
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self):
-        return self.renderer.get_renders()
-
-    def _render(self, mode="human"):
-        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -181,12 +172,12 @@ class MountainCarEnv(gym.Env):
 
         if self.screen is None:
             pygame.init()
-            if mode == "human":
+            if self.render_mode == "human":
                 pygame.display.init()
                 self.screen = pygame.display.set_mode(
                     (self.screen_width, self.screen_height)
                 )
-            else:  # mode in {"rgb_array", "rgb_array_list"}
+            else:  # mode in "rgb_array"
                 self.screen = pygame.Surface((self.screen_width, self.screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -255,12 +246,12 @@ class MountainCarEnv(gym.Env):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
-        if mode == "human":
+        if self.render_mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        elif mode in {"rgb_array", "rgb_array_list"}:
+        elif self.render_mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )

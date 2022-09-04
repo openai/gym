@@ -16,9 +16,7 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 67,
     }
@@ -49,8 +47,6 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         pos_before = mass_center(self.model, self.sim)
         self.do_simulation(a, self.frame_skip)
         pos_after = mass_center(self.model, self.sim)
-
-        self.renderer.render_step()
 
         alive_bonus = 5.0
         data = self.sim.data
