@@ -84,7 +84,7 @@ setup(
     },
     python_requires=">=3.6",
     tests_require=extras["testing"],
-    url="https://www.gymlibrary.ml/",
+    url="https://www.gymlibrary.dev/",
     version=VERSION,
     zip_safe=False,
 )

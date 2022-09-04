@@ -23,7 +23,7 @@ def test_transform_reward(env_id):
         _, wrapped_reward, _, _, _ = wrapped_env.step(action)
 
         assert wrapped_reward == scale * reward
-    del env, wrapped_env
+        del env, wrapped_env
 
     # use case #2: clip
     min_r = -0.0005

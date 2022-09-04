@@ -396,24 +396,25 @@ def test_passive_env_step_checker(
     [
         [
             UserWarning,
-            GenericTestEnv(render_modes=None),
+            GenericTestEnv(metadata={"render_modes": None}),
             "No render modes was declared in the environment (env.metadata['render_modes'] is None or not defined), you may have trouble when calling `.render()`.",
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes="Testing mode"),
+            GenericTestEnv(metadata={"render_modes": "Testing mode"}),
             "Expects the render_modes to be a sequence (i.e. list, tuple), actual type: <class 'str'>",
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes=["Testing mode", 1], render_fps=1),
+            GenericTestEnv(
+                metadata={"render_modes": ["Testing mode", 1], "render_fps": 1},
+            ),
             "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>]",
         ],
         [
             UserWarning,
             GenericTestEnv(
-                render_modes=["Testing mode"],
-                render_fps=None,
+                metadata={"render_modes": ["Testing mode"], "render_fps": None},
                 render_mode="Testing mode",
                 render_fn=lambda self: 0,
             ),
@@ -421,18 +422,23 @@ def test_passive_env_step_checker(
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes=["Testing mode"], render_fps="fps"),
+            GenericTestEnv(
+                metadata={"render_modes": ["Testing mode"], "render_fps": "fps"}
+            ),
             "Expects the `env.metadata['render_fps']` to be an integer or a float, actual type: <class 'str'>",
         ],
         [
             AssertionError,
-            GenericTestEnv(render_modes=[], render_fps=30, render_mode="Test"),
+            GenericTestEnv(
+                metadata={"render_modes": [], "render_fps": 30}, render_mode="Test"
+            ),
             "With no render_modes, expects the Env.render_mode to be None, actual value: Test",
         ],
         [
             AssertionError,
             GenericTestEnv(
-                render_modes=["Testing mode"], render_fps=30, render_mode="Non mode"
+                metadata={"render_modes": ["Testing mode"], "render_fps": 30},
+                render_mode="Non mode",
             ),
             "The environment was initialized successfully however with an unsupported render mode. Render mode: Non mode, modes: ['Testing mode']",
         ],

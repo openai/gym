@@ -78,3 +78,5 @@ def test_step_compatibility_in_make(apply_step_compatibility):
         assert len(step_returns) == 4
         _, _, done, _ = step_returns
         assert isinstance(done, bool)
+
+    gym.envs.registry.pop("OldStepEnv-v0")

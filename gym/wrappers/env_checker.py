@@ -19,11 +19,11 @@ class PassiveEnvChecker(gym.Wrapper):
 
         assert hasattr(
             env, "action_space"
-        ), "The environment must specify an action space. https://www.gymlibrary.ml/content/environment_creation/"
+        ), "The environment must specify an action space. https://www.gymlibrary.dev/content/environment_creation/"
         check_action_space(env.action_space)
         assert hasattr(
             env, "observation_space"
-        ), "The environment must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
+        ), "The environment must specify an observation space. https://www.gymlibrary.dev/content/environment_creation/"
         check_observation_space(env.observation_space)
 
         self.checked_reset = False

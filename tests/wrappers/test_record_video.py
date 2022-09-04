@@ -6,7 +6,9 @@ from gym.wrappers import capped_cubic_video_schedule
 
 
 def test_record_video_using_default_trigger():
-    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+    env = gym.make(
+        "CartPole-v1", render_mode="rgb_array_list", disable_env_checker=True
+    )
     env = gym.wrappers.RecordVideo(env, "videos")
     env.reset()
     for _ in range(199):

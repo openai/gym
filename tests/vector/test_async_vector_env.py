@@ -97,7 +97,9 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_call_async_vector_env(shared_memory):
-    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
+    env_fns = [
+        make_env("CartPole-v1", i, render_mode="rgb_array_list") for i in range(4)
+    ]
 
     env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
     _ = env.reset()

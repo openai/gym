@@ -50,7 +50,9 @@ def data_equivalence(data_1, data_2) -> bool:
                 data_equivalence(o_1, o_2) for o_1, o_2 in zip(data_1, data_2)
             )
         elif isinstance(data_1, np.ndarray):
-            return np.all(data_1 == data_2)
+            return data_1.shape == data_2.shape and np.allclose(
+                data_1, data_2, atol=0.00001
+            )
         else:
             return data_1 == data_2
     else:
@@ -256,7 +258,7 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     This is an invasive function that calls the environment's reset and step.
 
     This is particularly useful when using a custom environment.
-    Please take a look at https://www.gymlibrary.ml/content/environment_creation/
+    Please take a look at https://www.gymlibrary.dev/content/environment_creation/
     for more information about the API.
 
     Args:
@@ -269,7 +271,7 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
 
     assert isinstance(
         env, gym.Env
-    ), "The environment must inherit from the gym.Env class. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
+    ), "The environment must inherit from the gym.Env class. See https://www.gymlibrary.dev/content/environment_creation/ for more info."
 
     if env.unwrapped is not env:
         logger.warn(
@@ -279,13 +281,13 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     # ============= Check the spaces (observation and action) ================
     assert hasattr(
         env, "action_space"
-    ), "The environment must specify an action space. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
+    ), "The environment must specify an action space. See https://www.gymlibrary.dev/content/environment_creation/ for more info."
     check_action_space(env.action_space)
     check_space_limit(env.action_space, "action")
 
     assert hasattr(
         env, "observation_space"
-    ), "The environment must specify an observation space. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
+    ), "The environment must specify an observation space. See https://www.gymlibrary.dev/content/environment_creation/ for more info."
     check_observation_space(env.observation_space)
     check_space_limit(env.observation_space, "observation")
 
