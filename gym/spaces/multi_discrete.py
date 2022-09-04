@@ -93,7 +93,7 @@ class MultiDiscrete(Space[np.ndarray]):
                     return [
                         _apply_mask(new_mask, new_nvec)
                         for new_mask, new_nvec in zip(sub_mask, sub_nvec)
-                    ]
+                    ]  # type: ignore
                 else:
                     assert np.issubdtype(
                         type(sub_nvec), np.integer

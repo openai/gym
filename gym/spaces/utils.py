@@ -162,7 +162,7 @@ def _flatten_multidiscrete(space, x) -> np.ndarray:
 def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
     if space.is_np_flattenable:
         return np.concatenate(
-            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
+            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]  # type: ignore
         )
     return tuple(flatten(s, x_part) for x_part, s in zip(x, space.spaces))
 
@@ -170,7 +170,7 @@ def _flatten_tuple(space, x) -> Union[tuple, np.ndarray]:
 @flatten.register(Dict)
 def _flatten_dict(space, x) -> Union[dict, np.ndarray]:
     if space.is_np_flattenable:
-        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])  # type: ignore
     return OrderedDict((key, flatten(s, x[key])) for key, s in space.spaces.items())
 
 
@@ -196,7 +196,7 @@ def _flatten_graph(space, x) -> GraphInstance:
     nodes = _graph_unflatten(space.node_space, x.nodes)
     edges = _graph_unflatten(space.edge_space, x.edges)
 
-    return GraphInstance(nodes, edges, x.edge_links)
+    return GraphInstance(nodes, edges, x.edge_links)  # type: ignore
 
 
 @flatten.register(Text)
@@ -277,6 +277,9 @@ def _unflatten_tuple(space: Tuple, x: Union[np.ndarray, tuple]) -> tuple:
 @unflatten.register(Dict)
 def _unflatten_dict(space: Dict, x: Union[np.ndarray, TypingDict]) -> dict:
     if space.is_np_flattenable:
+        assert isinstance(
+            x, np.ndarray
+        ), f"{space} is numpy-flattenable, so a numpy array is expected. Got a {type(x)}"
         dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
         list_flattened = np.split(x, np.cumsum(dims[:-1]))
         return OrderedDict(
@@ -311,7 +314,7 @@ def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
     nodes = _graph_unflatten(space.node_space, x.nodes)
     edges = _graph_unflatten(space.edge_space, x.edges)
 
-    return GraphInstance(nodes, edges, x.edge_links)
+    return GraphInstance(nodes, edges, x.edge_links)  # type: ignore
 
 
 @unflatten.register(Text)
@@ -327,7 +330,7 @@ def _unflatten_sequence(space: Sequence, x: tuple) -> tuple:
 
 
 @singledispatch
-def flatten_space(space: Space) -> Union[Dict, Sequence, Tuple, Graph]:
+def flatten_space(space: Space) -> Union[Box, Dict, Sequence, Tuple, Graph]:
     """Flatten a space into a space that is as flat as possible.
 
     This function will attempt to flatten `space` into a single :class:`Box` space.
@@ -405,8 +408,8 @@ def _flatten_space_tuple(space: Tuple) -> Union[Box, Tuple]:
     if space.is_np_flattenable:
         space_list = [flatten_space(s) for s in space.spaces]
         return Box(
-            low=np.concatenate([s.low for s in space_list]),
-            high=np.concatenate([s.high for s in space_list]),
+            low=np.concatenate([s.low for s in space_list]),  # type: ignore
+            high=np.concatenate([s.high for s in space_list]),  # type: ignore
             dtype=np.result_type(*[s.dtype for s in space_list]),
         )
     return Tuple(spaces=[flatten_space(s) for s in space.spaces])
@@ -417,8 +420,8 @@ def _flatten_space_dict(space: Dict) -> Union[Box, Dict]:
     if space.is_np_flattenable:
         space_list = [flatten_space(s) for s in space.spaces.values()]
         return Box(
-            low=np.concatenate([s.low for s in space_list]),
-            high=np.concatenate([s.high for s in space_list]),
+            low=np.concatenate([s.low for s in space_list]),  # type: ignore
+            high=np.concatenate([s.high for s in space_list]),  # type: ignore
             dtype=np.result_type(*[s.dtype for s in space_list]),
         )
     return Dict(
@@ -431,10 +434,10 @@ def _flatten_space_dict(space: Dict) -> Union[Box, Dict]:
 @flatten_space.register(Graph)
 def _flatten_space_graph(space: Graph) -> Graph:
     return Graph(
-        node_space=flatten_space(space.node_space),
+        node_space=flatten_space(space.node_space),  # type: ignore
         edge_space=flatten_space(space.edge_space)
         if space.edge_space is not None
-        else None,
+        else None,  # type: ignore
     )
 
 

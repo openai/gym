@@ -118,7 +118,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         )  # None for shape and dtype, since it'll require special handling
 
     @property
-    def is_np_flattenable(self):
+    def is_np_flattenable(self) -> bool:
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return all(space.is_np_flattenable for space in self.spaces.values())
 
@@ -238,7 +238,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         }
 
         n_elements = len(next(iter(dict_of_list.values())))
-        result = [
+        result: List[dict] = [
             OrderedDict({key: value[n] for key, value in dict_of_list.items()})
             for n in range(n_elements)
         ]
