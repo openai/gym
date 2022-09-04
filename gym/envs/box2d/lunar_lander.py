@@ -10,7 +10,6 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle, colorize
-from gym.utils.renderer import Renderer
 from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
@@ -179,7 +178,7 @@ class LunarLander(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "rgb_array_list"],
+        "render_modes": ["human", "rgb_array"],
         "render_fps": FPS,
     }
 
@@ -287,7 +286,6 @@ class LunarLander(gym.Env, EzPickle):
             self.action_space = spaces.Discrete(4)
 
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
 
     def _destroy(self):
         if not self.moon:
@@ -411,8 +409,7 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
-        self.renderer.reset()
-        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}  # type: ignore
+        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -593,14 +590,9 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             terminated = True
             reward = +100
-        self.renderer.render_step()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):
-        return self.renderer.get_renders()
-
-    def _render(self, mode="human"):
-        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -609,7 +601,7 @@ class LunarLander(gym.Env, EzPickle):
                 "pygame is not installed, run `pip install gym[box2d]`"
             )
 
-        if self.screen is None and mode == "human":
+        if self.screen is None and self.render_mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))  # type: ignore
@@ -696,13 +688,13 @@ class LunarLander(gym.Env, EzPickle):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
-        if mode == "human":
+        if self.render_mode == "human":
             assert self.screen is not None
             self.screen.blit(self.surf, (0, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-        elif mode in {"rgb_array", "rgb_array_list"}:
+        elif self.render_mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )

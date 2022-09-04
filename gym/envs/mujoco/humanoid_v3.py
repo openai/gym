@@ -23,9 +23,7 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 67,
     }
@@ -156,8 +154,6 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
 
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
-
-        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = rewards - costs

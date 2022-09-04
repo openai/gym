@@ -1,4 +1,3 @@
-from functools import partial
 from os import path
 from typing import Any, Dict, Optional, Union
 
@@ -8,7 +7,6 @@ import gym
 from gym import error, logger, spaces
 from gym.envs.mujoco import RenderContextOffscreen, Viewer
 from gym.spaces import Space
-from gym.utils.renderer import Renderer
 
 MUJOCO_PY_NOT_INSTALLED = False
 MUJOCO_NOT_INSTALLED = False
@@ -69,9 +67,7 @@ class BaseMujocoEnv(gym.Env):
         assert self.metadata["render_modes"] == [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ], self.metadata["render_modes"]
         assert (
             int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
@@ -81,12 +77,8 @@ class BaseMujocoEnv(gym.Env):
         self._set_action_space()
 
         self.render_mode = render_mode
-        render_frame = partial(
-            self._render,
-            camera_name=camera_name,
-            camera_id=camera_id,
-        )
-        self.renderer = Renderer(self.render_mode, render_frame)
+        self.camera_name = camera_name
+        self.camera_id = camera_id
 
     def _set_action_space(self):
         bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
@@ -128,12 +120,7 @@ class BaseMujocoEnv(gym.Env):
         """
         raise NotImplementedError
 
-    def _render(
-        self,
-        mode: str = "human",
-        camera_id: Optional[int] = None,
-        camera_name: Optional[str] = None,
-    ):
+    def render(self):
         """
         Render a frame from the MuJoCo simulation as specified by the render_mode.
         """
@@ -152,8 +139,6 @@ class BaseMujocoEnv(gym.Env):
         self._reset_simulation()
 
         ob = self.reset_model()
-        self.renderer.reset()
-        self.renderer.render_step()
         return ob, {}
 
     def set_state(self, qpos, qvel):
@@ -174,9 +159,6 @@ class BaseMujocoEnv(gym.Env):
         if np.array(ctrl).shape != self.action_space.shape:
             raise ValueError("Action dimension mismatch")
         self._step_mujoco_simulation(ctrl, n_frames)
-
-    def render(self):
-        return self.renderer.get_renders()
 
     def close(self):
         if self.viewer is not None:
@@ -249,20 +231,10 @@ class MuJocoPyEnv(BaseMujocoEnv):
         for _ in range(n_frames):
             self.sim.step()
 
-    def _render(
-        self,
-        mode: str = "human",
-        camera_id: Optional[int] = None,
-        camera_name: Optional[str] = None,
-    ):
+    def render(self):
         width, height = self.width, self.height
-        assert mode in self.metadata["render_modes"]
-        if mode in {
-            "rgb_array",
-            "rgb_array_list",
-            "depth_array",
-            "depth_array_list",
-        }:
+        camera_name, camera_id = self.camera_name, self.camera_id
+        if self.render_mode in {"rgb_array", "depth_array"}:
             if camera_id is not None and camera_name is not None:
                 raise ValueError(
                     "Both `camera_id` and `camera_name` cannot be"
@@ -277,20 +249,26 @@ class MuJocoPyEnv(BaseMujocoEnv):
                 if camera_name in self.model._camera_name2id:
                     camera_id = self.model.camera_name2id(camera_name)
 
-                self._get_viewer(mode).render(width, height, camera_id=camera_id)  # type: ignore
+                self._get_viewer(self.render_mode).render(
+                    width, height, camera_id=camera_id
+                )  # type: ignore
 
-        if mode in {"rgb_array", "rgb_array_list"}:
-            data = self._get_viewer(mode).read_pixels(width, height, depth=False)
+        if self.render_mode == "rgb_array":
+            data = self._get_viewer(self.render_mode).read_pixels(
+                width, height, depth=False
+            )
             # original image is upside-down, so flip it
             return data[::-1, :, :]
-        elif mode in {"depth_array_list", "depth_array"}:
-            self._get_viewer(mode).render(width, height)
+        elif self.render_mode == "depth_array":
+            self._get_viewer(self.render_mode).render(width, height)
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
+            data = self._get_viewer(self.render_mode).read_pixels(
+                width, height, depth=True
+            )[1]
             # original image is upside-down, so flip it
             return data[::-1, :]
-        elif mode == "human":
-            self._get_viewer(mode).render()
+        elif self.render_mode == "human":
+            self._get_viewer(self.render_mode).render()
 
     def _get_viewer(
         self, mode
@@ -300,12 +278,7 @@ class MuJocoPyEnv(BaseMujocoEnv):
             if mode == "human":
                 self.viewer = mujoco_py.MjViewer(self.sim)
 
-            elif mode in {
-                "rgb_array",
-                "depth_array",
-                "rgb_array_list",
-                "depth_array_list",
-            }:
+            elif mode in {"rgb_array", "depth_array"}:
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
             else:
                 raise AttributeError(
@@ -378,20 +351,14 @@ class MujocoEnv(BaseMujocoEnv):
         # See https://github.com/openai/gym/issues/1541
         mujoco.mj_rnePostConstraint(self.model, self.data)
 
-    def _render(
-        self,
-        mode: str = "human",
-        camera_id: Optional[int] = None,
-        camera_name: Optional[str] = None,
-    ):
-        assert mode in self.metadata["render_modes"]
-
-        if mode in {
+    def render(self):
+        if self.render_mode in {
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         }:
+            camera_id = self.camera_id
+            camera_name = self.camera_name
+
             if camera_id is not None and camera_name is not None:
                 raise ValueError(
                     "Both `camera_id` and `camera_name` cannot be"
@@ -409,20 +376,20 @@ class MujocoEnv(BaseMujocoEnv):
                     camera_name,
                 )
 
-                self._get_viewer(mode).render(camera_id=camera_id)  # type: ignore
+                self._get_viewer(self.render_mode).render(camera_id=camera_id)  # type: ignore
 
-        if mode in {"rgb_array", "rgb_array_list"}:
-            data = self._get_viewer(mode).read_pixels(depth=False)
+        if self.render_mode == "rgb_array":
+            data = self._get_viewer(self.render_mode).read_pixels(depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]  # type: ignore
-        elif mode in {"depth_array", "depth_array_list"}:
-            self._get_viewer(mode).render()
+        elif self.render_mode == "depth_array":
+            self._get_viewer(self.render_mode).render()
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(mode).read_pixels(depth=True)[1]
+            data = self._get_viewer(self.render_mode).read_pixels(depth=True)[1]
             # original image is upside-down, so flip it
             return data[::-1, :]
-        elif mode == "human":
-            self._get_viewer(mode).render()
+        elif self.render_mode == "human":
+            self._get_viewer(self.render_mode).render()
 
     def close(self):
         if self.viewer is not None:
@@ -436,12 +403,7 @@ class MujocoEnv(BaseMujocoEnv):
                 from gym.envs.mujoco import Viewer
 
                 self.viewer = Viewer(self.model, self.data)
-            elif mode in {
-                "rgb_array",
-                "depth_array",
-                "rgb_array_list",
-                "depth_array_list",
-            }:
+            elif mode in {"rgb_array", "depth_array"}:
                 from gym.envs.mujoco import RenderContextOffscreen
 
                 self.viewer = RenderContextOffscreen(self.model, self.data)

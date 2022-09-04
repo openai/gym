@@ -122,9 +122,7 @@ class ReacherEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 50,
     }
@@ -143,7 +141,6 @@ class ReacherEnv(MujocoEnv, utils.EzPickle):
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        self.renderer.render_step()
         return (
             ob,
             reward,

@@ -9,7 +9,6 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
-from gym.utils.renderer import Renderer
 
 try:
     import Box2D
@@ -164,7 +163,7 @@ class BipedalWalker(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "rgb_array_list"],
+        "render_modes": ["human", "rgb_array"],
         "render_fps": FPS,
     }
 
@@ -258,7 +257,6 @@ class BipedalWalker(gym.Env, EzPickle):
         # state += [l.fraction for l in self.lidar]
 
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
         self.screen: Optional[pygame.Surface] = None
         self.clock = None
 
@@ -512,7 +510,6 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
-        self.renderer.reset()
         return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action: np.ndarray):
@@ -601,14 +598,9 @@ class BipedalWalker(gym.Env, EzPickle):
             terminated = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
             terminated = True
-        self.renderer.render_step()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):
-        return self.renderer.get_renders()
-
-    def _render(self, mode: str = "human"):
-        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -617,7 +609,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 "pygame is not installed, run `pip install gym[box2d]`"
             )
 
-        if self.screen is None and mode == "human":
+        if self.screen is None and self.render_mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))  # type: ignore
@@ -736,13 +728,13 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
-        if mode == "human":
+        if self.render_mode == "human":
             assert self.screen is not None
             self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-        elif mode in {"rgb_array", "rgb_array_list"}:
+        elif self.render_mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )[:, -VIEWPORT_W:]

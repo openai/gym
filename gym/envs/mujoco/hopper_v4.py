@@ -142,9 +142,7 @@ class HopperEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 125,
     }
@@ -271,7 +269,6 @@ class HopperEnv(MujocoEnv, utils.EzPickle):
             "x_velocity": x_velocity,
         }
 
-        self.renderer.render_step()
         return observation, reward, terminated, False, info
 
     def reset_model(self):

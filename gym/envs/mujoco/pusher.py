@@ -10,9 +10,7 @@ class PusherEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -34,8 +32,6 @@ class PusherEnv(MuJocoPyEnv, utils.EzPickle):
         reward = reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.do_simulation(a, self.frame_skip)
-
-        self.renderer.render_step()
 
         ob = self._get_obs()
         return (

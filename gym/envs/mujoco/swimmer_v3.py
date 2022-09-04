@@ -14,9 +14,7 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 25,
     }
@@ -70,8 +68,6 @@ class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
         xy_position_before = self.sim.data.qpos[0:2].copy()
         self.do_simulation(action, self.frame_skip)
         xy_position_after = self.sim.data.qpos[0:2].copy()
-
-        self.renderer.render_step()
 
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity

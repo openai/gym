@@ -116,9 +116,7 @@ class InvertedDoublePendulumEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "rgb_array_list",
             "depth_array",
-            "depth_array_list",
         ],
         "render_fps": 20,
     }
@@ -144,7 +142,6 @@ class InvertedDoublePendulumEnv(MujocoEnv, utils.EzPickle):
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
         terminated = bool(y <= 1)
-        self.renderer.render_step()
         return ob, r, terminated, False, {}
 
     def _get_obs(self):

@@ -7,7 +7,7 @@ import numpy as np
 
 from gym import Env, spaces
 from gym.envs.toy_text.utils import categorical_sample
-from gym.utils.renderer import Renderer
+from gym.error import DependencyNotInstalled
 
 UP = 0
 RIGHT = 1
@@ -63,7 +63,7 @@ class CliffWalkingEnv(Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "rgb_array_list", "ansi"],
+        "render_modes": ["human", "rgb_array", "ansi"],
         "render_fps": 4,
     }
 
@@ -97,7 +97,6 @@ class CliffWalkingEnv(Env):
         self.action_space = spaces.Discrete(self.nA)
 
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
 
         # pygame utils
         self.cell_size = (60, 60)
@@ -149,30 +148,28 @@ class CliffWalkingEnv(Env):
         p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-        self.renderer.render_step()
         return (int(s), r, t, False, {"prob": p})
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
-        self.renderer.reset()
-        self.renderer.render_step()
 
         return int(self.s), {"prob": 1}
 
     def render(self):
-        return self.renderer.get_renders()
-
-    def _render(self, mode="human"):
-        if mode == "ansi":
+        if self.render_mode == "ansi":
             return self._render_text()
         else:
-            return self._render_gui(mode)
+            return self._render_gui(self.render_mode)
 
     def _render_gui(self, mode):
-        import pygame
-
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
         if self.window_surface is None:
             pygame.init()
 
