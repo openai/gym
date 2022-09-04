@@ -491,7 +491,7 @@ def register(
         disable_env_checker=disable_env_checker,
         apply_step_compatibility=apply_step_compatibility,
         **kwargs,
-    )
+    )  # type: ignore
     _check_spec_register(new_spec)
     if new_spec.id in registry:
         logger.warn(f"Overriding environment {new_spec.id} already in registry.")
