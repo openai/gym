@@ -28,7 +28,7 @@ class Text(Space[str]):
         max_length: int,
         *,
         min_length: int = 0,
-        charset: Union[Set[str], str] = alphanumeric,
+        charset: Union[Set[str], str] = alphanumeric,  # type: ignore
         seed: Optional[Union[int, np.random.Generator]] = None,
     ):
         r"""Constructor of :class:`Text` space.

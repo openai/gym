@@ -64,7 +64,7 @@ class MultiDiscrete(Space[np.ndarray]):
         return self._shape  # type: ignore
 
     @property
-    def is_np_flattenable(self):
+    def is_np_flattenable(self) -> bool:
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return True
 
@@ -112,7 +112,7 @@ class MultiDiscrete(Space[np.ndarray]):
                         sub_nvec
                     ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
                     return [
-                        _apply_mask(new_mask, new_nvec)
+                        _apply_mask(new_mask, new_nvec)  # type: ignore
                         for new_mask, new_nvec in zip(sub_mask, sub_nvec)
                     ]
 

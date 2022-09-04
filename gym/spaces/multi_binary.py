@@ -51,7 +51,7 @@ class MultiBinary(Space[np.ndarray]):
         return self._shape  # type: ignore
 
     @property
-    def is_np_flattenable(self):
+    def is_np_flattenable(self) -> bool:
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return True
 

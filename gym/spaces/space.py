@@ -83,7 +83,7 @@ class Space(Generic[T_cov]):
         return self._shape
 
     @property
-    def is_np_flattenable(self):
+    def is_np_flattenable(self) -> bool:
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         raise NotImplementedError
 

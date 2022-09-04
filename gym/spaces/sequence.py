@@ -45,7 +45,7 @@ class Sequence(Space[Tuple]):
         return seeds
 
     @property
-    def is_np_flattenable(self):
+    def is_np_flattenable(self) -> bool:
         """Checks whether this space can be flattened to a :class:`spaces.Box`."""
         return False
 
