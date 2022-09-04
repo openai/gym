@@ -1,4 +1,3 @@
-from functools import partial
 from os import path
 from typing import Optional, Union
 
@@ -229,26 +228,24 @@ class MuJocoPyEnv(BaseMujocoEnv):
 
     def render(self):
         width, height = self.width, self.height
+        camera_name, camera_id = self.camera_name, self.camera_id
         if self.render_mode in {"rgb_array", "depth_array"}:
-            if self.camera_id is not None and self.camera_name is not None:
+            if camera_id is not None and camera_name is not None:
                 raise ValueError(
                     "Both `camera_id` and `camera_name` cannot be"
                     " specified at the same time."
                 )
 
-            no_camera_specified = self.camera_name is None and self.camera_id is None
+            no_camera_specified = camera_name is None and camera_id is None
             if no_camera_specified:
                 camera_name = "track"
 
-            if (
-                self.camera_id is None
-                and self.camera_name in self.model._camera_name2id
-            ):
-                if self.camera_name in self.model._camera_name2id:
-                    camera_id = self.model.camera_name2id(self.camera_name)
+            if camera_id is None and camera_name in self.model._camera_name2id:
+                if camera_name in self.model._camera_name2id:
+                    camera_id = self.model.camera_name2id(camera_name)
 
                 self._get_viewer(self.render_mode).render(
-                    width, height, camera_id=self.camera_id
+                    width, height, camera_id=camera_id
                 )
 
         if self.render_mode == "rgb_array":
