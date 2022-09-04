@@ -87,6 +87,8 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
             "reward_ctrl": -ctrl_cost,
         }
 
+        if self.render_mode == "human":
+            self.render()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):

@@ -42,6 +42,9 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         )
         terminated = not not_terminated
         ob = self._get_obs()
+
+        if self.render_mode == "human":
+            self.render()
         return (
             ob,
             reward,

@@ -183,6 +183,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_terminated += 1
             reward = 0.0
 
+        if self.render_mode == "human":
+            self.render()
         return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
@@ -199,6 +201,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         )  # default high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_terminated = None
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(self.state, dtype=np.float32), {}
 
     def render(self):

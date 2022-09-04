@@ -257,6 +257,9 @@ class TaxiEnv(Env):
         p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
+
+        if self.render_mode == "human":
+            self.render()
         return (int(s), r, t, False, {"prob": p, "action_mask": self.action_mask(s)})
 
     def reset(
@@ -270,6 +273,8 @@ class TaxiEnv(Env):
         self.lastaction = None
         self.taxi_orientation = 0
 
+        if self.render_mode == "human":
+            self.render()
         return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
 
     def render(self):

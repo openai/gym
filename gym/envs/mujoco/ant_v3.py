@@ -144,6 +144,8 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
+        if self.render_mode == "human":
+            self.render()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):
