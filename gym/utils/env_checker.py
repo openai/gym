@@ -16,6 +16,7 @@ These projects are covered by the MIT License.
 
 import inspect
 from copy import deepcopy
+from typing import Optional
 
 import numpy as np
 
@@ -252,7 +253,9 @@ def check_space_limit(space, space_type: str):
             check_space_limit(subspace, space_type)
 
 
-def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
+def check_env(
+    env: gym.Env, warn: Optional[bool] = None, skip_render_check: bool = False
+):
     """Check that an environment follows Gym API.
 
     This is an invasive function that calls the environment's reset and step.

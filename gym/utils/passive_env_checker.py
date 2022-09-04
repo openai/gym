@@ -129,7 +129,7 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
     """
     pre = f"The obs returned by the `{method_name}()` method"
     if isinstance(observation_space, spaces.Discrete):
-        if not isinstance(obs, (np.int64, int)):
+        if not isinstance(obs, (np.int64, int)):  # type: ignore
             logger.warn(f"{pre} should be an int or np.int64, actual type: {type(obs)}")
     elif isinstance(observation_space, spaces.Box):
         if observation_space.shape != ():
