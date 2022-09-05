@@ -503,7 +503,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    apply_step_compatibility: Optional[bool] = None,
+    apply_api_compatibility: Optional[bool] = None,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -515,7 +515,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        apply_step_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
+        apply_api_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
             converts the environment step from a done bool to return termination and truncation bools.
             By default, the argument is None to which the environment specification `apply_step_compatibility` is used
             which defaults to False. Otherwise, the value of `apply_step_compatibility` is used.
@@ -655,8 +655,8 @@ def make(
         env = PassiveEnvChecker(env)
 
     # Add step API wrapper
-    if apply_step_compatibility is True or (
-        apply_step_compatibility is None and spec_.apply_step_compatibility is True
+    if apply_api_compatibility is True or (
+        apply_api_compatibility is None and spec_.apply_step_compatibility is True
     ):
         env = EnvCompatibility(env)
 

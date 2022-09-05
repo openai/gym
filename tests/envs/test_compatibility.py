@@ -113,7 +113,7 @@ def test_make_compatibility_in_spec():
 
 def test_make_compatibility_in_make():
     gym.register(id="LegacyTestEnv-v0", entry_point=LegacyEnvExplicit)
-    env = gym.make("LegacyTestEnv-v0", apply_step_compatibility=True)
+    env = gym.make("LegacyTestEnv-v0", apply_api_compatibility=True)
     env.unwrapped.render_mode = "rgb_array"
     assert env.observation_space == Discrete(1)
     assert env.action_space == Discrete(1)

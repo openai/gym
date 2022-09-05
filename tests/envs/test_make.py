@@ -151,7 +151,7 @@ def test_apply_step_compatibility():
     env = gym.make("testing-old-env")
     # Cannot run reset and step as will not work
 
-    env = gym.make("testing-old-env", apply_step_compatibility=True)
+    env = gym.make("testing-old-env", apply_api_compatibility=True)
 
     env.reset()
     assert len(env.step(env.action_space.sample())) == 5
