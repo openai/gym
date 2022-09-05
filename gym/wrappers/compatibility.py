@@ -101,6 +101,9 @@ class EnvCompatibility(gym.Env):
         """
         obs, reward, done, info = self.env.step(action)
 
+        if self.render_mode == "human":
+            self.render()
+
         return convert_to_terminated_truncated_step_api((obs, reward, done, info))
 
     def render(self) -> Any:
