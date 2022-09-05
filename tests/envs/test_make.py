@@ -9,13 +9,7 @@ import pytest
 
 import gym
 from gym.envs.classic_control import cartpole
-from gym.wrappers import (
-    AutoResetWrapper,
-    HumanRendering,
-    OrderEnforcing,
-    StepAPICompatibility,
-    TimeLimit,
-)
+from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_env_specs
@@ -146,7 +140,6 @@ def test_apply_step_compatibility():
         max_episode_steps=3,
     )
     env = gym.make("testing-old-env")
-    assert has_wrapper(env, StepAPICompatibility)
 
     env.reset()
     assert len(env.step(env.action_space.sample())) == 5
@@ -156,11 +149,9 @@ def test_apply_step_compatibility():
 
     gym.spec("testing-old-env").apply_step_compatibility = False
     env = gym.make("testing-old-env")
-    assert has_wrapper(env, StepAPICompatibility) is False
     # Cannot run reset and step as will not work
 
     env = gym.make("testing-old-env", apply_step_compatibility=True)
-    assert has_wrapper(env, StepAPICompatibility)
 
     env.reset()
     assert len(env.step(env.action_space.sample())) == 5
