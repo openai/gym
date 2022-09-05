@@ -3,11 +3,12 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
+import gym
 from gym.spaces import Discrete
 from gym.wrappers.compatibility import EnvCompatibility, LegacyEnv
 
 
-class LegacyEnvExplicit(LegacyEnv):
+class LegacyEnvExplicit(LegacyEnv, gym.Env):
     """Legacy env that explicitly implements the old API."""
 
     observation_space = Discrete(1)
@@ -35,7 +36,7 @@ class LegacyEnvExplicit(LegacyEnv):
         pass
 
 
-class LegacyEnvImplicit:
+class LegacyEnvImplicit(gym.Env):
     """Legacy env that implicitly implements the old API as a protocol."""
 
     observation_space = Discrete(1)
@@ -44,8 +45,8 @@ class LegacyEnvImplicit:
     def __init__(self):
         pass
 
-    def reset(self):
-        return 0
+    def reset(self):  # type: ignore
+        return 0  # type: ignore
 
     def step(self, action: Any) -> Tuple[int, float, bool, Dict]:
         return 0, 0.0, False, {}
@@ -88,4 +89,38 @@ def test_implicit():
     assert env.reset(seed=0, options={"some": "option"}) == (0, {})
     assert env.step(0) == (0, 0, False, False, {})
     assert env.render().shape == (1, 1, 3)
+    env.close()
+
+
+def test_make_compatibility_in_spec():
+    gym.register(
+        id="LegacyTestEnv-v0",
+        entry_point=LegacyEnvExplicit,
+        apply_step_compatibility=True,
+    )
+    env = gym.make("LegacyTestEnv-v0")
+    env.unwrapped.render_mode = "rgb_array"
+    assert env.observation_space == Discrete(1)
+    assert env.action_space == Discrete(1)
+    assert env.reset() == (0, {})
+    assert env.reset(seed=0, options={"some": "option"}) == (0, {})
+    assert env.step(0) == (0, 0, False, False, {})
+    img = env.render()
+    assert isinstance(img, np.ndarray)
+    assert img.shape == (1, 1, 3)
+    env.close()
+
+
+def test_make_compatibility_in_make():
+    gym.register(id="LegacyTestEnv-v0", entry_point=LegacyEnvExplicit)
+    env = gym.make("LegacyTestEnv-v0", apply_step_compatibility=True)
+    env.unwrapped.render_mode = "rgb_array"
+    assert env.observation_space == Discrete(1)
+    assert env.action_space == Discrete(1)
+    assert env.reset() == (0, {})
+    assert env.reset(seed=0, options={"some": "option"}) == (0, {})
+    assert env.step(0) == (0, 0, False, False, {})
+    img = env.render()
+    assert isinstance(img, np.ndarray)
+    assert img.shape == (1, 1, 3)
     env.close()

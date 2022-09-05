@@ -52,6 +52,7 @@ class EnvCompatibility(gym.Env):
 
     Known limitations:
     - Environments that use `self.np_random` might not work as expected.
+    - `env.render_mode` cannot be set in `make` if the environment doesn't accept it as a parameter (e.g. via kwargs).
 
     Args:
         old_env (gym.Env): the env to wrap. Can be in old or new API

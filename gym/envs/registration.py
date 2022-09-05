@@ -26,9 +26,9 @@ from gym.wrappers import (
     HumanRendering,
     OrderEnforcing,
     RenderCollection,
-    StepAPICompatibility,
     TimeLimit,
 )
+from gym.wrappers.compatibility import EnvCompatibility
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -658,7 +658,7 @@ def make(
     if apply_step_compatibility is True or (
         apply_step_compatibility is None and spec_.apply_step_compatibility is True
     ):
-        env = StepAPICompatibility(env, output_truncation_bool=True)
+        env = EnvCompatibility(env)
 
     # Add the order enforcing wrapper
     if spec_.order_enforce:
