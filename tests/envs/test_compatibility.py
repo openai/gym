@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
@@ -77,7 +78,9 @@ def test_explicit():
 
 def test_implicit():
     old_env = LegacyEnvImplicit()
-    assert isinstance(old_env, LegacyEnv)
+    if sys.version_info > (3, 6):
+        # We need to give up on typing in Python 3.6
+        assert isinstance(old_env, LegacyEnv)
     env = EnvCompatibility(old_env, render_mode="rgb_array")
     assert env.observation_space == Discrete(1)
     assert env.action_space == Discrete(1)
