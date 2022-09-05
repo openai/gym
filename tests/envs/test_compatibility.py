@@ -109,6 +109,7 @@ def test_make_compatibility_in_spec():
     assert isinstance(img, np.ndarray)
     assert img.shape == (1, 1, 3)  # type: ignore
     env.close()
+    del gym.envs.registration.registry["LegacyTestEnv-v0"]
 
 
 def test_make_compatibility_in_make():
@@ -124,3 +125,4 @@ def test_make_compatibility_in_make():
     assert isinstance(img, np.ndarray)
     assert img.shape == (1, 1, 3)  # type: ignore
     env.close()
+    del gym.envs.registration.registry["LegacyTestEnv-v0"]
