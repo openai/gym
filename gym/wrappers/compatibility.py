@@ -114,3 +114,11 @@ class EnvCompatibility(gym.Env):
     def close(self):
         """Closes the environment."""
         self.env.close()
+
+    def __str__(self):
+        """Returns the wrapper name and the unwrapped environment string."""
+        return f"<{type(self).__name__}{self.env}>"
+
+    def __repr__(self):
+        """Returns the string representation of the wrapper."""
+        return str(self)
