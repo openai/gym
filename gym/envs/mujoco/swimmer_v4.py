@@ -199,6 +199,9 @@ class SwimmerEnv(MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
+        if self.render_mode == "human":
+            self.render()
+
         return observation, reward, False, False, info
 
     def _get_obs(self):

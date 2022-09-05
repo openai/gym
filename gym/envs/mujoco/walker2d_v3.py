@@ -137,6 +137,9 @@ class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
             "x_velocity": x_velocity,
         }
 
+        if self.render_mode == "human":
+            self.render()
+
         return observation, reward, terminated, False, info
 
     def reset_model(self):

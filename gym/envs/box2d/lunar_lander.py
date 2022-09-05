@@ -415,6 +415,8 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
+        if self.render_mode == "human":
+            self.render()
         return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
@@ -592,6 +594,9 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             terminated = True
             reward = +100
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):

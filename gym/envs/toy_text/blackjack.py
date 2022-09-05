@@ -156,6 +156,9 @@ class BlackjackEnv(gym.Env):
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
+
+        if self.render_mode == "human":
+            self.render()
         return self._get_obs(), reward, terminated, False, {}
 
     def _get_obs(self):
@@ -182,6 +185,8 @@ class BlackjackEnv(gym.Env):
         else:
             self.dealer_top_card_value_str = str(dealer_card_value)
 
+        if self.render_mode == "human":
+            self.render()
         return self._get_obs(), {}
 
     def render(self):

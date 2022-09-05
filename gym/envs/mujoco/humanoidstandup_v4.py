@@ -224,6 +224,8 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
 
+        if self.render_mode == "human":
+            self.render()
         return (
             self._get_obs(),
             reward,

@@ -139,7 +139,11 @@ class ReacherEnv(MujocoEnv, utils.EzPickle):
         reward_dist = -np.linalg.norm(vec)
         reward_ctrl = -np.square(a).sum()
         reward = reward_dist + reward_ctrl
+
         self.do_simulation(a, self.frame_skip)
+        if self.render_mode == "human":
+            self.render()
+
         ob = self._get_obs()
         return (
             ob,

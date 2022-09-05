@@ -189,6 +189,8 @@ class AcrobotEnv(core.Env):
             np.float32
         )
 
+        if self.render_mode == "human":
+            self.render()
         return self._get_ob(), {}
 
     def step(self, a):
@@ -216,6 +218,8 @@ class AcrobotEnv(core.Env):
         terminated = self._terminal()
         reward = -1.0 if not terminated else 0.0
 
+        if self.render_mode == "human":
+            self.render()
         return (self._get_ob(), reward, terminated, False, {})
 
     def _get_ob(self):

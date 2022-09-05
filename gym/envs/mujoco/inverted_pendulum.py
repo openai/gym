@@ -32,6 +32,9 @@ class InvertedPendulumEnv(MuJocoPyEnv, utils.EzPickle):
 
         ob = self._get_obs()
         terminated = bool(not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2))
+
+        if self.render_mode == "human":
+            self.render()
         return ob, reward, terminated, False, {}
 
     def reset_model(self):

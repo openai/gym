@@ -32,6 +32,9 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
         terminated = False
+
+        if self.render_mode == "human":
+            self.render()
         return (
             ob,
             reward,
