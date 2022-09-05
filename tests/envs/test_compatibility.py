@@ -107,7 +107,7 @@ def test_make_compatibility_in_spec():
     assert env.step(0) == (0, 0, False, False, {})
     img = env.render()
     assert isinstance(img, np.ndarray)
-    assert img.shape == (1, 1, 3)
+    assert img.shape == (1, 1, 3)  # type: ignore
     env.close()
 
 
@@ -122,5 +122,5 @@ def test_make_compatibility_in_make():
     assert env.step(0) == (0, 0, False, False, {})
     img = env.render()
     assert isinstance(img, np.ndarray)
-    assert img.shape == (1, 1, 3)
+    assert img.shape == (1, 1, 3)  # type: ignore
     env.close()
