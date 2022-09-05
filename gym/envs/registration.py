@@ -648,17 +648,17 @@ def make(
     spec_.kwargs = _kwargs
     env.unwrapped.spec = spec_
 
-    # Run the environment checker as the lowest level wrapper
-    if disable_env_checker is False or (
-        disable_env_checker is None and spec_.disable_env_checker is False
-    ):
-        env = PassiveEnvChecker(env)
-
     # Add step API wrapper
     if apply_api_compatibility is True or (
         apply_api_compatibility is None and spec_.apply_api_compatibility is True
     ):
         env = EnvCompatibility(env)
+
+    # Run the environment checker as the lowest level wrapper
+    if disable_env_checker is False or (
+        disable_env_checker is None and spec_.disable_env_checker is False
+    ):
+        env = PassiveEnvChecker(env)
 
     # Add the order enforcing wrapper
     if spec_.order_enforce:
