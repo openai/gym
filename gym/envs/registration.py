@@ -490,7 +490,7 @@ def register(
         order_enforce=order_enforce,
         autoreset=autoreset,
         disable_env_checker=disable_env_checker,
-        apply_step_compatibility=apply_api_compatibility,
+        apply_api_compatibility=apply_api_compatibility,
         **kwargs,
     )
     _check_spec_register(new_spec)
@@ -517,8 +517,8 @@ def make(
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         apply_api_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
             converts the environment step from a done bool to return termination and truncation bools.
-            By default, the argument is None to which the environment specification `apply_step_compatibility` is used
-            which defaults to False. Otherwise, the value of `apply_step_compatibility` is used.
+            By default, the argument is None to which the environment specification `apply_api_compatibility` is used
+            which defaults to False. Otherwise, the value of `apply_api_compatibility` is used.
             If `True`, the wrapper is applied otherwise, the wrapper is not applied.
         disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
             (which is by default False, running the environment checker),

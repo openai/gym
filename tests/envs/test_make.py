@@ -132,7 +132,7 @@ def test_make_disable_env_checker():
     env.close()
 
 
-def test_apply_step_compatibility():
+def test_apply_api_compatibility():
     gym.register(
         "testing-old-env",
         lambda: GenericTestEnv(step_fn=old_step_fn),
