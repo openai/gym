@@ -64,7 +64,7 @@ def test_step_compatibility_in_make(apply_step_compatibility):
             apply_step_compatibility=apply_step_compatibility,
             disable_env_checker=True,
         )
-    elif apply_step_compatibility is None:
+    else:
         env = gym.make("OldStepEnv-v0", disable_env_checker=True)
 
     env.reset()
