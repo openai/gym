@@ -1,12 +1,14 @@
 from os import path
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 import numpy as np
 
 import gym
 from gym import error, logger, spaces
-from gym.envs.mujoco import RenderContextOffscreen, Viewer
 from gym.spaces import Space
+
+if TYPE_CHECKING:
+    from gym.envs.mujoco import RenderContextOffscreen, Viewer
 
 MUJOCO_PY_NOT_INSTALLED = False
 MUJOCO_NOT_INSTALLED = False
@@ -396,7 +398,7 @@ class MujocoEnv(BaseMujocoEnv):
             self.viewer.close()
         super().close()
 
-    def _get_viewer(self, mode) -> Union[Viewer, RenderContextOffscreen]:
+    def _get_viewer(self, mode) -> Union["Viewer", "RenderContextOffscreen"]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
