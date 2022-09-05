@@ -96,7 +96,7 @@ def test_make_compatibility_in_spec():
     gym.register(
         id="LegacyTestEnv-v0",
         entry_point=LegacyEnvExplicit,
-        apply_step_compatibility=True,
+        apply_api_compatibility=True,
     )
     env = gym.make("LegacyTestEnv-v0")
     env.unwrapped.render_mode = "rgb_array"

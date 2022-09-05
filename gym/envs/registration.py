@@ -141,7 +141,7 @@ class EnvSpec:
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
     disable_env_checker: bool = field(default=False)
-    apply_step_compatibility: bool = field(default=False)
+    apply_api_compatibility: bool = field(default=False)
 
     # Environment arguments
     kwargs: dict = field(default_factory=dict)
@@ -440,7 +440,7 @@ def register(
     order_enforce: bool = True,
     autoreset: bool = False,
     disable_env_checker: bool = False,
-    apply_step_compatibility: bool = False,
+    apply_api_compatibility: bool = False,
     **kwargs,
 ):
     """Register an environment with gym.
@@ -459,7 +459,7 @@ def register(
         order_enforce: If to enable the order enforcer wrapper to ensure users run functions in the correct order
         autoreset: If to add the autoreset wrapper such that reset does not need to be called.
         disable_env_checker: If to disable the environment checker for the environment. Recommended to False.
-        apply_step_compatibility: If to apply the `StepAPICompatibility` wrapper.
+        apply_api_compatibility: If to apply the `StepAPICompatibility` wrapper.
         **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
@@ -490,7 +490,7 @@ def register(
         order_enforce=order_enforce,
         autoreset=autoreset,
         disable_env_checker=disable_env_checker,
-        apply_step_compatibility=apply_step_compatibility,
+        apply_step_compatibility=apply_api_compatibility,
         **kwargs,
     )
     _check_spec_register(new_spec)
@@ -656,7 +656,7 @@ def make(
 
     # Add step API wrapper
     if apply_api_compatibility is True or (
-        apply_api_compatibility is None and spec_.apply_step_compatibility is True
+        apply_api_compatibility is None and spec_.apply_api_compatibility is True
     ):
         env = EnvCompatibility(env)
 

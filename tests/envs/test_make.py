@@ -136,7 +136,7 @@ def test_apply_step_compatibility():
     gym.register(
         "testing-old-env",
         lambda: GenericTestEnv(step_fn=old_step_fn),
-        apply_step_compatibility=True,
+        apply_api_compatibility=True,
         max_episode_steps=3,
     )
     env = gym.make("testing-old-env")
@@ -147,7 +147,7 @@ def test_apply_step_compatibility():
     _, _, termination, truncation, _ = env.step(env.action_space.sample())
     assert termination is False and truncation is True
 
-    gym.spec("testing-old-env").apply_step_compatibility = False
+    gym.spec("testing-old-env").apply_api_compatibility = False
     env = gym.make("testing-old-env")
     # Cannot run reset and step as will not work
 
