@@ -169,6 +169,9 @@ class Continuous_MountainCarEnv(gym.Env):
         reward -= math.pow(action[0], 2) * 0.1
 
         self.state = np.array([position, velocity], dtype=np.float32)
+
+        if self.render_mode == "human":
+            self.render()
         return self.state, reward, terminated, False, {}
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
@@ -177,6 +180,9 @@ class Continuous_MountainCarEnv(gym.Env):
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(self.state, dtype=np.float32), {}
 
     def _height(self, xs):

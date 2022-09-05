@@ -133,6 +133,9 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
+
+        if self.render_mode == "human":
+            self.render()
         return self._get_obs(), -costs, False, False, {}
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
@@ -151,6 +154,8 @@ class PendulumEnv(gym.Env):
         self.state = self.np_random.uniform(low=low, high=high)
         self.last_u = None
 
+        if self.render_mode == "human":
+            self.render()
         return self._get_obs(), {}
 
     def _get_obs(self):

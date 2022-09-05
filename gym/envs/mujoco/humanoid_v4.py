@@ -346,6 +346,8 @@ class HumanoidEnv(MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
+        if self.render_mode == "human":
+            self.render()
         return observation, reward, terminated, False, info
 
     def reset_model(self):

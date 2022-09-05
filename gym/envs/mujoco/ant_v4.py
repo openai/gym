@@ -313,6 +313,8 @@ class AntEnv(MujocoEnv, utils.EzPickle):
 
         reward = rewards - costs
 
+        if self.render_mode == "human":
+            self.render()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):

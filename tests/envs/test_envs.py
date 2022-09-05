@@ -165,7 +165,9 @@ def test_render_modes(spec):
     """
     env = spec.make()
 
-    assert len(env.metadata["render_modes"]) > 0
+    assert "rgb_array" in env.metadata["render_modes"]
+    assert "human" in env.metadata["render_modes"]
+
     for mode in env.metadata["render_modes"]:
         if mode != "human":
             new_env = spec.make(render_mode=mode)
