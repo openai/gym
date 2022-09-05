@@ -44,19 +44,15 @@ class LegacyEnv(Protocol):
 
 
 class EnvCompatibility(gym.Env):
-    r"""A wrapper which can transform an environment from new step API to old and vice-versa.
+    r"""A wrapper which can transform an environment from the old API to the new API.
 
-    Old step API refers to step() method returning (observation, reward, done, info)
-    New step API refers to step() method returning (observation, reward, terminated, truncated, info)
+    Old step API refers to step() method returning (observation, reward, done, info), and reset() only retuning the observation.
+    New step API refers to step() method returning (observation, reward, terminated, truncated, info) and reset() returning (observation, info).
     (Refer to docs for details on the API change)
 
     Known limitations:
     - Environments that use `self.np_random` might not work as expected.
     - `env.render_mode` cannot be set in `make` if the environment doesn't accept it as a parameter (e.g. via kwargs).
-
-    Args:
-        old_env (gym.Env): the env to wrap. Can be in old or new API
-
     """
 
     def __init__(self, old_env: LegacyEnv, render_mode: Optional[str] = None):
@@ -95,13 +91,13 @@ class EnvCompatibility(gym.Env):
         return self.env.reset(), {}
 
     def step(self, action: Any) -> Tuple[Any, float, bool, bool, Dict]:
-        """Steps through the environment, returning 5 or 4 items depending on `apply_step_compatibility`.
+        """Steps through the environment.
 
         Args:
             action: action to step through the environment with
 
         Returns:
-            (observation, reward, terminated, truncated, info) or (observation, reward, done, info)
+            (observation, reward, terminated, truncated, info)
         """
         obs, reward, done, info = self.env.step(action)
 
