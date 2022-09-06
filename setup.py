@@ -13,7 +13,7 @@ with open("gym/version.py") as file:
 
 # Environment-specific dependencies.
 extras = {
-    "atari": ["ale-py~=0.7.5"],
+    "atari": ["ale-py~=0.8.0"],
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pygame==2.1.0", "swig==4.*"],
     "classic_control": ["pygame==2.1.0"],
