@@ -513,6 +513,8 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
+        if self.render_mode == "human":
+            self.render()
         return self.step(None)[0], {}
 
     def step(self, action: Optional[Union[np.ndarray, int]]):
@@ -559,6 +561,8 @@ class CarRacing(gym.Env, EzPickle):
                 terminated = True
                 step_reward = -100
 
+        if self.render_mode == "human":
+            self.render()
         return self.state, step_reward, terminated, truncated, {}
 
     def render(self):

@@ -247,6 +247,9 @@ class FrozenLakeEnv(Env):
         p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
+
+        if self.render_mode == "human":
+            self.render()
         return (int(s), r, t, False, {"prob": p})
 
     def reset(
@@ -259,6 +262,8 @@ class FrozenLakeEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
+        if self.render_mode == "human":
+            self.render()
         return int(self.s), {"prob": 1}
 
     def render(self):

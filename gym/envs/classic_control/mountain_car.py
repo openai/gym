@@ -143,6 +143,8 @@ class MountainCarEnv(gym.Env):
         reward = -1.0
 
         self.state = (position, velocity)
+        if self.render_mode == "human":
+            self.render()
         return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
@@ -156,6 +158,9 @@ class MountainCarEnv(gym.Env):
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(self.state, dtype=np.float32), {}
 
     def _height(self, xs):

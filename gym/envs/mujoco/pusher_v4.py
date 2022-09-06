@@ -154,6 +154,9 @@ class PusherEnv(MujocoEnv, utils.EzPickle):
         reward = reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.do_simulation(a, self.frame_skip)
+        if self.render_mode == "human":
+            self.render()
+
         ob = self._get_obs()
         return (
             ob,

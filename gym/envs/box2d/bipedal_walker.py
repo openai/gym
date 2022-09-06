@@ -510,6 +510,8 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
+        if self.render_mode == "human":
+            self.render()
         return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action: np.ndarray):
@@ -598,6 +600,9 @@ class BipedalWalker(gym.Env, EzPickle):
             terminated = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
             terminated = True
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):

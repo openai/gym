@@ -103,14 +103,20 @@ class LunarLander(gym.Env, EzPickle):
     that represent whether each leg is in contact with the ground or not.
 
     ### Rewards
-    Reward for moving from the top of the screen to the landing pad and coming
-    to rest is about 100-140 points.
-    If the lander moves away from the landing pad, it loses reward.
-    If the lander crashes, it receives an additional -100 points. If it comes
-    to rest, it receives an additional +100 points. Each leg with ground
-    contact is +10 points.
-    Firing the main engine is -0.3 points each frame. Firing the side engine
-    is -0.03 points each frame. Solved is 200 points.
+    After every step a reward is granted. The total reward of an episode is the
+    sum of the rewards for all the steps within that episode.
+
+    For each step, the reward:
+    - is increased/decreased the closer/further the lander is to the landing pad.
+    - is increased/decreased the slower/faster the lander is moving.
+    - is decreased the more the lander is tilted (angle not horizontal).
+    - is increased by 10 points for each leg that is in contact with the ground.
+    - is decreased by 0.03 points each frame a side engine is firing.
+    - is decreased by 0.3 points each frame the main engine is firing.
+
+    The episode receive an additional reward of -100 or +100 points for crashing or landing safely respectively.
+
+    An episode is considered a solution if it scores at least 200 points.
 
     ### Starting State
     The lander starts at the top center of the viewport with a random initial
@@ -409,6 +415,8 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
+        if self.render_mode == "human":
+            self.render()
         return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
@@ -590,6 +598,9 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             terminated = True
             reward = +100
+
+        if self.render_mode == "human":
+            self.render()
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):

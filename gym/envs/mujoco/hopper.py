@@ -39,6 +39,9 @@ class HopperEnv(MuJocoPyEnv, utils.EzPickle):
             and (abs(ang) < 0.2)
         )
         ob = self._get_obs()
+
+        if self.render_mode == "human":
+            self.render()
         return ob, reward, terminated, False, {}
 
     def _get_obs(self):
