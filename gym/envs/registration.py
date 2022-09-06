@@ -26,9 +26,9 @@ from gym.wrappers import (
     HumanRendering,
     OrderEnforcing,
     RenderCollection,
-    StepAPICompatibility,
     TimeLimit,
 )
+from gym.wrappers.compatibility import EnvCompatibility
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -141,7 +141,7 @@ class EnvSpec:
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
     disable_env_checker: bool = field(default=False)
-    apply_step_compatibility: bool = field(default=False)
+    apply_api_compatibility: bool = field(default=False)
 
     # Environment arguments
     kwargs: dict = field(default_factory=dict)
@@ -440,7 +440,7 @@ def register(
     order_enforce: bool = True,
     autoreset: bool = False,
     disable_env_checker: bool = False,
-    apply_step_compatibility: bool = False,
+    apply_api_compatibility: bool = False,
     **kwargs,
 ):
     """Register an environment with gym.
@@ -459,7 +459,7 @@ def register(
         order_enforce: If to enable the order enforcer wrapper to ensure users run functions in the correct order
         autoreset: If to add the autoreset wrapper such that reset does not need to be called.
         disable_env_checker: If to disable the environment checker for the environment. Recommended to False.
-        apply_step_compatibility: If to apply the `StepAPICompatibility` wrapper.
+        apply_api_compatibility: If to apply the `StepAPICompatibility` wrapper.
         **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
@@ -490,7 +490,7 @@ def register(
         order_enforce=order_enforce,
         autoreset=autoreset,
         disable_env_checker=disable_env_checker,
-        apply_step_compatibility=apply_step_compatibility,
+        apply_api_compatibility=apply_api_compatibility,
         **kwargs,
     )
     _check_spec_register(new_spec)
@@ -503,7 +503,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    apply_step_compatibility: Optional[bool] = None,
+    apply_api_compatibility: Optional[bool] = None,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -515,10 +515,10 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        apply_step_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
+        apply_api_compatibility: Whether to wrap the environment with the `StepAPICompatibility` wrapper that
             converts the environment step from a done bool to return termination and truncation bools.
-            By default, the argument is None to which the environment specification `apply_step_compatibility` is used
-            which defaults to False. Otherwise, the value of `apply_step_compatibility` is used.
+            By default, the argument is None to which the environment specification `apply_api_compatibility` is used
+            which defaults to False. Otherwise, the value of `apply_api_compatibility` is used.
             If `True`, the wrapper is applied otherwise, the wrapper is not applied.
         disable_env_checker: If to run the env checker, None will default to the environment specification `disable_env_checker`
             (which is by default False, running the environment checker),
@@ -628,6 +628,14 @@ def make(
                 f"The environment creator metadata doesn't include `render_modes`, contains: {list(env_creator.metadata.keys())}"
             )
 
+    if apply_api_compatibility is True or (
+        apply_api_compatibility is None and spec_.apply_api_compatibility is True
+    ):
+        # If we use the compatibility layer, we treat the render mode explicitly and don't pass it to the env creator
+        render_mode = _kwargs.pop("render_mode", None)
+    else:
+        render_mode = None
+
     try:
         env = env_creator(**_kwargs)
     except TypeError as e:
@@ -648,17 +656,17 @@ def make(
     spec_.kwargs = _kwargs
     env.unwrapped.spec = spec_
 
+    # Add step API wrapper
+    if apply_api_compatibility is True or (
+        apply_api_compatibility is None and spec_.apply_api_compatibility is True
+    ):
+        env = EnvCompatibility(env, render_mode)
+
     # Run the environment checker as the lowest level wrapper
     if disable_env_checker is False or (
         disable_env_checker is None and spec_.disable_env_checker is False
     ):
         env = PassiveEnvChecker(env)
-
-    # Add step API wrapper
-    if apply_step_compatibility is True or (
-        apply_step_compatibility is None and spec_.apply_step_compatibility is True
-    ):
-        env = StepAPICompatibility(env, output_truncation_bool=True)
 
     # Add the order enforcing wrapper
     if spec_.order_enforce:

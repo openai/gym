@@ -9,13 +9,7 @@ import pytest
 
 import gym
 from gym.envs.classic_control import cartpole
-from gym.wrappers import (
-    AutoResetWrapper,
-    HumanRendering,
-    OrderEnforcing,
-    StepAPICompatibility,
-    TimeLimit,
-)
+from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_env_specs
@@ -138,15 +132,14 @@ def test_make_disable_env_checker():
     env.close()
 
 
-def test_apply_step_compatibility():
+def test_apply_api_compatibility():
     gym.register(
         "testing-old-env",
         lambda: GenericTestEnv(step_fn=old_step_fn),
-        apply_step_compatibility=True,
+        apply_api_compatibility=True,
         max_episode_steps=3,
     )
     env = gym.make("testing-old-env")
-    assert has_wrapper(env, StepAPICompatibility)
 
     env.reset()
     assert len(env.step(env.action_space.sample())) == 5
@@ -154,13 +147,11 @@ def test_apply_step_compatibility():
     _, _, termination, truncation, _ = env.step(env.action_space.sample())
     assert termination is False and truncation is True
 
-    gym.spec("testing-old-env").apply_step_compatibility = False
+    gym.spec("testing-old-env").apply_api_compatibility = False
     env = gym.make("testing-old-env")
-    assert has_wrapper(env, StepAPICompatibility) is False
     # Cannot run reset and step as will not work
 
-    env = gym.make("testing-old-env", apply_step_compatibility=True)
-    assert has_wrapper(env, StepAPICompatibility)
+    env = gym.make("testing-old-env", apply_api_compatibility=True)
 
     env.reset()
     assert len(env.step(env.action_space.sample())) == 5

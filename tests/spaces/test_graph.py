@@ -8,6 +8,7 @@ from gym.spaces import Discrete, Graph, GraphInstance
 
 def test_node_space_sample():
     space = Graph(node_space=Discrete(3), edge_space=None)
+    space.seed(0)
 
     sample = space.sample(
         mask=(tuple(np.array([0, 1, 0], dtype=np.int8) for _ in range(5)), None),
@@ -47,12 +48,13 @@ def test_node_space_sample():
 
 def test_edge_space_sample():
     space = Graph(node_space=Discrete(3), edge_space=Discrete(3))
+    space.seed(0)
     # When num_nodes>1 then num_edges is set to 0
     assert space.sample(num_nodes=1).edges is None
     assert 0 <= len(space.sample(num_edges=3).edges) < 6
 
     sample = space.sample(mask=(None, np.array([0, 1, 0], dtype=np.int8)))
-    assert np.all(sample.edges == 1)
+    assert np.all(sample.edges == 1) or sample.edges is None
 
     sample = space.sample(
         mask=(

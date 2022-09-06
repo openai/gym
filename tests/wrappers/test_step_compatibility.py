@@ -54,22 +54,22 @@ def test_step_compatibility_to_old_api(env):
     assert isinstance(done, bool)
 
 
-@pytest.mark.parametrize("apply_step_compatibility", [None, True, False])
-def test_step_compatibility_in_make(apply_step_compatibility):
+@pytest.mark.parametrize("apply_api_compatibility", [None, True, False])
+def test_step_compatibility_in_make(apply_api_compatibility):
     gym.register("OldStepEnv-v0", entry_point=OldStepEnv)
 
-    if apply_step_compatibility is not None:
+    if apply_api_compatibility is not None:
         env = gym.make(
             "OldStepEnv-v0",
-            apply_step_compatibility=apply_step_compatibility,
+            apply_api_compatibility=apply_api_compatibility,
             disable_env_checker=True,
         )
-    elif apply_step_compatibility is None:
+    else:
         env = gym.make("OldStepEnv-v0", disable_env_checker=True)
 
     env.reset()
     step_returns = env.step(0)
-    if apply_step_compatibility:
+    if apply_api_compatibility:
         assert len(step_returns) == 5
         _, _, terminated, truncated, _ = step_returns
         assert isinstance(terminated, bool)
