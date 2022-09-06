@@ -88,6 +88,10 @@ class EnvCompatibility(gym.Env):
         if seed is not None:
             self.env.seed(seed)
         # Options are ignored
+
+        if self.render_mode == "human":
+            self.render()
+
         return self.env.reset(), {}
 
     def step(self, action: Any) -> Tuple[Any, float, bool, bool, Dict]:
