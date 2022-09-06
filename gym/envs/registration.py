@@ -628,6 +628,14 @@ def make(
                 f"The environment creator metadata doesn't include `render_modes`, contains: {list(env_creator.metadata.keys())}"
             )
 
+    if apply_api_compatibility is True or (
+        apply_api_compatibility is None and spec_.apply_api_compatibility is True
+    ):
+        # If we use the compatibility layer, we treat the render mode explicitly and don't pass it to the env creator
+        render_mode = _kwargs.pop("render_mode", None)
+    else:
+        render_mode = None
+
     try:
         env = env_creator(**_kwargs)
     except TypeError as e:
@@ -652,7 +660,7 @@ def make(
     if apply_api_compatibility is True or (
         apply_api_compatibility is None and spec_.apply_api_compatibility is True
     ):
-        env = EnvCompatibility(env)
+        env = EnvCompatibility(env, render_mode)
 
     # Run the environment checker as the lowest level wrapper
     if disable_env_checker is False or (
