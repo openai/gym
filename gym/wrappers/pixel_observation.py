@@ -97,7 +97,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         if not env.render_mode:
             raise AttributeError(
                 "env.render_mode must be specified to use PixelObservationWrapper:"
-                "`gym.make(env_name, render_mode='single_rgb_array')`."
+                "`gym.make(env_name, render_mode='rgb_array')`."
             )
 
         for key in pixel_keys:
