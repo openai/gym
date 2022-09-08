@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 import gym
-from gym import logger, spaces
+from gym import spaces
 
 STATE_KEY = "state"
 
@@ -95,10 +95,9 @@ class PixelObservationWrapper(gym.ObservationWrapper):
 
         default_render_kwargs = {}
         if not env.render_mode:
-            default_render_kwargs = {"mode": "rgb_array_list"}
-            logger.warn(
+            raise AttributeError(
                 "env.render_mode must be specified to use PixelObservationWrapper:"
-                "`gym.make(env_name, render_mode='rgb_array')`."
+                "`gym.make(env_name, render_mode='single_rgb_array')`."
             )
 
         for key in pixel_keys:
