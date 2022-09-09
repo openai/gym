@@ -81,7 +81,7 @@ class FrictionDetector(contactListener):
             return
 
         # inherit tile color from env
-        tile.color = self.env.road_color / 255
+        tile.color[:] = self.env.road_color
         if not obj or "tiles" not in obj.__dict__:
             return
         if begin:
