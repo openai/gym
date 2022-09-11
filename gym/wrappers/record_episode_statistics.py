@@ -8,35 +8,6 @@ import numpy as np
 import gym
 
 
-def add_vector_episode_statistics(
-    info: dict, episode_info: dict, num_envs: int, env_num: int
-):
-    """Add episode statistics.
-
-    Add statistics coming from the vectorized environment.
-
-    Args:
-        info (dict): info dict of the environment.
-        episode_info (dict): episode statistics data.
-        num_envs (int): number of environments.
-        env_num (int): env number of the vectorized environments.
-
-    Returns:
-        info (dict): the input info dict with the episode statistics.
-    """
-    info["episode"] = info.get("episode", {})
-
-    info["_episode"] = info.get("_episode", np.zeros(num_envs, dtype=bool))
-    info["_episode"][env_num] = True
-
-    for k in episode_info.keys():
-        info_array = info["episode"].get(k, np.zeros(num_envs))
-        info_array[env_num] = episode_info[k]
-        info["episode"][k] = info_array
-
-    return info
-
-
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
@@ -114,38 +85,28 @@ class RecordEpisodeStatistics(gym.Wrapper):
         ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
         self.episode_returns += rewards
         self.episode_lengths += 1
-        if not self.is_vector_env:
-            terminateds = [terminateds]
-            truncateds = [truncateds]
-        terminateds = list(terminateds)
-        truncateds = list(truncateds)
-
-        for i in range(len(terminateds)):
-            if terminateds[i] or truncateds[i]:
-                episode_return = self.episode_returns[i]
-                episode_length = self.episode_lengths[i]
-                episode_info = {
-                    "episode": {
-                        "r": episode_return,
-                        "l": episode_length,
-                        "t": round(time.perf_counter() - self.t0, 6),
-                    }
-                }
-                if self.is_vector_env:
-                    infos = add_vector_episode_statistics(
-                        infos, episode_info["episode"], self.num_envs, i
-                    )
-                else:
-                    infos = {**infos, **episode_info}
-                self.return_queue.append(episode_return)
-                self.length_queue.append(episode_length)
-                self.episode_count += 1
-                self.episode_returns[i] = 0
-                self.episode_lengths[i] = 0
+        dones = truncateds | terminateds
+        num_dones = np.sum(dones)
+        if num_dones:
+            episode_info = {
+                "episode": {
+                    "r": np.where(dones, self.episode_returns, 0),
+                    "l": np.where(dones, self.episode_lengths, 0),
+                    "t": round(time.perf_counter() - self.t0, 6)
+                },
+            }
+            if self.is_vector_env:
+                episode_info["_episode"] = np.where(dones, True, False)
+            infos = {**infos, **episode_info}
+            self.return_queue.extend(self.episode_returns[dones])
+            self.length_queue.extend(self.episode_lengths[dones])
+            self.episode_count += num_dones
+            self.episode_lengths[dones] = 0
+            self.episode_returns[dones] = 0
         return (
             observations,
             rewards,
-            terminateds if self.is_vector_env else terminateds[0],
-            truncateds if self.is_vector_env else truncateds[0],
+            terminateds,
+            truncateds,
             infos,
         )
