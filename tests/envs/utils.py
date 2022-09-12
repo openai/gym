@@ -4,7 +4,7 @@ from typing import List, Optional
 import numpy as np
 
 import gym
-from gym import logger
+from gym import error, logger
 from gym.envs.registration import EnvSpec
 
 
@@ -17,7 +17,7 @@ def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
     if "gym.envs." in env_spec.entry_point:
         try:
             return env_spec.make(disable_env_checker=True).unwrapped
-        except ImportError as e:
+        except (ImportError, error.DependencyNotInstalled) as e:
             logger.warn(f"Not testing {env_spec.id} due to error: {e}")
     return None
 
