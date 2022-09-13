@@ -771,6 +771,7 @@ if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])
 
     def register_input():
+        global quit, restart
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -782,8 +783,9 @@ if __name__ == "__main__":
                 if event.key == pygame.K_DOWN:
                     a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
                 if event.key == pygame.K_RETURN:
-                    global restart
                     restart = True
+                if event.key == pygame.K_ESCAPE:
+                    quit = True
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -795,11 +797,13 @@ if __name__ == "__main__":
                 if event.key == pygame.K_DOWN:
                     a[2] = 0
 
-    env = CarRacing()
-    env.render()
+            if event.type == pygame.QUIT:
+                quit = True
 
-    isopen = True
-    while isopen:
+    env = CarRacing(render_mode="human")
+
+    quit = False
+    while not quit:
         env.reset()
         total_reward = 0.0
         steps = 0
@@ -812,7 +816,6 @@ if __name__ == "__main__":
                 print("\naction " + str([f"{x:+0.2f}" for x in a]))
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
-            isopen = env.render()
-            if terminated or truncated or restart or isopen is False:
+            if terminated or truncated or restart or quit:
                 break
     env.close()
