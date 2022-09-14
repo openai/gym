@@ -621,7 +621,9 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
+        self.surf = pygame.Surface(
+            (VIEWPORT_W + max(0.0, self.scroll) * SCALE, VIEWPORT_H)
+        )
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))
 
