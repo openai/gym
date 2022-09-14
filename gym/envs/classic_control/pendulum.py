@@ -49,7 +49,7 @@ class PendulumEnv(gym.Env):
     | Num | Observation      | Min  | Max |
     |-----|------------------|------|-----|
     | 0   | x = cos(theta)   | -1.0 | 1.0 |
-    | 1   | y = sin(angle)   | -1.0 | 1.0 |
+    | 1   | y = sin(theta)   | -1.0 | 1.0 |
     | 2   | Angular Velocity | -8.0 | 8.0 |
 
     ### Rewards
