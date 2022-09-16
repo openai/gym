@@ -515,9 +515,9 @@ class CarRacing(gym.Env, EzPickle):
 
         if self.render_mode == "human":
             self.render()
-        return self.step(None)[0], {}
+        return self.step(None)[0], {}  # type: ignore
 
-    def step(self, action: Optional[Union[np.ndarray, int]]):
+    def step(self, action: Union[np.ndarray, int]):
         assert self.car is not None
         if action is not None:
             if self.continuous:
