@@ -187,7 +187,7 @@ class BlackjackEnv(gym.Env):
 
         if self.render_mode == "human":
             self.render()
-        return self._get_obs(), {}
+        return self._get_obs()
 
     def render(self):
         try:
