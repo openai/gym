@@ -92,7 +92,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 "episode": {
                     "r": np.where(dones, self.episode_returns, 0),
                     "l": np.where(dones, self.episode_lengths, 0),
-                    "t": round(time.perf_counter() - self.t0, 6)
+                    "t": round(time.perf_counter() - self.t0, 6),
                 },
             }
             if self.is_vector_env:
