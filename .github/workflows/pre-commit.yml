@@ -5,6 +5,8 @@ on:
   pull_request:
   push:
     branches: [master]
+permissions:
+  contents: read # to fetch code (actions/checkout)
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
