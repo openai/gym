@@ -569,12 +569,14 @@ class CarRacing(gym.Env, EzPickle):
             gym.logger.WARN(
                 "You are calling render method without specifying any render mode."
             )
-            return
+        else:
+            return self._render(self.render_mode)
 
-        assert self.render_mode in self.metadata["render_modes"]
+    def _render(self, mode: str):
+        assert mode in self.metadata["render_modes"]
 
         pygame.font.init()
-        if self.screen is None and self.render_mode == "human":
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
@@ -602,7 +604,7 @@ class CarRacing(gym.Env, EzPickle):
             zoom,
             trans,
             angle,
-            self.render_mode not in ["state_pixels_list", "state_pixels"],
+            mode not in ["state_pixels_list", "state_pixels"],
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
@@ -616,7 +618,7 @@ class CarRacing(gym.Env, EzPickle):
         text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
         self.surf.blit(text, text_rect)
 
-        if self.render_mode == "human":
+        if mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             assert self.screen is not None
@@ -624,9 +626,9 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if self.render_mode == "rgb_array":
+        if mode == "rgb_array":
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif self.render_mode == "state_pixels":
+        elif mode == "state_pixels":
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen
