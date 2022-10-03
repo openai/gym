@@ -278,8 +278,10 @@ class AcrobotEnv(core.Env):
 
     def render(self):
         if self.render_mode is None:
-            logger.WARN(
-                "You are calling render method without specifying any render mode."
+            logger.warn(
+                'You are calling render method without specifying any render mode. '
+                'You can specify the render_mode at initialization, '
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
             )
             return
 

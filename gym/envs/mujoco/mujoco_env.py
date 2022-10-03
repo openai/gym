@@ -229,9 +229,10 @@ class MuJocoPyEnv(BaseMujocoEnv):
 
     def render(self):
         if self.render_mode is None:
-            gym.logger.WARN(
-                "You are calling render method without specifying any render mode."
-            )
+            gym.logger.warn(
+                'You are calling render method without specifying any render mode. '
+                'You can specify the render_mode at initialization, '
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'            )
             return
 
         width, height = self.width, self.height
@@ -355,8 +356,10 @@ class MujocoEnv(BaseMujocoEnv):
 
     def render(self):
         if self.render_mode is None:
-            gym.logger.WARN(
-                "You are calling render method without specifying any render mode."
+            gym.logger.warn(
+                'You are calling render method without specifying any render mode. '
+                'You can specify the render_mode at initialization, '
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
             )
             return
 
