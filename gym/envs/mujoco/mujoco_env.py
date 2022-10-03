@@ -58,11 +58,16 @@ class BaseMujocoEnv(gym.Env):
 
         self.viewer = None
 
-        assert all([mode in self.metadata["render_modes"] for mode in [
-            "human",
-            "rgb_array",
-            "depth_array",
-        ]]), self.metadata["render_modes"]
+        assert all(
+            [
+                mode in self.metadata["render_modes"]
+                for mode in [
+                    "human",
+                    "rgb_array",
+                    "depth_array",
+                ]
+            ]
+        ), self.metadata["render_modes"]
         assert (
             int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
         ), f'Expected value: {int(np.round(1.0 / self.dt))}, Actual value: {self.metadata["render_fps"]}'
