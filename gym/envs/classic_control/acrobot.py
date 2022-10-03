@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 from numpy import cos, pi, sin
 
-from gym import core, spaces
+from gym import core, logger, spaces
 from gym.error import DependencyNotInstalled
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
@@ -277,6 +277,12 @@ class AcrobotEnv(core.Env):
         return dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0
 
     def render(self):
+        if self.render_mode is None:
+            logger.WARN(
+                "You are calling render method without specifying any render mode."
+            )
+            return
+
         try:
             import pygame
             from pygame import gfxdraw

@@ -606,6 +606,12 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self):
+        if self.render_mode is None:
+            gym.logger.WARN(
+                "You are calling render method without specifying any render mode."
+            )
+            return
+
         try:
             import pygame
             from pygame import gfxdraw

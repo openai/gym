@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from gym import Env, spaces, utils
+from gym import Env, logger, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
 
@@ -267,7 +267,11 @@ class FrozenLakeEnv(Env):
         return int(self.s), {"prob": 1}
 
     def render(self):
-        if self.render_mode == "ansi":
+        if self.render_mode is None:
+            logger.WARN(
+                "You are calling render method without specifying any render mode."
+            )
+        elif self.render_mode == "ansi":
             return self._render_text()
         else:  # self.render_mode in {"human", "rgb_array"}:
             return self._render_gui(self.render_mode)

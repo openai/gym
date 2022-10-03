@@ -167,6 +167,12 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self):
+        if self.render_mode is None:
+            gym.logger.WARN(
+                "You are calling render method without specifying any render mode."
+            )
+            return
+
         try:
             import pygame
             from pygame import gfxdraw
