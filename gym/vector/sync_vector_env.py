@@ -150,9 +150,10 @@ class SyncVectorEnv(VectorEnv):
             ) = env.step(action)
 
             if self._terminateds[i] or self._truncateds[i]:
-                old_observation = observation
+                old_observation, old_info = observation, info
                 observation, info = env.reset()
                 info["final_observation"] = old_observation
+                info["final_info"] = old_info
             observations.append(observation)
             infos = self._add_info(infos, info, i)
         self.observations = concatenate(
