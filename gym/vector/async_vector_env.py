@@ -566,9 +566,10 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     info,
                 ) = env.step(data)
                 if terminated or truncated:
-                    old_observation = observation
+                    old_observation, old_info = observation, info
                     observation, info = env.reset()
                     info["final_observation"] = old_observation
+                    info["final_info"] = old_info
                 pipe.send(((observation, reward, terminated, truncated, info), True))
             elif command == "seed":
                 env.seed(data)
@@ -636,10 +637,10 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     info,
                 ) = env.step(data)
                 if terminated or truncated:
-                    old_observation = observation
+                    old_observation, old_info = observation, info
                     observation, info = env.reset()
                     info["final_observation"] = old_observation
-
+                    info["final_info"] = old_info
                 write_to_shared_memory(
                     observation_space, index, observation, shared_memory
                 )
