@@ -565,7 +565,14 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, terminated, truncated, {}
 
     def render(self):
-        return self._render(self.render_mode)
+        if self.render_mode is None:
+            gym.logger.warn(
+                "You are calling render method without specifying any render mode. "
+                "You can specify the render_mode at initialization, "
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+            )
+        else:
+            return self._render(self.render_mode)
 
     def _render(self, mode: str):
         assert mode in self.metadata["render_modes"]

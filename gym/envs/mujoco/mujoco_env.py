@@ -228,6 +228,14 @@ class MuJocoPyEnv(BaseMujocoEnv):
             self.sim.step()
 
     def render(self):
+        if self.render_mode is None:
+            gym.logger.warn(
+                "You are calling render method without specifying any render mode. "
+                "You can specify the render_mode at initialization, "
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+            )
+            return
+
         width, height = self.width, self.height
         camera_name, camera_id = self.camera_name, self.camera_id
         if self.render_mode in {"rgb_array", "depth_array"}:
@@ -348,6 +356,14 @@ class MujocoEnv(BaseMujocoEnv):
         mujoco.mj_rnePostConstraint(self.model, self.data)
 
     def render(self):
+        if self.render_mode is None:
+            gym.logger.warn(
+                "You are calling render method without specifying any render mode. "
+                "You can specify the render_mode at initialization, "
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+            )
+            return
+
         if self.render_mode in {
             "rgb_array",
             "depth_array",

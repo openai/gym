@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from gym import Env, spaces
+from gym import Env, logger, spaces
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
 
@@ -163,7 +163,13 @@ class CliffWalkingEnv(Env):
         return int(self.s), {"prob": 1}
 
     def render(self):
-        if self.render_mode == "ansi":
+        if self.render_mode is None:
+            logger.warn(
+                "You are calling render method without specifying any render mode. "
+                "You can specify the render_mode at initialization, "
+                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+            )
+        elif self.render_mode == "ansi":
             return self._render_text()
         else:
             return self._render_gui(self.render_mode)
