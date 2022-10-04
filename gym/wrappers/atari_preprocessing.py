@@ -110,10 +110,10 @@ class AtariPreprocessing(gym.Wrapper):
         self.observation_space = Box(
             low=_low, high=_high, shape=_shape, dtype=_obs_dtype
         )
-        
+
     @property
     def ale(self):
-        """Make ale as a class property to avoid serialization error"""
+        """Make ale as a class property to avoid serialization error."""
         return self.env.unwrapped.ale
 
     def step(self, action):
