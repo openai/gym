@@ -12,7 +12,7 @@ import numpy as np
 from gym.spaces.space import Space
 
 
-class Dict(Space[TypingDict[str, Space]], Mapping):
+class Dict(Space[TypingDict[str, Any]], Mapping[str, Space[Any]]):
     """A dictionary of :class:`Space` instances.
 
     Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
