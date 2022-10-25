@@ -2,7 +2,7 @@
 
 ## Important notice
 
-### Due to issues with the domain registration, the documentation has been moved to [https://www.gymlibrary.dev/](https://www.gymlibrary.dev/) as opposed to the old .ml address.
+### The team that has been maintaining Gym since 2021 has moved all future development to [Gymnasium](https://github.com/Farama-Foundation/Gymnasium), a drop in replacement for Gym (import gymnasium as gym), and this repo isn't planned to receive any future updates. Please consider switching over to Gymnasium as you're able to do so. 
 
 ## Gym
 
