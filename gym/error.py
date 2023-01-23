@@ -1,68 +1,50 @@
 """Set of Error classes for gym."""
 import warnings
 
-
 class Error(Exception):
     """Error superclass."""
 
+class RegistryError(Error):
+    """Raised when the user requests an item from the registry that does not exist."""
 
-# Local errors
-
-
-class Unregistered(Error):
-    """Raised when the user requests an item from the registry that does not actually exist."""
-
-
-class UnregisteredEnv(Unregistered):
-    """Raised when the user requests an env from the registry that does not actually exist."""
-
-
-class NamespaceNotFound(UnregisteredEnv):
-    """Raised when the user requests an env from the registry where the namespace doesn't exist."""
-
-
-class NameNotFound(UnregisteredEnv):
-    """Raised when the user requests an env from the registry where the name doesn't exist."""
-
-
-class VersionNotFound(UnregisteredEnv):
-    """Raised when the user requests an env from the registry where the version doesn't exist."""
-
-
-class UnregisteredBenchmark(Unregistered):
-    """Raised when the user requests an env from the registry that does not actually exist."""
-
+class UnregisteredEnv(RegistryError):
+    """Raised when the user requests an env from the registry that does not exist."""
 
 class DeprecatedEnv(Error):
     """Raised when the user requests an env from the registry with an older version number than the latest env with the same name."""
 
-
 class RegistrationError(Error):
     """Raised when the user attempts to register an invalid env. For example, an unversioned env when a versioned env exists."""
-
 
 class UnseedableEnv(Error):
     """Raised when the user tries to seed an env that does not support seeding."""
 
-
 class DependencyNotInstalled(Error):
     """Raised when the user has not installed a dependency."""
-
 
 class UnsupportedMode(Error):
     """Raised when the user requests a rendering mode not supported by the environment."""
 
-
 class ResetNeeded(Error):
     """When the order enforcing is violated, i.e. step or render is called before reset."""
-
 
 class ResetNotAllowed(Error):
     """When the monitor is active, raised when the user tries to step an environment that's not yet terminated or truncated."""
 
-
 class InvalidAction(Error):
     """Raised when the user performs an action not contained within the action space."""
+
+class InvalidEnvRequest(RegistryError):
+    """Raised when user requests an env from the registry where the namespace, name or version doesn't exist."""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+class UnregisteredBenchmark(RegistryError):
+    """Raised when the user requests an benchmark from the registry that does not actually exist."""
 
 
 # API errors
