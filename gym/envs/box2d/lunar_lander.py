@@ -814,4 +814,4 @@ class LunarLanderContinuous:
 
 
 if __name__ == "__main__":
-    demo_heuristic_lander(LunarLander(), render=True)
+    demo_heuristic_lander(LunarLander(render_mode='human'), render=True)
