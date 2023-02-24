@@ -22,7 +22,7 @@ MAPS = {
         "FFFHFFFF",
         "FFFFFHFF",
         "FFFHFFFF",
-        "FHHFFFHF",
+        "FHHFHFHF",
         "FHFFHFHF",
         "FFFHFFFG",
     ],
