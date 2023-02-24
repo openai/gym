@@ -17,7 +17,7 @@ UP = 3
 MAPS = {
     "4x4": ["SFFF", "FHFH", "FFFH", "HFFG"],
     "8x8": [
-        "SFFFFFFF",
+        "SFFFHHHF",
         "FFFFFFFF",
         "FFFHFFFF",
         "FFFFFHFF",
