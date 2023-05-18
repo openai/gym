@@ -1,7 +1,7 @@
 """Setups the project feature2."""
 import itertools
 import re
-
+"""another comment """
 from setuptools import find_packages, setup
 
 with open("gym/version.py") as file:
@@ -34,7 +34,7 @@ all_groups = set(extras.keys()) - {"accept-rom-license"}
 extras["all"] = list(
     set(itertools.chain.from_iterable(map(lambda group: extras[group], all_groups)))
 )
-
+"""another comment """
 # Uses the readme as the description on PyPI
 with open("README.md") as fh:
     long_description = ""
