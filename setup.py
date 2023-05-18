@@ -1,4 +1,4 @@
-"""Setups the project."""
+"""Setups the project feature2."""
 import itertools
 import re
 
