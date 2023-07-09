@@ -8,6 +8,8 @@
 
 Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
+I just cloned this for my use.
+
 Gym documentation website is at [https://www.gymlibrary.dev/](https://www.gymlibrary.dev/), and you can propose fixes and changes to it [here](https://github.com/Farama-Foundation/gym-docs).
 
 Gym also has a discord server for development purposes that you can join here: https://discord.gg/nHg2JRN489
@@ -42,19 +44,19 @@ env.close()
 
 Please note that this is an incomplete list, and just includes libraries that the maintainers most commonly point newcommers to when asked for recommendations.
 
-* [CleanRL](https://github.com/vwxyzjn/cleanrl) is a learning library based on the Gym API. It is designed to cater to newer people in the field and provides very good reference implementations.
-* [Tianshou](https://github.com/thu-ml/tianshou) is a learning library that's geared towards very experienced users and is design to allow for ease in complex algorithm modifications.
-* [RLlib](https://docs.ray.io/en/latest/rllib/index.html) is a learning library that allows for distributed training and inferencing and supports an extraordinarily large number of features throughout the reinforcement learning space.
-* [PettingZoo](https://github.com/Farama-Foundation/PettingZoo) is like Gym, but for environments with multiple agents.
+- [CleanRL](https://github.com/vwxyzjn/cleanrl) is a learning library based on the Gym API. It is designed to cater to newer people in the field and provides very good reference implementations.
+- [Tianshou](https://github.com/thu-ml/tianshou) is a learning library that's geared towards very experienced users and is design to allow for ease in complex algorithm modifications.
+- [RLlib](https://docs.ray.io/en/latest/rllib/index.html) is a learning library that allows for distributed training and inferencing and supports an extraordinarily large number of features throughout the reinforcement learning space.
+- [PettingZoo](https://github.com/Farama-Foundation/PettingZoo) is like Gym, but for environments with multiple agents.
 
 ## Environment Versioning
 
-Gym keeps strict versioning for reproducibility reasons. All environments end in a suffix like "\_v0".  When changes are made to environments that might impact learning results, the number is increased by one to prevent potential confusion.
+Gym keeps strict versioning for reproducibility reasons. All environments end in a suffix like "\_v0". When changes are made to environments that might impact learning results, the number is increased by one to prevent potential confusion.
 
 ## MuJoCo Environments
 
 The latest "\_v4" and future versions of the MuJoCo environments will no longer depend on `mujoco-py`. Instead `mujoco` will be the required dependency for future gym MuJoCo environment versions. Old gym MuJoCo environment versions that depend on `mujoco-py` will still be kept but unmaintained.
-To install the dependencies for the latest gym MuJoCo environments use `pip install gym[mujoco]`. Dependencies for old MuJoCo environments can still be installed by `pip install gym[mujoco_py]`. 
+To install the dependencies for the latest gym MuJoCo environments use `pip install gym[mujoco]`. Dependencies for old MuJoCo environments can still be installed by `pip install gym[mujoco_py]`.
 
 ## Citation
 
