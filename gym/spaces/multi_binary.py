@@ -88,6 +88,8 @@ class MultiBinary(Space[np.ndarray]):
                 mask.astype(self.dtype),
             )
 
+        assert self.shape == mask.shape, f"The shape of the mask should be the same as the space's shape."
+
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 
     def contains(self, x) -> bool:
