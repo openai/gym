@@ -222,19 +222,19 @@ def env_step_passive_checker(env, action):
         )
         obs, reward, done, info = result
 
-        if not isinstance(done, (bool, np.bool8)):
+        if not isinstance(done, (bool, np.bool_)):
             logger.warn(
                 f"Expects `done` signal to be a boolean, actual type: {type(done)}"
             )
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
-        # np.bool is actual python bool not np boolean type, therefore bool_ or bool8
-        if not isinstance(terminated, (bool, np.bool8)):
+        # np.bool is actual python bool not np boolean type, therefore bool_ or bool8 (deprecated alias)
+        if not isinstance(terminated, (bool, np.bool_)):
             logger.warn(
                 f"Expects `terminated` signal to be a boolean, actual type: {type(terminated)}"
             )
-        if not isinstance(truncated, (bool, np.bool8)):
+        if not isinstance(truncated, (bool, np.bool_)):
             logger.warn(
                 f"Expects `truncated` signal to be a boolean, actual type: {type(truncated)}"
             )
