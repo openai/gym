@@ -39,15 +39,23 @@ MAIN_ENGINE_POWER = 13.0
 SIDE_ENGINE_POWER = 0.6
 
 INITIAL_RANDOM = 1000.0  # Set 1500 to make game harder
-
+# physics simulator polygon shape for lander
+# defines the outline of the lunar lander as a polygon for use in the Box2D physics simulator.
+# this shape makes a difference in how the lander interacts with the environment.
 LANDER_POLY = [(-14, +17), (-17, 0), (-17, -10), (+17, -10), (+17, 0), (+14, +17)]
+# HORIZONTAL distance from lander center to where legs are attached
 LEG_AWAY = 20
+# VERTICAL distance from the top of the lander body to where legs are attached
 LEG_DOWN = 18
+# how wide legs are, how tall legs are
 LEG_W, LEG_H = 2, 8
+# amount of rotational force lander legs can exert when absorbing impact or stabilizing lander on ground
 LEG_SPRING_TORQUE = 40
-
+# vertical distance from center of lander to where side engines are
 SIDE_ENGINE_HEIGHT = 14
+# horizontal distance from lander center to side of engine
 SIDE_ENGINE_AWAY = 12
+# vertical position of main engine relative to lander body (where main thrust is applied
 MAIN_ENGINE_Y_LOCATION = (
     4  # The Y location of the main engine on the body of the Lander.
 )
@@ -93,6 +101,7 @@ class LunarLander(gym.Env, EzPickle):
 
     To see a heuristic landing, run:
     ```shell
+    # TODO 1) tutorial entry point for simulation
     python gymnasium/envs/box2d/lunar_lander.py
     ```
 
@@ -109,25 +118,37 @@ class LunarLander(gym.Env, EzPickle):
     that represent whether each leg is in contact with the ground or not.
 
     ## Rewards
+    # TODO - 2) take notes on how reward system is shaped
     After every step a reward is granted. The total reward of an episode is the
     sum of the rewards for all the steps within that episode.
 
     For each step, the reward:
+    # lander can exploite going slow while getting further away from the landing pad
+    # we can use this to keep a constant slow burst going N/S/E/W, where reward decreases
+    # the most, it's opposite direction is where we should go in a slow direction
+    # if it increases, then do a single large burst of fast to receive negative reward.
+    # Repeat process until burst impact no negative reward decreases.
     - is increased/decreased the closer/further the lander is to the landing pad.
     - is increased/decreased the slower/faster the lander is moving.
     - is decreased the more the lander is tilted (angle not horizontal).
+    # goal reward value indicators
     - is increased by 10 points for each leg that is in contact with the ground.
     - is decreased by 0.03 points each frame a side engine is firing.
     - is decreased by 0.3 points each frame the main engine is firing.
-
+    # at minimum the agent should be able to land lander safely
     The episode receive an additional reward of -100 or +100 points for crashing or landing safely respectively.
 
+    # measure efficiency by checking average steps taken per episode
+    # measure efficiency by checking total reward per episode. draw trend
+    # with 2 horizontal lines showing 100, minimum reward for landing safely, and 200 minimum reward to be solved
     An episode is considered a solution if it scores at least 200 points.
 
     ## Starting State
+    # TODO 3) take note of starting state randomness
     The lander starts at the top center of the viewport with a random initial
     force applied to its center of mass.
 
+    # TODO 4) terminal states. Use this to evaluate cases where lander is discovering the environment, and learning to fly
     ## Episode Termination
     The episode finishes if:
     1) the lander crashes (the lander body gets in contact with the moon);
@@ -164,14 +185,15 @@ class LunarLander(gym.Env, EzPickle):
      booster will fire, and if `lateral > 0.5`, the right booster will fire. Again, the throttle scales affinely
      from 50% to 100% between -1 and -0.5 (and 0.5 and 1, respectively).
 
+    # TODO 5) run experiments where there is low, medium, high gravity. Then measure agent performance
     * `gravity` dictates the gravitational constant, this is bounded to be within 0 and -12. Default is -10.0
-
+    # TODO 6) Add more realism to lander complexity, check if model performs well under this condition.
+    #         but at first, check under a vacum.
     * `enable_wind` determines if there will be wind effects applied to the lander. The wind is generated using
      the function `tanh(sin(2 k (t+C)) + sin(pi k (t+C)))` where `k` is set to 0.01 and `C` is sampled randomly between -9999 and 9999.
-
+    # TODO 7) variables to make environment more complex to test robustness of agent
     * `wind_power` dictates the maximum magnitude of linear wind applied to the craft. The recommended value for
      `wind_power` is between 0.0 and 20.0.
-
     * `turbulence_power` dictates the maximum magnitude of rotational wind applied to the craft.
      The recommended value for `turbulence_power` is between 0.0 and 2.0.
 
@@ -185,7 +207,7 @@ class LunarLander(gym.Env, EzPickle):
     - v0: Initial version
 
     ## Notes
-
+    # TODO 8) if lander is going ot shit, check if these notes help
     There are several unexpected bugs with the implementation of the environment.
 
     1. The position of the side thrusters on the body of the lander changes, depending on the orientation of the lander.
@@ -812,23 +834,30 @@ def heuristic(env, s):
     Returns:
          a: The heuristic to be fed into the step function defined above to determine the next step and reward.
     """
+    horizontal_coor: float = s[0]
+    vertical_coor: float = s[1]
+    horizontal_speed: float = s[2]
+    vertical_speed: float = s[3]
+    angle: float = s[4]
+    angular_speed: float = s[5]
+    first_leg_has_contact: bool = s[6]
+    second_leg_has_contect: bool = s[7]
+    # bound angular trajectory between [-0.4, 0.4]
+    angle_tregectory = horizontal_coor * 0.5 + horizontal_speed * 1.0
+    if angle_tregectory > 0.4:
+        angle_tregectory = 0.4
+    if angle_tregectory < -0.4:
+        angle_tregectory = -0.4
+    # target y should be proportional to horizontal offset
+    hover_targ = 0.55 * np.abs(horizontal_coor)
 
-    angle_targ = s[0] * 0.5 + s[2] * 1.0  # angle should point towards center
-    if angle_targ > 0.4:
-        angle_targ = 0.4  # more than 0.4 radians (22 degrees) is bad
-    if angle_targ < -0.4:
-        angle_targ = -0.4
-    hover_targ = 0.55 * np.abs(
-        s[0]
-    )  # target y should be proportional to horizontal offset
+    angle_todo = (angle_tregectory - angle) * 0.5 - (angular_speed) * 1.0
+    hover_todo = (hover_targ - vertical_coor) * 0.5 - (vertical_speed) * 0.5
 
-    angle_todo = (angle_targ - s[4]) * 0.5 - (s[5]) * 1.0
-    hover_todo = (hover_targ - s[1]) * 0.5 - (s[3]) * 0.5
-
-    if s[6] or s[7]:  # legs have contact
+    if first_leg_has_contact or second_leg_has_contect:  # legs have contact
         angle_todo = 0
         hover_todo = (
-            -(s[3]) * 0.5
+            -(vertical_speed) * 0.5
         )  # override to reduce fall speed, that's all we need after contact
 
     if env.unwrapped.continuous:
