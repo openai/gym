@@ -69,6 +69,7 @@ A whitepaper from when Gym just came out is available https://arxiv.org/pdf/1606
 }
 ```
 
+Integrate stereo EEG data into a Gym environment extend the Env class with EEG input processing.You may override the step() and reset() methods to include EEG-based observations or action space modifications.
 ## Release Notes
 
 There used to be release notes for all the new Gym versions here. New release notes are being moved to [releases page](https://github.com/openai/gym/releases) on GitHub, like most other libraries do. Old notes can be viewed [here](https://github.com/openai/gym/blob/31be35ecd460f670f0c4b653a14c9996b7facc6c/README.rst).
