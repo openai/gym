@@ -52,6 +52,13 @@ def test_make():
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
     env.close()
 
+def test_make_arguments():
+    env = gym.make("CartPole-v1", disable_env_checker = True, masscart = 2, masspole = 1)
+    assert env.spec.id == "CartPole-v1"
+    assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
+    assert env.unwrapped.masscart == 2
+    assert env.unwrapped.masspole == 1
+    env.close()
 
 def test_make_deprecated():
     with warnings.catch_warnings(record=True):
