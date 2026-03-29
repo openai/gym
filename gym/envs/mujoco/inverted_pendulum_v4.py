@@ -61,7 +61,7 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
 
     1. Truncation: The episode duration reaches 1000 timesteps.
     2. Termination: Any of the state space values is no longer finite.
-    3. Termination: The absolutely value of the vertical angle between the pole and the cart is greater than 0.2 radian.
+    3. Termination: The absolute value of the vertical angle between the pole and the cart is greater than 0.2 radian.
 
     ### Arguments
 
