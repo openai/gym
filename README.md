@@ -40,10 +40,10 @@ env.close()
 
 ## Notable Related Libraries
 
-Please note that this is an incomplete list, and just includes libraries that the maintainers most commonly point newcommers to when asked for recommendations.
+Please note that this is an incomplete list, and just includes libraries that the maintainers most commonly point newcomers to when asked for recommendations.
 
 * [CleanRL](https://github.com/vwxyzjn/cleanrl) is a learning library based on the Gym API. It is designed to cater to newer people in the field and provides very good reference implementations.
-* [Tianshou](https://github.com/thu-ml/tianshou) is a learning library that's geared towards very experienced users and is design to allow for ease in complex algorithm modifications.
+* [Tianshou](https://github.com/thu-ml/tianshou) is a learning library that's geared towards very experienced users and is designed to facilitate complex algorithm modifications.
 * [RLlib](https://docs.ray.io/en/latest/rllib/index.html) is a learning library that allows for distributed training and inferencing and supports an extraordinarily large number of features throughout the reinforcement learning space.
 * [PettingZoo](https://github.com/Farama-Foundation/PettingZoo) is like Gym, but for environments with multiple agents.
 
